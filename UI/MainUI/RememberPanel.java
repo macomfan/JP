@@ -348,6 +348,9 @@ public class RememberPanel extends javax.swing.JPanel {
         add(jtxtRD, new org.netbeans.lib.awtextra.AbsoluteConstraints(413, 77, 88, -1));
 
         jtxtImi.setFont(new java.awt.Font("SimSun", 0, 14)); // NOI18N
+        jtxtImi.setMinimumSize(new java.awt.Dimension(680, 400));
+        jtxtImi.setName(""); // NOI18N
+        jtxtImi.setPreferredSize(new java.awt.Dimension(680, 400));
         jScrollPane4.setViewportView(jtxtImi);
 
         add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(77, 110, 280, 125));
