@@ -200,7 +200,15 @@ public class DatabasePanel extends javax.swing.JPanel {
         if (res != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+        ImportDialog fd = new ImportDialog(null, true, chooser.getSelectedFile());
+        fd.setLocation(this.getLocationOnScreen());
+        fd.setVisible(true);
+//        if (fd.isOK_ && fd.filter_ != null) {
+//            filterList_.add(fd.filter_);
+//            displayFilter();
+//            reSort();
+//        }
+
     }//GEN-LAST:event_jbtnImportActionPerformed
 
 
