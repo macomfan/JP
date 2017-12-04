@@ -18,5 +18,4 @@ public interface ITag {
     void setName(String name_);
 
     void setValue(String value_);
-    
 }
