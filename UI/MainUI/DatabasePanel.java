@@ -21,6 +21,7 @@ import java.nio.file.WatchService;
 import java.util.Iterator;
 import JPWord.Synchronizer.Sync;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -29,11 +30,11 @@ import javax.swing.table.TableColumn;
  * @author u0151316
  */
 public class DatabasePanel extends javax.swing.JPanel {
-    
+
     class TestClass extends Thread {
-        
+
         public DatabasePanel p_ = null;
-        
+
         @Override
         public void run() {
             try {
@@ -49,7 +50,7 @@ public class DatabasePanel extends javax.swing.JPanel {
                 }
             } catch (Exception e) {
             }
-            
+
         }
     }
 
@@ -58,12 +59,12 @@ public class DatabasePanel extends javax.swing.JPanel {
      */
     public DatabasePanel() {
         initComponents();
-        
+
         jtxtFilename.setText(Database.getInstance().getFilename());
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.addColumn("Time");
         dtm.addColumn("Messsage");
-        
+
         jLogTable.setModel(dtm);
         {
             TableColumn column = jLogTable.getColumnModel().getColumn(0);
@@ -88,6 +89,7 @@ public class DatabasePanel extends javax.swing.JPanel {
         jbtnBackup = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jLogTable = new javax.swing.JTable();
+        jbtnImport = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMinimumSize(new java.awt.Dimension(680, 400));
@@ -123,26 +125,34 @@ public class DatabasePanel extends javax.swing.JPanel {
         jLogTable.setGridColor(new java.awt.Color(255, 255, 255));
         jScrollPane2.setViewportView(jLogTable);
 
+        jbtnImport.setText("Import...");
+        jbtnImport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnImportActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane2))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(18, 18, 18)
-                            .addComponent(jLabel1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jtxtFilename, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jbtnRunAsMaster)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jbtnBackup))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jtxtFilename, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jbtnRunAsMaster)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jbtnBackup)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jbtnImport)))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -155,7 +165,8 @@ public class DatabasePanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbtnRunAsMaster)
-                    .addComponent(jbtnBackup))
+                    .addComponent(jbtnBackup)
+                    .addComponent(jbtnImport))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(16, Short.MAX_VALUE))
@@ -179,12 +190,26 @@ public class DatabasePanel extends javax.swing.JPanel {
         t.start();
     }//GEN-LAST:event_jbtnRunAsMasterActionPerformed
 
+    private void jbtnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnImportActionPerformed
+        // TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser();
+        String filename = Database.getInstance().getFilename();
+        Path p = FileSystems.getDefault().getPath(filename);
+        chooser.setCurrentDirectory(new File(p.toString()));
+        int res = chooser.showOpenDialog(this);
+        if (res != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+    }//GEN-LAST:event_jbtnImportActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTable jLogTable;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton jbtnBackup;
+    private javax.swing.JButton jbtnImport;
     private javax.swing.JButton jbtnRunAsMaster;
     private javax.swing.JTextField jtxtFilename;
     // End of variables declaration//GEN-END:variables
