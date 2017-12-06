@@ -5,6 +5,7 @@
  */
 package MainUI;
 
+import JPWord.Data.IWord;
 import JPWord.Synchronizer.IController;
 import JPWord.Synchronizer.ILogging;
 import java.io.File;
@@ -20,6 +21,11 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
 import JPWord.Synchronizer.Sync;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
@@ -38,16 +44,16 @@ public class DatabasePanel extends javax.swing.JPanel {
         @Override
         public void run() {
             try {
-                DefaultTableModel dtm = (DefaultTableModel) jLogTable.getModel();
-                IController c = Sync.getInstance().runAsMaster();
-                ILogging logging = c.getLogging();
-                while (c.isClosed() == false) {
-                    String msg = logging.pop();
-                    if (msg != null) {
-                        dtm.addRow(new Object[]{"", msg});
-                    }
-                    Thread.sleep(1);
-                }
+//                DefaultTableModel dtm = (DefaultTableModel) jLogTable.getModel();
+//                IController c = Sync.getInstance().runAsMaster();
+//                ILogging logging = c.getLogging();
+//                while (c.isClosed() == false) {
+//                    String msg = logging.pop();
+//                    if (msg != null) {
+//                        dtm.addRow(new Object[]{"", msg});
+//                    }
+//                    Thread.sleep(1);
+//                }
             } catch (Exception e) {
             }
 
@@ -61,18 +67,6 @@ public class DatabasePanel extends javax.swing.JPanel {
         initComponents();
 
         jtxtFilename.setText(Database.getInstance().getFilename());
-        DefaultTableModel dtm = new DefaultTableModel();
-        dtm.addColumn("Time");
-        dtm.addColumn("Messsage");
-
-        jLogTable.setModel(dtm);
-        {
-            TableColumn column = jLogTable.getColumnModel().getColumn(0);
-            column.setMinWidth(100);
-            column.setMaxWidth(100);
-            column.setWidth(100);
-            column.setPreferredWidth(100);
-        }
     }
 
     /**
@@ -87,9 +81,9 @@ public class DatabasePanel extends javax.swing.JPanel {
         jtxtFilename = new javax.swing.JTextField();
         jbtnRunAsMaster = new javax.swing.JButton();
         jbtnBackup = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jLogTable = new javax.swing.JTable();
         jbtnImport = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jlistLog = new MainUI.JLogList();
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMinimumSize(new java.awt.Dimension(680, 400));
@@ -114,17 +108,6 @@ public class DatabasePanel extends javax.swing.JPanel {
             }
         });
 
-        jLogTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
-        jLogTable.setGridColor(new java.awt.Color(255, 255, 255));
-        jScrollPane2.setViewportView(jLogTable);
-
         jbtnImport.setText("Import...");
         jbtnImport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -132,15 +115,17 @@ public class DatabasePanel extends javax.swing.JPanel {
             }
         });
 
+        jScrollPane1.setViewportView(jlistLog);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane2))
+                        .addComponent(jScrollPane1))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
@@ -168,8 +153,8 @@ public class DatabasePanel extends javax.swing.JPanel {
                     .addComponent(jbtnBackup)
                     .addComponent(jbtnImport))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -200,25 +185,69 @@ public class DatabasePanel extends javax.swing.JPanel {
         if (res != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        ImportDialog fd = new ImportDialog(null, true, chooser.getSelectedFile());
-        fd.setLocation(this.getLocationOnScreen());
-        fd.setVisible(true);
-//        if (fd.isOK_ && fd.filter_ != null) {
-//            filterList_.add(fd.filter_);
-//            displayFilter();
-//            reSort();
-//        }
+        try {
+            File file = chooser.getSelectedFile();
+            List<String[]> items = new LinkedList<>();
 
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file), "utf-8"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String strItems[] = line.split("\\|");
+                if (strItems[0].equals("[DUP]")) {
+                    continue;
+                }
+                if (strItems.length < 5) {
+                    //error
+                    items.add(new String[]{""});
+                } else {
+                    String w = strItems[0];
+                    String k = "";
+                    if (strItems[1].equals("")) {
+                        k = strItems[0];
+                    } else {
+                        k = strItems[1];
+                    }
+                    if (strItems.length > 5) {
+                        items.add(new String[]{w, k, strItems[2], strItems[3], strItems[4], strItems[5]});
+                    } else {
+                        items.add(new String[]{w, k, strItems[2], strItems[3], strItems[4]});
+                    }
+                }
+            }
+            reader.close();
+            ImportDialog fd = new ImportDialog(null, true, items);
+            fd.setLocation(this.getLocationOnScreen());
+            fd.setVisible(true);
+            if (!fd.isOK_) {
+                return;
+            }
+            for (String[] item : items) {
+                if (item.length < 5 || item.length > 5) {
+                    continue;
+                    //error
+                }
+                if (item[0].equals("[DUP]") || item.length != 5) {
+                    continue;
+                }
+                JPWord.Data.IWord word = null;
+                for (IWord word1 : Database.getInstance().getDatabase().getWords()) {
+                    
+                }
+                jlistLog.addLog(JLogList.LogType.NORMAL, item[1]);
+            }
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_jbtnImportActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTable jLogTable;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jbtnBackup;
     private javax.swing.JButton jbtnImport;
     private javax.swing.JButton jbtnRunAsMaster;
+    private MainUI.JLogList jlistLog;
     private javax.swing.JTextField jtxtFilename;
     // End of variables declaration//GEN-END:variables
 }

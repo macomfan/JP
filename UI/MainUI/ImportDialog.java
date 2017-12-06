@@ -5,10 +5,12 @@
  */
 package MainUI;
 
+import JPWord.Data.IWord;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -17,10 +19,12 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ImportDialog extends javax.swing.JDialog {
 
+    public boolean isOK_ = false;
+
     /**
      * Creates new form ImportDialog
      */
-    public ImportDialog(java.awt.Frame parent, boolean modal, File file) {
+    public ImportDialog(java.awt.Frame parent, boolean modal, List<String[]> items) {
         super(parent, modal);
         initComponents();
 
@@ -30,35 +34,37 @@ public class ImportDialog extends javax.swing.JDialog {
         dtm.addColumn("Type");
         dtm.addColumn("Mean");
         dtm.addColumn("Other");
+        dtm.addColumn("Status");
         try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file), "utf-8"));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String items[] = line.split("|");
-                if (items[0].equals("[DUP]")) {
+            for (String[] item : items) {
+                if (item[0].equals("[DUP]")) {
                     continue;
                 }
-                if (items.length < 5) {
+                if (item.length < 5) {
                     //error
-                    dtm.addRow(new Object[]{"!!!!!!", "!!!!!!", "!!!!!!", "!!!!!!", "!!!!!!"});
+                    dtm.addRow(new Object[]{"", "", "", "", "", "[ERR]"});
                 } else {
-                    String w = items[0];
+                    String w = item[0];
                     String k = "";
-                    if (items[1].equals("")) {
-                        k = items[0];
+                    if (item[1].equals("")) {
+                        k = item[0];
                     } else {
-                        k = items[1];
+                        k = item[1];
                     }
-                    dtm.addRow(new Object[]{w, k, items[2], items[3], items[4]});
-                    if (items.length > 5) {
-                        dtm.addRow(new Object[]{w, k, items[2], items[3], items[4] + " ????????"});
+                    String status = "";
+                    for (IWord word : Database.getInstance().getDatabase().getWords()) {
+                        if (word.getContent().equals(k) && word.getKana().equals(w) && word.getTone().equals(item[2])) {
+                            status = "[DUP]";
+                        }
+                    }
+
+                    if (item.length > 5) {
+                        dtm.addRow(new Object[]{w, k, item[2], item[3], item[4], status + " [???]"});
                     } else {
-                        dtm.addRow(new Object[]{w, k, items[2], items[3], items[4]});
+                        dtm.addRow(new Object[]{w, k, item[2], item[3], item[4], status});
                     }
                 }
             }
-            reader.close();
         } catch (Exception e) {
         }
 
@@ -75,11 +81,11 @@ public class ImportDialog extends javax.swing.JDialog {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jbtnOK = new javax.swing.JButton();
+        jbtnCancel = new javax.swing.JButton();
 
         setMinimumSize(new java.awt.Dimension(680, 447));
-        setLayout(null);
+        getContentPane().setLayout(null);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -94,23 +100,45 @@ public class ImportDialog extends javax.swing.JDialog {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        add(jScrollPane1);
+        getContentPane().add(jScrollPane1);
         jScrollPane1.setBounds(10, 10, 620, 340);
 
-        jButton1.setText("jButton1");
-        add(jButton1);
-        jButton1.setBounds(440, 360, 81, 25);
+        jbtnOK.setText("OK");
+        jbtnOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnOKActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jbtnOK);
+        jbtnOK.setBounds(440, 360, 51, 25);
 
-        jButton2.setText("jButton2");
-        add(jButton2);
-        jButton2.setBounds(540, 360, 81, 25);
+        jbtnCancel.setText("Cancel");
+        jbtnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnCancelActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jbtnCancel);
+        jbtnCancel.setBounds(540, 360, 73, 25);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jbtnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnCancelActionPerformed
+        // TODO add your handling code here:
+        isOK_ = false;
+        this.setVisible(false);
+    }//GEN-LAST:event_jbtnCancelActionPerformed
+
+    private void jbtnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnOKActionPerformed
+        // TODO add your handling code here:
+        isOK_ = true;
+        this.setVisible(false);
+    }//GEN-LAST:event_jbtnOKActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JButton jbtnCancel;
+    private javax.swing.JButton jbtnOK;
     // End of variables declaration//GEN-END:variables
 }

@@ -29,8 +29,8 @@ public class Database {
         return instance_;
     }
 
-    public void initialize(String filename) {
-        filename_ = filename;
+    public void initialize() {
+        filename_ = Setting.getInstance().getFilename();
         File file = new File(filename_);
         dictionary_ = JPWord.Data.Database.createWordDictionary(file);
     }
