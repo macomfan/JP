@@ -5,8 +5,6 @@
  */
 package JPWord.Data;
 
-import JPWord.Data.IExample;
-
 /**
  *
  * @author u0151316
