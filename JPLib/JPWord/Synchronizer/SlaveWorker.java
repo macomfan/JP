@@ -50,7 +50,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         Message msg = new Message(Message.MSG_SYN);
         msg.setValue("Hello");
         msg.addTag("METHOD", method);
-        System.out.println("Sending via TCP");
+        logging_.push("[N] Send request to master");
         tcp_.send(msg);
     }
 

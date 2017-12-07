@@ -48,6 +48,8 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
 
     @Override
     public void onReceive(Message msg) {
+        logging_.push("[N] Receive a message");
+        
         if (currentJob_ != null) {
             Job_Base.JobResult result = currentJob_.doAction(msg);
             if (result == Job_Base.JobResult.FAIL) {

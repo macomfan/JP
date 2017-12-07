@@ -177,6 +177,7 @@ final class TCPCommunication {
                     serverSocket_.close();
                 }
             } catch (Exception e) {
+                System.out.println("3 Error :" + e.getMessage());
             }
         }
     }
