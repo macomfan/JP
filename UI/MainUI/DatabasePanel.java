@@ -61,6 +61,8 @@ public class DatabasePanel extends javax.swing.JPanel {
                             jlistLog.addLog(JLogList.LogType.NORMAL, msg);
                         } else if (type.equals("[E]")) {
                             jlistLog.addLog(JLogList.LogType.ERROR, msg);
+                        } else if (type.equals("[S]")) {
+                            jlistLog.addLog(JLogList.LogType.SUCCESSFUL, msg);
                         } else {
                             jlistLog.addLog(JLogList.LogType.NORMAL, msg);
                         }
@@ -190,7 +192,7 @@ public class DatabasePanel extends javax.swing.JPanel {
     private void jbtnRunAsMasterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRunAsMasterActionPerformed
         // TODO add your handling code here:
         if (serviceController_ == null) {
-            serviceController_ = Sync.getInstance().runAsMaster();
+            serviceController_ = Sync.getInstance().runAsMaster(Database.getInstance().getDatabase());
             jbtnRunAsMaster.setText("Stop");
         } else {
             serviceController_.stopWorker();
@@ -273,9 +275,8 @@ public class DatabasePanel extends javax.swing.JPanel {
                 word.setTone(item[2]);
                 for (int i = 3; i < item.length;) {
                     IMeaning mean = null;
-                    for(IMeaning m : word.getMeanings())
-                        {
-                            if (m.getInCHS().trim().equals(item[i + 1].trim())) {
+                    for (IMeaning m : word.getMeanings()) {
+                        if (m.getInCHS().trim().equals(item[i + 1].trim())) {
                             mean = m;
                             break;
                         }
