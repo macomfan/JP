@@ -5,7 +5,9 @@
  */
 package MainUI;
 
+import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
+import JPWord.Data.IWordDictionary;
 import JPWord.Synchronizer.IController;
 import JPWord.Synchronizer.ILogging;
 import java.io.File;
@@ -254,10 +256,40 @@ public class DatabasePanel extends javax.swing.JPanel {
                 }
                 JPWord.Data.IWord word = null;
                 for (IWord word1 : Database.getInstance().getDatabase().getWords()) {
-
+                    if (word1.getContent().equals(item[1]) && word1.getKana().equals(item[0])) {
+                        jlistLog.addLog(JLogList.LogType.WARNING, String.format("Find duplicate word: %s - %s", item[0], item[1]));
+                        word = word1;
+                        break;
+                    }
                 }
-                jlistLog.addLog(JLogList.LogType.NORMAL, item[1]);
+                if (word != null) {
+                    continue;
+                }
+                IWordDictionary dict = Database.getInstance().getDatabase();
+                word = dict.createWord();
+                dict.addWord(word);
+                word.setContent(item[1]);
+                word.setKana(item[0]);
+                word.setTone(item[2]);
+                for (int i = 3; i < item.length;) {
+                    IMeaning mean = null;
+                    for(IMeaning m : word.getMeanings())
+                        {
+                            if (m.getInCHS().trim().equals(item[i + 1].trim())) {
+                            mean = m;
+                            break;
+                        }
+                    }
+                    if (mean == null) {
+                        mean = dict.createMeaning();
+                        word.addMeaning(mean);
+                    }
+                    mean.setType(item[i]);
+                    mean.setInCHS(item[i + 1]);
+                    i += 2;
+                }
             }
+            jlistLog.addLog(JLogList.LogType.SUCCESSFUL, "Done");
         } catch (Exception e) {
         }
     }//GEN-LAST:event_jbtnImportActionPerformed

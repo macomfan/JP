@@ -182,6 +182,11 @@ public class EditPanel extends javax.swing.JPanel {
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMinimumSize(new java.awt.Dimension(680, 400));
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                formComponentShown(evt);
+            }
+        });
 
         jtabMainTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -358,6 +363,11 @@ public class EditPanel extends javax.swing.JPanel {
         IWord newWord = Database.getInstance().getDatabase().createWord();
         selectItem(newWord);
     }//GEN-LAST:event_jbtnNewMouseClicked
+
+    private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+        // TODO add your handling code here:
+        refreshMainTable(currentWord_);
+    }//GEN-LAST:event_formComponentShown
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
