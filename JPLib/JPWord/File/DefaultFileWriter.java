@@ -37,18 +37,19 @@ public class DefaultFileWriter implements IJPFileWriter {
             System.err.println(e.getMessage());
             return false;
         }
-        try {
-            writer_ = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(file_), "utf-8"));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return false;
-        }
         return true;
     }
 
     @Override
     public void writeline(String value) {
+        try {
+            if (writer_ == null) {
+                writer_ = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(file_), "utf-8"));
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         if (writer_ != null) {
             try {
                 writer_.write(value);

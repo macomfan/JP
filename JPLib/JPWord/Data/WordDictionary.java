@@ -56,10 +56,6 @@ class WordDictionary implements IWordDictionary {
     @Override
     public boolean save() {
         try {
-            if (!writer_.open()) {
-                return false;
-            }
-            
             boolean needSave = false;
             for (Word w : words_) {
                 if (w.changeFlag_ == true) {
@@ -70,6 +66,10 @@ class WordDictionary implements IWordDictionary {
             if (!needSave) {
                 return true;
             }
+            if (!writer_.open()) {
+                return false;
+            }
+
             for (Word word : words_) {
                 String line = word.encodeToString();
                 if (line != null && !line.equals("")) {
