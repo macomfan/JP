@@ -11,5 +11,4 @@ package JPWord.Synchronizer;
  */
 public interface IController {
     void stopWorker();
-    boolean isClosed();
 }

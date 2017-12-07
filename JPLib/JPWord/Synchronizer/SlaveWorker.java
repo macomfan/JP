@@ -13,15 +13,23 @@ import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
 /**
  *
  * @author u0151316
  */
-class SlaveWorker extends Thread implements ITCPCallback {
+class SlaveWorker extends Thread implements ITCPCallback, IController {
 
     private TCPCommunication tcp_ = new TCPCommunication();
     private IWordDictionary dictionary_ = null;
     private Sync.Method method_;
+    private Job_Base currentJob_ = null;
+
+    Logging logging_ = null;
+
+    public void setLogging(Logging logging) {
+        logging_ = logging;
+    }
 
     public SlaveWorker(IWordDictionary wordDictionary, Sync.Method method) {
         dictionary_ = wordDictionary;
@@ -30,14 +38,38 @@ class SlaveWorker extends Thread implements ITCPCallback {
 
     @Override
     public void onConnect() {
+        logging_.push("[S] Connected to master");
+        String method = "";
+        if (method_ == Sync.Method.SYNC_FROM_MASTER) {
+            method = "SYNC_FROM_MASTER";
+            currentJob_ = new Job_SlaveReceive(tcp_, dictionary_, logging_);
+            currentJob_.start();
+        } else if (method_ == Sync.Method.SYNC_TO_MASTER) {
+            method = "SYNC_TO_MASTER";
+        }
         Message msg = new Message(Message.MSG_SYN);
-        msg.setValue("AAAAAAAAA");
+        msg.setValue("Hello");
+        msg.addTag("METHOD", method);
         System.out.println("Sending via TCP");
         tcp_.send(msg);
     }
 
     @Override
     public void onReceive(Message msg) {
+        if (currentJob_ != null) {
+            Job_Base.JobResult result = currentJob_.doAction(msg);
+            if (result == Job_Base.JobResult.FAIL) {
+                logging_.push("[E] Job failed");
+                tcp_.close();
+                currentJob_ = null;
+            } else if (result == Job_Base.JobResult.DONE) {
+                logging_.push("[S] Job finished");
+                tcp_.close();
+                currentJob_ = null;
+            }
+            return;
+        }
+        
         System.out.println("Msg --");
         switch (msg.getType()) {
             case Message.MSG_ACK: {
@@ -70,6 +102,11 @@ class SlaveWorker extends Thread implements ITCPCallback {
     }
 
     @Override
+    public void stopWorker() {
+        this.interrupt();
+    }
+
+    @Override
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
         try {
@@ -83,14 +120,14 @@ class SlaveWorker extends Thread implements ITCPCallback {
             for (int i = 0; i < Sync.TryTimes; i++) {
                 DatagramPacket dp = new DatagramPacket(buf, buf.length, adds, Sync.BroadcastPort);
                 socket.send(dp);
-                System.out.println("Sending... ");
+                logging_.push("[N] Sending...");
                 Thread.sleep(1000);
                 if (tcp_.getStatus() == TCPCommunication.Status.CONNECTED) {
                     tcp_.receive();
                     break;
                 }
             }
-            System.out.println("Done");
+            logging_.push("[N] Done");
             tcp_.close();
             socket.close();
         } catch (Exception e) {

@@ -190,6 +190,7 @@ class WordDictionary implements IWordDictionary {
         if (!quickKey_.containsKey(word.getID())) {
             quickKey_.put(word.getID(), (Word) word);
             words_.add((Word) word);
+            ((Word) word).changeFlag_ = true;
         }
     }
 

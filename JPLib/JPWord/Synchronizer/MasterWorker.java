@@ -5,6 +5,7 @@
  */
 package JPWord.Synchronizer;
 
+import JPWord.Data.IWordDictionary;
 import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -20,11 +21,16 @@ import java.nio.ByteBuffer;
  */
 class MasterWorker extends Thread implements ITCPCallback, IController {
 
+    private IWordDictionary wordDictionary_ = null;
     private TCPCommunication tcp_ = null;
     private File file_ = null;
     BufferedWriter writer_ = null;
     Logging logging_ = null;
-    boolean isClosed_ = false;
+    private Job_Base currentJob_ = null;
+
+    public MasterWorker(IWordDictionary wordDictionary) {
+        wordDictionary_ = wordDictionary;
+    }
 
     public void setLogging(Logging logging) {
         logging_ = logging;
@@ -32,7 +38,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
 
     @Override
     public void onConnect() {
-        // DO nothing
+        logging_.push("[N] Start connection");
     }
 
     @Override
@@ -41,19 +47,42 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     }
 
     @Override
-    public boolean isClosed() {
-        return isClosed_;
-    }
-
-    @Override
     public void onReceive(Message msg) {
+        if (currentJob_ != null) {
+            Job_Base.JobResult result = currentJob_.doAction(msg);
+            if (result == Job_Base.JobResult.FAIL) {
+                logging_.push("[E] Job failed");
+                tcp_.close();
+                currentJob_ = null;
+            } else if (result == Job_Base.JobResult.DONE) {
+                logging_.push("[S] Job finished");
+                tcp_.close();
+                currentJob_ = null;
+            }
+            return;
+        }
+
         switch (msg.getType()) {
             case Message.MSG_SYN: {
                 // Get number and Send ACK
-                System.out.println("SYN");
-                file_ = new File("backup.dat");
-                Message newMsg = new Message(Message.MSG_ACK);
-                tcp_.send(newMsg);
+                logging_.push("[N] SYN received");
+                String method = msg.getTag(Constant.METHOD);
+                if (method.equals(Constant.SYNC_FROM_MASTER)) {
+                    logging_.push("[N] Work mode: SYNC_FROM_MASTER");
+                    currentJob_ = new Job_MasterSend(tcp_, wordDictionary_, logging_);
+                    currentJob_.start();
+                } else if (method.equals(Constant.SYNC_TO_MASTER)) {
+                    logging_.push("[N] Work mode: SYNC_TO_MASTER");
+                } else {
+                    logging_.push("[E] Work mode: UNKNOWN");
+                    Message newMsg = new Message(Message.MSG_BYE);
+                    newMsg.addTag(Constant.REASON, Constant.UNKNOW_METHOD);
+                    tcp_.send(msg);
+                    tcp_.close();
+                }
+//                file_ = new File("backup.dat");
+//                Message newMsg = new Message(Message.MSG_ACK);
+//                tcp_.send(newMsg);
                 break;
             }
             case Message.MSG_DAT: {
@@ -83,7 +112,6 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
         try {
-            isClosed_ = false;
             logging_.push("[N] Server started...");
             DatagramSocket socket = new DatagramSocket(Sync.BroadcastPort);
             byte[] buf = new byte[1024];
@@ -104,27 +132,23 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 if (msg.Parse(byteBuffer) == 0) {
                     continue;
                 }
-                System.out.println("received broadcast...");
+                logging_.push("[S] Received broadcast");
                 // Check, start a thread to connect slave
                 tcp_ = new TCPCommunication();
                 tcp_.setCallback(this);
                 tcp_.connect(dp.getAddress(), Sync.TCPPort);
                 tcp_.receive();
-                //System.out.println("Get: " + " 1:" + dp.getAddress() + " 2:" + dp.getSocketAddress());
                 tcp_.close();
                 tcp_ = null;
                 Thread.sleep(1000);
             }
-            isClosed_ = true;
             logging_.push("[E] Exit by user");
             socket.close();
         } catch (InterruptedException e) {
-            isClosed_ = true;
             logging_.push("[E] Exit by user");
         } catch (Exception e) {
-            isClosed_ = true;
             logging_.push("[E] " + e.getMessage());
         }
-        isClosed_ = true;
+
     }
 }

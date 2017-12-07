@@ -13,12 +13,11 @@ import JPWord.Data.IWordDictionary;
  */
 public class Sync {
 
-    public enum Method
-    {
+    public enum Method {
         SYNC_TO_MASTER,
         SYNC_FROM_MASTER,
     }
-    
+
     private static Sync instance_;
     private Logging logging_ = new Logging();
     public final static int BroadcastPort = 13998;
@@ -39,14 +38,15 @@ public class Sync {
     public ILogging getLogging() {
         return logging_;
     }
-    
+
     public void startAsSlave(IWordDictionary wordDictionary, Method method) {
         SlaveWorker slave = new SlaveWorker(wordDictionary, method);
+        slave.setLogging(logging_);
         slave.start();
     }
 
-    public IController runAsMaster() {
-        MasterWorker master = new MasterWorker();
+    public IController runAsMaster(IWordDictionary wordDictionary) {
+        MasterWorker master = new MasterWorker(wordDictionary);
         master.setLogging(logging_);
         master.start();
         return master;

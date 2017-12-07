@@ -5,9 +5,8 @@
  */
 package JPWord.Synchronizer;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  *
@@ -15,7 +14,7 @@ import java.util.Stack;
  */
 class Logging implements ILogging{
 
-    Stack<String> logs_ = new Stack<>();
+    Queue<String> logs_ = new ArrayBlockingQueue<>(1000);
     
     public Logging() {
 
@@ -23,7 +22,7 @@ class Logging implements ILogging{
     
     public synchronized void push(String msg)
     {
-        logs_.push(msg);
+        logs_.add(msg);
         System.out.println(msg);
     }
     
@@ -32,6 +31,6 @@ class Logging implements ILogging{
         if (logs_.isEmpty()) {
             return null;
         }
-        return logs_.pop();
+        return logs_.poll();
     }
 }

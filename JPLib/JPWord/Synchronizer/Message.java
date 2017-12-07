@@ -8,6 +8,8 @@ package JPWord.Synchronizer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -26,20 +28,25 @@ public class Message {
     private final static String header_ = "#JP#";
     private String value_ = "";
     private byte type_ = MSG_UNKNOWN;
+    private Map<String, String> tagMap_ = new HashMap<>();
 
-    public String getValue() {
-        return value_;
+    public void addTag(String key, String value) {
+        tagMap_.put(key, value);
+    }
+
+    public String getTag(String key) {
+        if (tagMap_.containsKey(key)) {
+            return tagMap_.get(key);
+        }
+        return null;
     }
 
     public void setValue(String value) {
         value_ = value;
-//        try {
-//            MessageDigest md = MessageDigest.getInstance("MD5");
-//            md.update(value.getBytes("UTF-8"));
-//            byte[] ss = md.();
-//            int a = 0;
-//        } catch (Exception e) {
-//        }
+    }
+
+    public String getValue() {
+        return value_;
     }
 
     public int getType() {
@@ -74,50 +81,75 @@ public class Message {
             return 0;
         }
         type_ = buffer.get();
-        int size = buffer.getInt();
-        if (buffer.remaining() < size) {
+        int valueSize = buffer.getInt();
+        if (buffer.remaining() < valueSize) {
             return 0;
         }
-        byte[] valueArr = new byte[size];
+        byte[] valueArr = new byte[valueSize];
         buffer.get(valueArr);
         try {
             value_ = new String(valueArr, "UTF-8");
         } catch (Exception e) {
         }
-        return basicLength() + size;
+
+        int tagSize = buffer.getInt();
+        if (buffer.remaining() < tagSize) {
+            return 0;
+        }
+        byte[] tagArr = new byte[tagSize];
+        buffer.get(tagArr);
+        try {
+            String tag = new String(tagArr, "UTF-8");
+            // Parse tag
+            parseTag(tag);
+        } catch (Exception e) {
+        }
+        return basicLength() + valueSize + tagSize;
     }
 
-//    public int Parse(byte[] buf, int length) {
-//        if (length < basicLength() || buf.length < basicLength()) {
-//            return 0;
-//        }
-//        int offset = 0;
-//        String header = new String(buf, offset + length, header_.length(), Charset.forName("US-ASCII"));
-//        offset += header.length();
-//        type_ = buf[offset + length];
-//        offset++;
-//        int size = buf[offset + length + 3] & 0xFF
-//                | (buf[offset + length + 2] & 0xFF) << 8
-//                | (buf[offset + length + 1] & 0xFF) << 16
-//                | (buf[offset + length] & 0xFF) << 24;
-//        offset += Integer.SIZE / 8;
-//        value_ = new String(buf, offset + length, size, Charset.forName("UTF-8"));
-//        offset += size;
-//        return offset;
-//    }
+    private void parseTag(String tag) {
+        String tags[] = tag.split("\\|");
+        for (String tag1 : tags) {
+            int sp = tag1.indexOf('=');
+            if (sp == -1) {
+                //error
+            } else {
+                tagMap_.put(tag1.substring(0, sp), tag1.substring(sp + 1, tag1.length()));
+            }
+        }
+    }
+
     public byte[] toByteArray() {
         int size = header_.length();
         size += Byte.SIZE / 8;
         size += Integer.SIZE / 8;
+        size += Integer.SIZE / 8;
         try {
             byte[] valueBytes = value_.getBytes("UTF-8");
             int valueSize = valueBytes.length;
+
+            String tagString = "";
+            for (Map.Entry<String, String> entry : tagMap_.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                tagString += key;
+                tagString += "=";
+                tagString += value;
+                tagString += "|";
+            }
+            byte[] tagBytes = tagString.getBytes("UTF-8");
+            int tagSize = tagBytes.length;
+
             size += valueSize;
+            size += tagSize;
+
             ByteBuffer buffer = ByteBuffer.allocate(size);
             buffer.put(header_.getBytes(Charset.forName("US-ASCII")));
             buffer.put(type_);
             buffer.putInt(valueSize);
             buffer.put(valueBytes);
+            buffer.putInt(tagSize);
+            buffer.put(tagBytes);
             return buffer.array();
         } catch (Exception e) {
         }
