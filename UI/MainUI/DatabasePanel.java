@@ -24,6 +24,9 @@ import JPWord.Synchronizer.Sync;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JButton;
@@ -37,36 +40,51 @@ import javax.swing.table.TableColumn;
  */
 public class DatabasePanel extends javax.swing.JPanel {
 
-    class TestClass extends Thread {
+    class WorkerClass extends Thread {
 
         public DatabasePanel p_ = null;
 
         @Override
         public void run() {
             try {
-//                DefaultTableModel dtm = (DefaultTableModel) jLogTable.getModel();
-//                IController c = Sync.getInstance().runAsMaster();
-//                ILogging logging = c.getLogging();
-//                while (c.isClosed() == false) {
-//                    String msg = logging.pop();
-//                    if (msg != null) {
-//                        dtm.addRow(new Object[]{"", msg});
-//                    }
-//                    Thread.sleep(1);
-//                }
+                ILogging logging = Sync.getInstance().getLogging();
+                while (true) {
+                    String msg = logging.pop();
+                    if (msg != null) {
+                        String type = "";
+                        if (msg.length() > 3) {
+                            type = msg.substring(0, 3);
+                        }
+                        if (type.equals("[N]")) {
+                            jlistLog.addLog(JLogList.LogType.NORMAL, msg);
+                        } else if (type.equals("[E]")) {
+                            jlistLog.addLog(JLogList.LogType.ERROR, msg);
+                        } else {
+                            jlistLog.addLog(JLogList.LogType.NORMAL, msg);
+                        }
+
+                    }
+                    Thread.sleep(10);
+                }
             } catch (Exception e) {
+                jlistLog.addLog(JLogList.LogType.ERROR, e.getMessage());
             }
 
         }
     }
+
+    private WorkerClass worker_ = null;
+    private IController serviceController_ = null;
 
     /**
      * Creates new form DatabasePanel
      */
     public DatabasePanel() {
         initComponents();
-
         jtxtFilename.setText(Database.getInstance().getFilename());
+        worker_ = new WorkerClass();
+        worker_.p_ = this;
+        worker_.start();
     }
 
     /**
@@ -133,8 +151,8 @@ public class DatabasePanel extends javax.swing.JPanel {
                         .addComponent(jtxtFilename, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jbtnRunAsMaster)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jbtnRunAsMaster, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jbtnBackup)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jbtnImport)))
@@ -169,10 +187,14 @@ public class DatabasePanel extends javax.swing.JPanel {
 
     private void jbtnRunAsMasterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRunAsMasterActionPerformed
         // TODO add your handling code here:
-        //Sync.getInstance().runAsMaster();
-        TestClass t = new TestClass();
-        t.p_ = this;
-        t.start();
+        if (serviceController_ == null) {
+            serviceController_ = Sync.getInstance().runAsMaster();
+            jbtnRunAsMaster.setText("Stop");
+        } else {
+            serviceController_.stopWorker();
+            serviceController_ = null;
+            jbtnRunAsMaster.setText("Run As Master");
+        }
     }//GEN-LAST:event_jbtnRunAsMasterActionPerformed
 
     private void jbtnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnImportActionPerformed
@@ -232,7 +254,7 @@ public class DatabasePanel extends javax.swing.JPanel {
                 }
                 JPWord.Data.IWord word = null;
                 for (IWord word1 : Database.getInstance().getDatabase().getWords()) {
-                    
+
                 }
                 jlistLog.addLog(JLogList.LogType.NORMAL, item[1]);
             }

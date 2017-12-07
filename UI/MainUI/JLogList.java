@@ -100,8 +100,8 @@ public class JLogList extends JList<String> {
         logs_.add(logInfo);
         listModel_.addElement(logInfo);
         if (listModel_.getSize() > 2) {
-            this.repaint();
-            this.updateUI();
+//            this.repaint();
+//            this.updateUI();
             this.scrollRectToVisible(this.getCellBounds(listModel_.getSize() - 1, listModel_.getSize()));
         }
 

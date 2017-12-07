@@ -6,6 +6,8 @@
 package MainUI;
 
 import JPWord.Data.IWordDictionary;
+import JPWord.File.DefaultFileReader;
+import JPWord.File.DefaultFileWriter;
 import java.io.File;
 
 /**
@@ -32,7 +34,10 @@ public class Database {
     public void initialize() {
         filename_ = Setting.getInstance().getFilename();
         File file = new File(filename_);
-        dictionary_ = JPWord.Data.Database.createWordDictionary(file);
+        DefaultFileReader reader = new DefaultFileReader(filename_);
+        DefaultFileWriter writer = new DefaultFileWriter(filename_);
+        dictionary_ = JPWord.Data.Database.createWordDictionary(reader, writer);
+        dictionary_.load();
     }
 
     public String getFilename() {
