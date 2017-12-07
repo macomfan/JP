@@ -20,6 +20,7 @@ public class Sync {
     }
     
     private static Sync instance_;
+    private Logging logging_ = new Logging();
     public final static int BroadcastPort = 13998;
     public final static int TCPPort = 13999;
     public final static int TryTimes = 10;
@@ -35,6 +36,10 @@ public class Sync {
         return instance_;
     }
 
+    public ILogging getLogging() {
+        return logging_;
+    }
+    
     public void startAsSlave(IWordDictionary wordDictionary, Method method) {
         SlaveWorker slave = new SlaveWorker(wordDictionary, method);
         slave.start();
@@ -42,6 +47,7 @@ public class Sync {
 
     public IController runAsMaster() {
         MasterWorker master = new MasterWorker();
+        master.setLogging(logging_);
         master.start();
         return master;
     }

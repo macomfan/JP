@@ -12,13 +12,20 @@ import java.util.List;
  * @author u0151316
  */
 public interface IWordDictionary {
-//    public String encodeWord(IWord word);
-//    public IWord decodeWord(String line);
+
     public IWord getWord(String id);
-    public void save();
+
+    public boolean load();
+
+    public boolean save();
+
     public List<IWord> getWords();
+
     public void addWord(IWord word);
+
     public IWord createWord();
+
     public IMeaning createMeaning();
+
     public IExample createExample();
 }

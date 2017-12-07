@@ -5,6 +5,8 @@
  */
 package JPWord.Data;
 
+import JPWord.File.IJPFileReader;
+import JPWord.File.IJPFileWriter;
 import java.io.File;
 
 /**
@@ -13,7 +15,7 @@ import java.io.File;
  */
 public class Database {
 
-    public static IWordDictionary createWordDictionary(File file) {
-        return (IWordDictionary) (new WordDictionary(file));
+    public static IWordDictionary createWordDictionary(IJPFileReader reader, IJPFileWriter writer) {
+        return (IWordDictionary) (new WordDictionary(reader, writer));
     }
 }
