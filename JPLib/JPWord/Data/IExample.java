@@ -11,15 +11,17 @@ package JPWord.Data;
  */
 public interface IExample {
 
-    public void setExampleInJP(String value);
+    boolean isEmpty();
+    
+    void setExampleInJP(String value);
 
-    public String getExampleInJP();
+    String getExampleInJP();
 
-    public void setExampleInCHS(String value);
+    void setExampleInCHS(String value);
 
-    public String getExampleInCHS();
+    String getExampleInCHS();
 
-    public String encodeToString();
+    String encodeToString();
 
-    public boolean decodeFromString(String str);
+    boolean decodeFromString(String str);
 }

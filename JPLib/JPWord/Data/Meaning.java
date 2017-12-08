@@ -32,6 +32,19 @@ class Meaning implements IMeaning {
     }
 
     @Override
+    public boolean isEmpty() {
+        if (meaningInCHS_.isEmpty() && meaningInJP_.isEmpty() && type_.isEmpty()) {
+            for (IExample iExample : examples_) {
+                if (!iExample.isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public String getInJP() {
         return meaningInJP_;
     }
@@ -39,7 +52,7 @@ class Meaning implements IMeaning {
     @Override
     public void setInJP(String value) {
         meaningInJP_ = value;
-        parent_.changeFlag_ = true;
+        parent_.updatedFlag();
     }
 
     @Override
@@ -50,7 +63,7 @@ class Meaning implements IMeaning {
     @Override
     public void setInCHS(String value) {
         meaningInCHS_ = value;
-        parent_.changeFlag_ = true;
+        parent_.updatedFlag();
     }
 
     @Override
@@ -61,13 +74,18 @@ class Meaning implements IMeaning {
     @Override
     public void setType(String value) {
         type_ = value;
-        parent_.changeFlag_ = true;
+        parent_.updatedFlag();
     }
 
     @Override
     public void addExample(IExample example) {
         examples_.add(example);
         ((Example) example).parent_ = this;
+        if (!((Example) example).isEmpty()) {
+            if (parent_ != null) {
+                parent_.updatedFlag();
+            }
+        }
     }
 
     @Override

@@ -23,8 +23,16 @@ class Example implements IExample {
     }
 
     @Override
+    public boolean isEmpty() {
+        if (exampleInCHS_.isEmpty() && exampleInJP_.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
     public String encodeToString() {
-        if (exampleInCHS_.equals("") && exampleInJP_.equals("")) {
+        if (isEmpty()) {
             return "";
         }
         return exampleInJP_ + EXAMPLE_SEP + exampleInCHS_;
@@ -50,7 +58,7 @@ class Example implements IExample {
     public void setExampleInJP(String value) {
         exampleInJP_ = value;
         if (parent_ != null && parent_.parent_ != null) {
-            parent_.parent_.changeFlag_ = true;
+            parent_.parent_.updatedFlag();
         }
     }
 
@@ -61,7 +69,7 @@ class Example implements IExample {
     public void setExampleInCHS(String value) {
         exampleInCHS_ = value;
         if (parent_ != null && parent_.parent_ != null) {
-            parent_.parent_.changeFlag_ = true;
+            parent_.parent_.updatedFlag();
         }
     }
 

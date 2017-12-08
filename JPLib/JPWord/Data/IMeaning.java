@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface IMeaning {
 
+    boolean isEmpty();
+    
     public String getInJP();
 
     public void setInJP(String value);

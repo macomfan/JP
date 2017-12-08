@@ -28,13 +28,41 @@ class Word extends Tagable implements IWord {
     private UUID id_ = null;
     private IRoma roma_ = null;
     private SortedMap<String, ITag> tags_ = new TreeMap<>();
-    public boolean changeFlag_ = false;
+    private boolean changeFlag_ = false;
+    private long timestamp_ = 0;
 
     public Word(UUID id) {
         id_ = id;
     }
 
     public Word() {
+    }
+
+    @Override
+    public boolean isEmpty() {
+        if (content_.isEmpty() && kana_.isEmpty() && tone_.isEmpty() && tags_.size() == 0) {
+            for (IMeaning iMeaning : means_) {
+                if (!iMeaning.isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return timestamp_;
+    }
+
+    public void updatedFlag() {
+        changeFlag_ = true;
+        timestamp_ = System.currentTimeMillis();
+    }
+
+    public boolean isUpdated() {
+        return changeFlag_;
     }
 
     @Override
@@ -66,28 +94,12 @@ class Word extends Tagable implements IWord {
         changeFlag_ = true;
     }
 
-//    @Override
-//    public List<ITag> getTags() {
-//        List<ITag> temp = new LinkedList<>();
-//        for (Map.Entry<String, ITag> entry : tags_.entrySet()) {
-//            temp.add(entry.getValue());
-//
-//        }
-//        return temp;
-//    }
     @Override
     public ITag addTag(String Name, String Value) {
         changeFlag_ = true;
         return super.addTag(Name, Value);
     }
 
-//    @Override
-//    public String getTagValue(String Name) {
-//        if (tags_.containsKey(Name)) {
-//            return tags_.get(Name).getValue();
-//        }
-//        return "";
-//    }
     @Override
     public String getTone() {
         return tone_;
@@ -171,15 +183,12 @@ class Word extends Tagable implements IWord {
         }
     }
 
-//    @Override
-//    public IMeaning createMeaning() {
-//        Meaning mean = new Meaning(this);
-//        means_.add((IMeaning) mean);
-//        return (IMeaning) mean;
-//    }
     @Override
     public void addMeaning(IMeaning meaning) {
         ((Meaning) meaning).parent_ = this;
+        if (!meaning.isEmpty()) {
+            updatedFlag();
+        }
         means_.add((IMeaning) meaning);
     }
 
@@ -192,12 +201,6 @@ class Word extends Tagable implements IWord {
         return means;
     }
 
-//    private ITag getTagItem(String Name) {
-//        if (tags_.containsKey(Name)) {
-//            return tags_.get(Name);
-//        }
-//        return null;
-//    }
     private ITag getAndCreateTag(String Name) {
         ITag tag = getTagItem(Name);
         if (tag == null) {
@@ -260,6 +263,8 @@ class Word extends Tagable implements IWord {
             tagString += "|";
             line += tagString;
         }
+        line += "|#";
+        line += Long.toString(timestamp_, 10);
         return line;
     }
 
@@ -284,7 +289,9 @@ class Word extends Tagable implements IWord {
         }
         for (int i = 4; i < items.length; i++) {
             if (items[i].length() != 0) {
-                if (items[i].charAt(0) != SOH.charAt(0)) {
+                if (items[i].charAt(0) == '#') {
+                    timestamp_ = Long.parseLong(items[i].substring(1, items.length), 10);
+                } else if (items[i].charAt(0) != SOH.charAt(0)) {
                     Meaning mean = new Meaning();
                     if (mean.decodeFromString(items[i])) {
                         addMeaning(mean);
@@ -321,6 +328,5 @@ class Word extends Tagable implements IWord {
         means_.addAll(meanings);
         changeFlag_ = true;
     }
-    
-    
+
 }

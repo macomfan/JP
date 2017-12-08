@@ -13,6 +13,10 @@ import java.util.List;
  */
 public interface IWord {
 
+    boolean isEmpty();
+    
+    long getTimeStamp();
+    
     void setContent(String value);
 
     String getContent();
