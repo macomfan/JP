@@ -41,6 +41,9 @@ final class TCPCommunication {
                 p_.serverSocket_ = new ServerSocket(Sync.TCPPort);
                 Socket socket = p_.serverSocket_.accept();
                 p_.socket_ = socket;
+                p_.socket_.setSendBufferSize(1024 * 1024 * 2);
+                p_.socket_.setReceiveBufferSize(1024 * 1024 * 2);
+                p_.socket_.setKeepAlive(true);
                 p_.status_ = Status.CONNECTED;
                 p_.onConnected();
             } catch (Exception e) {
@@ -99,6 +102,9 @@ final class TCPCommunication {
         try {
             System.out.println("Trying...");
             socket_ = new Socket(address, port);
+            socket_.setSendBufferSize(1024 * 1024 * 2);
+            socket_.setReceiveBufferSize(1024 * 1024 * 2);
+            socket_.setKeepAlive(true);
             System.out.println("Connect OK...");
             onConnected();
         } catch (Exception e) {
@@ -113,6 +119,9 @@ final class TCPCommunication {
             int size = 0;
             do {
                 size = reader.read(buf);
+                if (size == 0) {
+                    continue;
+                }
                 ByteBuffer tempBuffer;
                 if (partialBufferHandler_.position() != 0) {
                     tempBuffer = ByteBuffer.allocate(size + partialBufferHandler_.position());
@@ -142,6 +151,7 @@ final class TCPCommunication {
             } while (size != 0 && size != -1);
 
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("2 Error: " + e.getMessage());
         }
 
@@ -164,6 +174,7 @@ final class TCPCommunication {
     public void close() {
         if (status_ != Status.CLOSED) {
             try {
+                System.out.println("TCP CLOSING !!!!!!");
                 if (inputStream_ != null) {
                     inputStream_.close();
                 }

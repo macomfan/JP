@@ -31,20 +31,27 @@ class Job_RebaseSend extends Job_Base {
         if (msg.getType() == Message.MSG_ACK) {
             logging_.push("[N] Get confirmed message");
             logging_.push("[N] Sending content...");
+            int logindex = 0;
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
                 String wordString = word.encodeToString();
                 data.setValue(wordString);
                 tcp_.send(data);
+                try {
+                    Thread.sleep(1);
+                } catch (Exception e) {
+                }
+                System.out.println(String.format("- Send num %d", logindex++));
             }
+            Message done = new Message(Message.MSG_ACK);
+            tcp_.send(done);
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_REP) {
             logging_.push("[N] Receive retransmission request, NOT supported");
             Message data = new Message(Message.MSG_BYE);
             tcp_.send(msg);
             tcp_.close();
-        }  
-        else if (msg.getType() == Message.MSG_BYE) {
+        } else if (msg.getType() == Message.MSG_BYE) {
             return JobResult.DONE;
         }
         return JobResult.FAIL;
