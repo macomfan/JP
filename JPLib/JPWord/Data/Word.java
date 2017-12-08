@@ -263,7 +263,7 @@ class Word extends Tagable implements IWord {
             tagString += "|";
             line += tagString;
         }
-        line += "|#";
+        line += "#";
         line += Long.toString(timestamp_, 10);
         return line;
     }
