@@ -40,12 +40,24 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
     public void onConnect() {
         logging_.push("[S] Connected to master");
         String method = "";
-        if (method_ == Sync.Method.SYNC_FROM_MASTER) {
-            method = "SYNC_FROM_MASTER";
-            currentJob_ = new Job_SlaveReceive(tcp_, dictionary_, logging_);
-            currentJob_.start();
-        } else if (method_ == Sync.Method.SYNC_TO_MASTER) {
-            method = "SYNC_TO_MASTER";
+        if (null != method_) switch (method_) {
+            case REBASE_FROM_MASTER:
+                method = Constant.REBASE_FROM_MASTER;
+                currentJob_ = new Job_RebaseReceive(tcp_, dictionary_, logging_);
+                currentJob_.start();
+                break;
+            case REBASE_TO_MASTER:
+                currentJob_ = new Job_RebaseSend(tcp_, dictionary_, logging_);
+                currentJob_.start();
+                method = Constant.REBASE_TO_MASTER;
+                break;
+            case AUTO_SYNC:
+                currentJob_ = new Job_AutoSyncSend(tcp_, dictionary_, logging_);
+                currentJob_.start();
+                method = Constant.AUTO_SYNC;
+                break;
+            default:
+                break;
         }
         Message msg = new Message(Message.MSG_SYN);
         msg.setValue("Hello");
@@ -69,7 +81,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
             }
             return;
         }
-        
+
         System.out.println("Msg --");
         switch (msg.getType()) {
             case Message.MSG_ACK: {

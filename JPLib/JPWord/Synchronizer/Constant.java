@@ -12,11 +12,14 @@ package JPWord.Synchronizer;
 class Constant {
 
     public final static String METHOD = "METHOD";
-    public final static String SYNC_TO_MASTER = "SYNC_TO_MASTER";
-    public final static String SYNC_FROM_MASTER = "SYNC_FROM_MASTER";
-    
+    public final static String REBASE_TO_MASTER = "REBASE_TO_MASTER";
+    public final static String REBASE_FROM_MASTER = "REBASE_FROM_MASTER";
+    public final static String AUTO_SYNC = "AUTO_SYNC";
     public final static String REASON = "REASON";
     public final static String UNKNOW_METHOD = "UNKNOWN METHOD";
-    
+
     public final static String NUMBER = "NUMBER";
+    public final static String ACTION = "ACTION";
+    public final static String UPDATE = "UPDATE";
+    public final static String DELETE = "DELETE";
 }

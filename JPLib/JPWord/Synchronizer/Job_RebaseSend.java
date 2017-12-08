@@ -12,9 +12,9 @@ import JPWord.Data.IWordDictionary;
  *
  * @author u0151316
  */
-class Job_MasterSend extends Job_Base {
+class Job_RebaseSend extends Job_Base {
 
-    public Job_MasterSend(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
+    public Job_RebaseSend(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
         super(tcp, dict, logging);
     }
 
@@ -29,7 +29,8 @@ class Job_MasterSend extends Job_Base {
     @Override
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_ACK) {
-            logging_.push("[N] Get ACK from Slave");
+            logging_.push("[N] Get confirmed message");
+            logging_.push("[N] Sending content...");
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
                 String wordString = word.encodeToString();
@@ -37,10 +38,16 @@ class Job_MasterSend extends Job_Base {
                 tcp_.send(data);
             }
             return JobResult.SUCCESS;
-        } else if (msg.getType() == Message.MSG_BYE) {
+        } else if (msg.getType() == Message.MSG_REP) {
+            logging_.push("[N] Receive retransmission request, NOT supported");
+            Message data = new Message(Message.MSG_BYE);
+            tcp_.send(msg);
+            tcp_.close();
+        }  
+        else if (msg.getType() == Message.MSG_BYE) {
             return JobResult.DONE;
         }
-        return JobResult.EXPECTRD;
+        return JobResult.FAIL;
     }
 
 }

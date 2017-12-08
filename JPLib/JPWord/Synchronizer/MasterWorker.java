@@ -20,32 +20,32 @@ import java.nio.ByteBuffer;
  * @author u0151316
  */
 class MasterWorker extends Thread implements ITCPCallback, IController {
-
+    
     private IWordDictionary wordDictionary_ = null;
     private TCPCommunication tcp_ = null;
     private File file_ = null;
     BufferedWriter writer_ = null;
     Logging logging_ = null;
     private Job_Base currentJob_ = null;
-
+    
     public MasterWorker(IWordDictionary wordDictionary) {
         wordDictionary_ = wordDictionary;
     }
-
+    
     public void setLogging(Logging logging) {
         logging_ = logging;
     }
-
+    
     @Override
     public void onConnect() {
         logging_.push("[N] Start connection");
     }
-
+    
     @Override
     public void stopWorker() {
         this.interrupt();
     }
-
+    
     @Override
     public void onReceive(Message msg) {
         logging_.push("[N] Receive a message");
@@ -63,18 +63,23 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
             }
             return;
         }
-
+        
         switch (msg.getType()) {
             case Message.MSG_SYN: {
-                // Get number and Send ACK
                 logging_.push("[N] SYN received");
                 String method = msg.getTag(Constant.METHOD);
-                if (method.equals(Constant.SYNC_FROM_MASTER)) {
-                    logging_.push("[N] Work mode: SYNC_FROM_MASTER");
-                    currentJob_ = new Job_MasterSend(tcp_, wordDictionary_, logging_);
+                if (method.equals(Constant.REBASE_FROM_MASTER)) {
+                    logging_.push("[N] Work mode: REBASE FROM MASTER");
+                    currentJob_ = new Job_RebaseSend(tcp_, wordDictionary_, logging_);
                     currentJob_.start();
-                } else if (method.equals(Constant.SYNC_TO_MASTER)) {
-                    logging_.push("[N] Work mode: SYNC_TO_MASTER");
+                } else if (method.equals(Constant.REBASE_TO_MASTER)) {
+                    logging_.push("[N] Work mode: REBASE TO MASTER");
+                    currentJob_ = new Job_RebaseReceive(tcp_, wordDictionary_, logging_);
+                    currentJob_.start();
+                } else if (method.equals(Constant.AUTO_SYNC)) {
+                    logging_.push("[N] Work mode: AUTO SYNC");
+                    currentJob_ = new Job_AutoSyncReceive(tcp_, wordDictionary_, logging_);
+                    currentJob_.start();
                 } else {
                     logging_.push("[E] Work mode: UNKNOWN");
                     Message newMsg = new Message(Message.MSG_BYE);
@@ -89,9 +94,9 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
             }
             case Message.MSG_DAT: {
                 try {
-
+                    
                 } catch (Exception e) {
-
+                    
                 }
 
 //                BufferedWriter writer = new BufferedWriter(
@@ -109,7 +114,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
             }
         }
     }
-
+    
     @Override
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
@@ -125,7 +130,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 } catch (SocketTimeoutException e) {
                     continue;
                 }
-
+                
                 byte[] data = dp.getData();
                 Message msg = new Message();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(data.length);
@@ -151,6 +156,6 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
         } catch (Exception e) {
             logging_.push("[E] " + e.getMessage());
         }
-
+        
     }
 }

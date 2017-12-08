@@ -12,12 +12,12 @@ import JPWord.Data.IWordDictionary;
  *
  * @author u0151316
  */
-class Job_SlaveReceive extends Job_Base {
+class Job_RebaseReceive extends Job_Base {
 
     private int number_ = 0;
     private int index_ = 0;
 
-    public Job_SlaveReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
+    public Job_RebaseReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
         super(tcp, dict, logging);
     }
 
@@ -43,6 +43,9 @@ class Job_SlaveReceive extends Job_Base {
                 return JobResult.DONE;
             }
             return JobResult.SUCCESS;
+        } else if (msg.getType() == Message.MSG_BYE) {
+            logging_.push("[E] Closed by sender");
+            return JobResult.FAIL;
         }
         return JobResult.FAIL;
     }

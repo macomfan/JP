@@ -14,8 +14,9 @@ import JPWord.Data.IWordDictionary;
 public class Sync {
 
     public enum Method {
-        SYNC_TO_MASTER,
-        SYNC_FROM_MASTER,
+        REBASE_TO_MASTER,
+        REBASE_FROM_MASTER,
+        AUTO_SYNC,
     }
 
     private static Sync instance_;
