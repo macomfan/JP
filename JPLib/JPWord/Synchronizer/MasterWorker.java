@@ -8,8 +8,6 @@ package JPWord.Synchronizer;
 import JPWord.Data.IWordDictionary;
 import java.io.File;
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;

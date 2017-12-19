@@ -41,7 +41,6 @@ class Job_RebaseSend extends Job_Base {
                     Thread.sleep(1);
                 } catch (Exception e) {
                 }
-                System.out.println(String.format("- Send num %d", logindex++));
             }
             Message done = new Message(Message.MSG_ACK);
             tcp_.send(done);

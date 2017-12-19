@@ -41,6 +41,8 @@ public class Job_AutoSyncSend extends Job_Base {
         } else if (msg.getType() == Message.MSG_DAT) {
             String action = msg.getTag(Constant.ACTION);
             
+        } else if (msg.getType() == Message.MSG_REP) {
+            
         }
         return JobResult.FAIL;
     }
