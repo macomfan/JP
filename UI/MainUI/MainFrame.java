@@ -87,7 +87,11 @@ public class MainFrame extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
         System.out.println("jp.MainFrame.formWindowClosing()");
-        Database.getInstance().getDatabase().save();
+        try {
+            Database.getInstance().getDatabase().save();
+        } catch (Exception e) {
+        }
+
         Setting.getInstance().save();
     }//GEN-LAST:event_formWindowClosing
 

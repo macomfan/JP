@@ -37,7 +37,11 @@ public class Database {
         DefaultFileReader reader = new DefaultFileReader(filename_);
         DefaultFileWriter writer = new DefaultFileWriter(filename_);
         dictionary_ = JPWord.Data.Database.createWordDictionary(reader, writer);
-        dictionary_.load();
+        try {
+            dictionary_.load();
+        } catch (Exception e) {
+        }
+
     }
 
     public String getFilename() {

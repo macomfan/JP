@@ -65,6 +65,7 @@ public class MeaningUtil {
         List<IMeaning> means = new LinkedList<>();
         String str = temp;
         str = str.replace('\r', ' ');
+        //str = str.replace()
         String[] lines = str.split("\n");
         IMeaning currentMean = null;
         for (String line : lines) {

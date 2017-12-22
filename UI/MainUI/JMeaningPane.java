@@ -116,7 +116,7 @@ public class JMeaningPane extends JTextPane {
                 LineStartEndInfo info = new LineStartEndInfo(start, end, i);
                 String curline = this.getText(start, end - start);
                 if (curline.length() != 0) {
-                    if (curline.charAt(0) == '\t' || curline.charAt(0) == ' ') {
+                    if (curline.charAt(0) == '\t' || curline.charAt(0) == ' ' || curline.charAt(0) == '　') {
                         info.type_ = 2;
                     } else {
                         info.type_ = 1;
