@@ -110,7 +110,11 @@ public class TestSlaveFrame extends javax.swing.JFrame {
         DefaultFileReader reader = new DefaultFileReader(file);
         DefaultFileWriter writer = new DefaultFileWriter(file);
         IWordDictionary dict = Database.createWordDictionary(reader, writer);
-        Sync.getInstance().startAsSlave(dict, Sync.Method.SYNC_FROM_MASTER);
+        Sync.getInstance().startAsSlave(dict, Sync.Method.REBASE_FROM_MASTER);
+        try {
+            dict.save();
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_jbtnStartSlaveActionPerformed
 
     /**
