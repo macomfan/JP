@@ -41,7 +41,11 @@ class Job_RebaseReceive extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_ACK) {
             logging_.push(String.format("[N] Send finished, received %d", index_));
-            dict_.save();
+            try {
+                dict_.save();
+            } catch (Exception e) {
+            }
+
             Message bye = new Message(Message.MSG_BYE);
             tcp_.send(bye);
             return JobResult.DONE;

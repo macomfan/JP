@@ -11,9 +11,9 @@ package JPWord.File;
  */
 public interface IJPFileWriter {
 
-    boolean open();
+    void open() throws Exception;
 
-    void writeline(String value);
+    void writeline(String value) throws Exception;
 
-    void close();
+    void close() throws Exception;
 }

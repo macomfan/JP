@@ -15,9 +15,9 @@ public interface IWordDictionary {
 
     public IWord getWord(String id);
 
-    public boolean load();
+    public void load() throws Exception;
 
-    public boolean save();
+    public void save() throws Exception;
 
     public List<IWord> getWords();
 

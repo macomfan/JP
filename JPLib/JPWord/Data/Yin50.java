@@ -15,7 +15,7 @@ import java.util.Vector;
  *
  * @author u0151316
  */
-class Yin50 {
+public class Yin50 {
 
     class Yin {
 
@@ -39,16 +39,6 @@ class Yin50 {
             instance_ = new Yin50();
         }
         return instance_;
-    }
-
-    public IRoma parseRoma(String testroma) {
-        String roma = testroma.trim();
-        Roma roma_res = new Roma();
-        for (int i = 0; i < roma.length(); i++) {
-            
-        }
-        
-        return roma_res;
     }
 
     public IRoma kanaToRoma(String testkana) {
@@ -97,53 +87,6 @@ class Yin50 {
         roma.SetVector(result);
         return roma;
     }
-
-//    public String KanaTORoma(String testkana) {
-//        String kana = testkana.trim();
-//        String result = "";
-//        for (int i = 0; i < kana.length(); i++) {
-//            String obj = "";
-//            obj += kana.charAt(i);
-//            if (i + 1 < kana.length()) {
-//                String spec = FindYinByKana(obj + kana.charAt(i + 1));
-//                if (!spec.equals("")) {
-//                    result += spec;
-//                    i++;
-//                    continue;
-//                }
-//            }
-//            if (obj.equals("っ") || obj.equals("ッ")) {
-//                result += '?';
-//            } else if (obj.equals("-") || obj.equals("ー")) {
-//                result += '*';
-//            } else {
-//                String y = FindYinByKana(obj);
-//                if (y.equals("")) {
-//                    return "";
-//                }
-//                result += y;
-//            }
-//        }
-//
-//        char[] arr = result.toCharArray();
-//        for (int i = 0; i < arr.length; i++) {
-//            if (arr[i] == '?') {
-//                if (i + 1 < arr.length) {
-//                    arr[i] = arr[i + 1];
-//                } else {
-//                    return "";
-//                }
-//            }
-//            if (arr[i] == '*') {
-//                if (i == 0) {
-//                    return "";
-//                } else {
-//                    arr[i] = arr[i - 1];
-//                }
-//            }
-//        }
-//        return new String(arr);
-//    }
 
     private String FindYinByKana(String kana) {
         for (Yin y : yins_) {

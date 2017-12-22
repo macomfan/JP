@@ -32,10 +32,8 @@ class WordDictionary implements IWordDictionary {
     }
 
     @Override
-    public boolean load() {
-        if (!reader_.open()) {
-            return false;
-        }
+    public void load() throws Exception {
+        reader_.open();
         String line;
         while ((line = reader_.readline()) != null) {
             IWord word = new Word();
@@ -44,38 +42,29 @@ class WordDictionary implements IWordDictionary {
                 words_.add((Word) word);
             }
         }
-        return true;
     }
 
     @Override
-    public boolean save() {
-        try {
-            boolean needSave = false;
-            for (Word w : words_) {
-                if (w.isUpdated() == true) {
-                    needSave = true;
-                    break;
-                }
+    public void save() throws Exception {
+        boolean needSave = false;
+        for (Word w : words_) {
+            if (w.isUpdated() == true) {
+                needSave = true;
+                break;
             }
-            if (!needSave) {
-                return true;
-            }
-            if (!writer_.open()) {
-                return false;
-            }
-
-            for (Word word : words_) {
-                String line = word.encodeToString();
-                if (line != null && !line.equals("")) {
-                    writer_.writeline(line);
-                }
-            }
-            writer_.close();
-            return true;
-        } catch (Exception e) {
-            return false;
         }
+        if (!needSave) {
+            return;
+        }
+        writer_.open();
 
+        for (Word word : words_) {
+            String line = word.encodeToString();
+            if (line != null && !line.equals("")) {
+                writer_.writeline(line);
+            }
+        }
+        writer_.close();
     }
 
     @Override

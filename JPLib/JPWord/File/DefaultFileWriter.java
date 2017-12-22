@@ -28,47 +28,30 @@ public class DefaultFileWriter implements IJPFileWriter {
     }
 
     @Override
-    public boolean open() {
-        try {
-            if (!file_.exists()) {
-                file_.createNewFile();
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void writeline(String value) {
-        try {
-            if (writer_ == null) {
-                writer_ = new BufferedWriter(
-                        new OutputStreamWriter(new FileOutputStream(file_), "utf-8"));
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        if (writer_ != null) {
-            try {
-                writer_.write(value);
-                writer_.write("\r\n");
-            } catch (Exception e) {
-            }
+    public void open() throws Exception {
+        if (!file_.exists()) {
+            file_.createNewFile();
         }
     }
 
     @Override
-    public void close() {
+    public void writeline(String value) throws Exception {
+        if (writer_ == null) {
+            writer_ = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(file_), "utf-8"));
+        }
         if (writer_ != null) {
-            try {
-                writer_.flush();
-                writer_.close();
-                writer_ = null;
-            } catch (Exception e) {
-                writer_ = null;
-            }
+            writer_.write(value);
+            writer_.write("\r\n");
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (writer_ != null) {
+            writer_.flush();
+            writer_.close();
+            writer_ = null;
         }
     }
 

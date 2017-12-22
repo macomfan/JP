@@ -11,9 +11,9 @@ package JPWord.File;
  */
 public interface IJPFileReader {
 
-    boolean open();
+    void open() throws Exception;
 
-    String readline();
+    String readline() throws Exception;
 
-    void close();
+    void close() throws Exception;
 }

@@ -28,49 +28,28 @@ public class DefaultFileReader implements IJPFileReader {
     }
 
     @Override
-    public boolean open() {
-        try {
-            if (!file_.exists()) {
-                file_.createNewFile();
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return false;
+    public void open() throws Exception {
+        if (!file_.exists()) {
+            file_.createNewFile();
         }
-        try {
-            reader_ = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file_), "utf-8"));
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return false;
-        }
-        return true;
+        reader_ = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file_), "utf-8"));
     }
 
     @Override
-    public String readline() {
+    public String readline() throws Exception{
         if (reader_ == null) {
             return null;
         }
-        try {
-            String value = reader_.readLine();
-            return value;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+        String value = reader_.readLine();
+        return value;
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception{
         if (reader_ != null) {
-            try {
                 reader_.close();
                 reader_ = null;
-            } catch (Exception e) {
-                reader_ = null;
-                System.err.println(e.getMessage());
-            }
         }
     }
 }
