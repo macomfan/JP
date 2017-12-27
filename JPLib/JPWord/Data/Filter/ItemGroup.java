@@ -19,6 +19,7 @@ public class ItemGroup {
 
     private List<Object> items_ = new LinkedList<>();
     private List<ItemGroup> groups_ = new LinkedList<>();
+
     private boolean sorted_ = false;
     private int itemIndex_ = 0;
     private int groupIndex_ = 0;
@@ -52,17 +53,17 @@ public class ItemGroup {
         return temp;
     }
 
-    public void Shuffle() {
+    public void shuffle() {
         groupIndex_ = 0;
         itemIndex_ = 0;
-        ShuffleItems();
-        ShuffleItems();
+        shuffleItems();
+        shuffleItems();
         for (ItemGroup group : groups_) {
-            group.Shuffle();
+            group.shuffle();
         }
     }
 
-    private void ShuffleItems() {
+    private void shuffleItems() {
         if (items_.isEmpty()) {
             return;
         }
@@ -75,7 +76,7 @@ public class ItemGroup {
         items_ = newList;
     }
 
-    public void Sort(List<IItemFilter> filters) {
+    public void sort(List<IItemFilter> filters) {
         if (filters.isEmpty()) {
             return;
         }
@@ -83,28 +84,28 @@ public class ItemGroup {
             return;
             //throw new Exception("The RandomGroup has been sorted");
         }
-        SortCurrent(filters.get(0));
+        sortCurrent(filters.get(0));
         ArrayList<IItemFilter> tempList = new ArrayList<>();
         for (int i = 1; i < filters.size(); i++) {
             tempList.add(filters.get(i));
         }
         IItemFilter[] subSofters = new IItemFilter[tempList.size()];
         for (ItemGroup group : groups_) {
-            group.Sort(tempList.toArray(subSofters));
+            group.sort(tempList.toArray(subSofters));
         }
         items_.clear();
         sorted_ = true;
     }
 
-    public void Sort(IItemFilter... filters) {
+    public void sort(IItemFilter... filters) {
         List<IItemFilter> tempList = new LinkedList<>();
         for (int i = 0; i < filters.length; i++) {
             tempList.add(filters[i]);
         }
-        Sort(tempList);
+        ItemGroup.this.sort(tempList);
     }
 
-    private void SortCurrent(IItemFilter filter) {
+    private void sortCurrent(IItemFilter filter) {
         int groupNumber = filter.buildChildGroup(getItems());
         for (int i = 0; i < groupNumber; i++) {
             groups_.add(new ItemGroup());
@@ -116,18 +117,18 @@ public class ItemGroup {
             }
         }
     }
-
-    public Object Next() {
+    
+    public Object next() {
         if (items_.isEmpty()) {
             if (groups_.isEmpty()) {
                 return null;
             } else if (groupIndex_ >= groups_.size()) {
                 return null;
             } else {
-                Object obj = groups_.get(groupIndex_).Next();
+                Object obj = groups_.get(groupIndex_).next();
                 if (obj == null) {
                     groupIndex_++;
-                    return Next();
+                    return next();
                 } else {
                     return obj;
                 }

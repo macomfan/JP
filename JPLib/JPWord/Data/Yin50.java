@@ -80,7 +80,8 @@ public class Yin50 {
                 if (i == 0) {
                     return roma;
                 } else {
-                    result.set(i, result.get(i - 1).substring(0, 1));
+                    String temp = result.get(i - 1);
+                    result.set(i, temp.substring(temp.length() - 1, temp.length()));
                 }
             }
         }
