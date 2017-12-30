@@ -23,14 +23,14 @@ class Job_RebaseSend extends Job_Base {
         Message number = new Message(Message.MSG_SYN);
         number.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
         tcp_.send(number);
-        logging_.push("[N] Send number");
+        logging_.push(Log.Type.HARMLESS, "Send number");
     }
 
     @Override
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_ACK) {
-            logging_.push("[N] Get confirmed message");
-            logging_.push("[N] Sending content...");
+            logging_.push(Log.Type.HARMLESS, "Get confirmed message");
+            logging_.push(Log.Type.HARMLESS, "Sending content...");
             int logindex = 0;
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
@@ -46,7 +46,7 @@ class Job_RebaseSend extends Job_Base {
             tcp_.send(done);
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_REP) {
-            logging_.push("[N] Receive retransmission request, NOT supported");
+            logging_.push(Log.Type.HARMLESS, "Receive retransmission request, NOT supported");
             Message data = new Message(Message.MSG_BYE);
             tcp_.send(msg);
             tcp_.close();

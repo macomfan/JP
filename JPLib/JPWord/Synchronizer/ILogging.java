@@ -10,5 +10,5 @@ package JPWord.Synchronizer;
  * @author u0151316
  */
 public interface ILogging {
-    String pop();
+    Log pop();
 }

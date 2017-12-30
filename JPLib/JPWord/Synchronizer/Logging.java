@@ -12,22 +12,24 @@ import java.util.concurrent.ArrayBlockingQueue;
  *
  * @author u0151316
  */
-class Logging implements ILogging{
-
-    Queue<String> logs_ = new ArrayBlockingQueue<>(1000);
+class Logging implements ILogging {
+    
+    Queue<Log> logs_ = new ArrayBlockingQueue<>(1000);
     
     public Logging() {
-
+        
     }
     
-    public synchronized void push(String msg)
-    {
+    public synchronized void push(Log msg) {
         logs_.add(msg);
         System.out.println(msg);
     }
     
-    public synchronized String pop()
-    {
+    public synchronized void push(Log.Type type, String what) {
+        push(new Log(type, what));
+    }
+    
+    public synchronized Log pop() {
         if (logs_.isEmpty()) {
             return null;
         }

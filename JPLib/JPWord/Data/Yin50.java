@@ -49,7 +49,7 @@ public class Yin50 {
             String obj = "";
             obj += kana.charAt(i);
             if (i + 1 < kana.length()) {
-                String spec = FindYinByKana(obj + kana.charAt(i + 1));
+                String spec = findYinByKana(obj + kana.charAt(i + 1));
                 if (!spec.equals("")) {
                     result.add(spec);
                     i++;
@@ -61,7 +61,7 @@ public class Yin50 {
             } else if (obj.equals("-") || obj.equals("ー")) {
                 result.add("*");
             } else {
-                String y = FindYinByKana(obj);
+                String y = findYinByKana(obj);
                 if (y.equals("")) {
                     return roma;
                 }
@@ -89,7 +89,7 @@ public class Yin50 {
         return roma;
     }
 
-    private String FindYinByKana(String kana) {
+    private String findYinByKana(String kana) {
         for (Yin y : yins_) {
             if (y.H_.equals(kana) || y.K_.equals(kana)) {
                 return y.R_;

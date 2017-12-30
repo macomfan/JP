@@ -23,8 +23,8 @@ public class Job_AutoSyncSend extends Job_Base {
     @Override
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_ACK) {
-            logging_.push("[N] Get confirmed message");
-            logging_.push("[N] Sending content...");
+            logging_.push(Log.Type.HARMLESS, "Get confirmed message");
+            logging_.push(Log.Type.HARMLESS, "Sending content...");
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
                 String wordString = word.encodeToString();
@@ -33,10 +33,10 @@ public class Job_AutoSyncSend extends Job_Base {
             }
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_SYN) {
-            logging_.push("[N] Receive sync message");
+            logging_.push(Log.Type.HARMLESS, "Receive sync message");
             String number = msg.getTag(Constant.NUMBER);
             number_ = Integer.parseInt(number);
-            logging_.push(String.format("[N] %d items need be changed", number_));
+            logging_.push(Log.Type.HARMLESS, String.format("%d items need be changed", number_));
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             String action = msg.getTag(Constant.ACTION);

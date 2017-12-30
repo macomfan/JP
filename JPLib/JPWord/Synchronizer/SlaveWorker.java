@@ -38,7 +38,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
 
     @Override
     public void onConnect() {
-        logging_.push("[S] Connected to master");
+        logging_.push(Log.Type.SUCCESS, "Connected to master");
         String method = "";
         if (null != method_) switch (method_) {
             case REBASE_FROM_MASTER:
@@ -62,7 +62,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         Message msg = new Message(Message.MSG_SYN);
         msg.setValue("Hello");
         msg.addTag("METHOD", method);
-        logging_.push("[N] Send request to master");
+        logging_.push(Log.Type.HARMLESS, "Send request to master");
         tcp_.send(msg);
     }
 
@@ -71,11 +71,11 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         if (currentJob_ != null) {
             Job_Base.JobResult result = currentJob_.doAction(msg);
             if (result == Job_Base.JobResult.FAIL) {
-                logging_.push("[E] Job failed");
+                logging_.push(Log.Type.FAILURE, "Job failed");
                 tcp_.close();
                 currentJob_ = null;
             } else if (result == Job_Base.JobResult.DONE) {
-                logging_.push("[S] Job finished");
+                logging_.push(Log.Type.SUCCESS, "Job finished");
                 tcp_.close();
                 currentJob_ = null;
             }
@@ -132,14 +132,14 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
             for (int i = 0; i < Sync.TryTimes; i++) {
                 DatagramPacket dp = new DatagramPacket(buf, buf.length, adds, Sync.BroadcastPort);
                 socket.send(dp);
-                logging_.push("[N] Sending...");
+                logging_.push(Log.Type.HARMLESS, "Sending...");
                 Thread.sleep(1000);
                 if (tcp_.getStatus() == TCPCommunication.Status.CONNECTED) {
                     tcp_.receive();
                     break;
                 }
             }
-            logging_.push("[N] Done");
+            logging_.push(Log.Type.HARMLESS, "Done");
             tcp_.close();
             socket.close();
         } catch (Exception e) {

@@ -36,7 +36,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     
     @Override
     public void onConnect() {
-        logging_.push("[N] Start connection");
+        logging_.push(Log.Type.HARMLESS, "Start connection");
     }
     
     @Override
@@ -46,16 +46,16 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     
     @Override
     public void onReceive(Message msg) {
-        logging_.push("[N] Receive a message");
+        logging_.push(Log.Type.HARMLESS, "Receive a message");
         
         if (currentJob_ != null) {
             Job_Base.JobResult result = currentJob_.doAction(msg);
             if (result == Job_Base.JobResult.FAIL) {
-                logging_.push("[E] Job failed");
+                logging_.push(Log.Type.FAILURE, "Job failed");
                 tcp_.close();
                 currentJob_ = null;
             } else if (result == Job_Base.JobResult.DONE) {
-                logging_.push("[S] Job finished");
+                logging_.push(Log.Type.SUCCESS, "Job finished");
                 tcp_.close();
                 currentJob_ = null;
             }
@@ -64,22 +64,22 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
         
         switch (msg.getType()) {
             case Message.MSG_SYN: {
-                logging_.push("[N] SYN received");
+                logging_.push(Log.Type.HARMLESS, "SYN received");
                 String method = msg.getTag(Constant.METHOD);
                 if (method.equals(Constant.REBASE_FROM_MASTER)) {
-                    logging_.push("[N] Work mode: REBASE FROM MASTER");
+                    logging_.push(Log.Type.HARMLESS, "Work mode: REBASE FROM MASTER");
                     currentJob_ = new Job_RebaseSend(tcp_, wordDictionary_, logging_);
                     currentJob_.start();
                 } else if (method.equals(Constant.REBASE_TO_MASTER)) {
-                    logging_.push("[N] Work mode: REBASE TO MASTER");
+                    logging_.push(Log.Type.HARMLESS, "Work mode: REBASE TO MASTER");
                     currentJob_ = new Job_RebaseReceive(tcp_, wordDictionary_, logging_);
                     currentJob_.start();
                 } else if (method.equals(Constant.AUTO_SYNC)) {
-                    logging_.push("[N] Work mode: AUTO SYNC");
+                    logging_.push(Log.Type.HARMLESS, "Work mode: AUTO SYNC");
                     currentJob_ = new Job_AutoSyncReceive(tcp_, wordDictionary_, logging_);
                     currentJob_.start();
                 } else {
-                    logging_.push("[E] Work mode: UNKNOWN");
+                    logging_.push(Log.Type.FAILURE, "Work mode: UNKNOWN");
                     Message newMsg = new Message(Message.MSG_BYE);
                     newMsg.addTag(Constant.REASON, Constant.UNKNOW_METHOD);
                     tcp_.send(msg);
@@ -117,7 +117,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
         try {
-            logging_.push("[N] Server started...");
+            logging_.push(Log.Type.HARMLESS, "Server started...");
             DatagramSocket socket = new DatagramSocket(Sync.BroadcastPort);
             byte[] buf = new byte[1024];
             DatagramPacket dp = new DatagramPacket(buf, buf.length);
@@ -137,7 +137,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 if (msg.Parse(byteBuffer) == 0) {
                     continue;
                 }
-                logging_.push("[S] Received broadcast");
+                logging_.push(Log.Type.SUCCESS, "Received broadcast");
                 // Check, start a thread to connect slave
                 tcp_ = new TCPCommunication();
                 tcp_.setCallback(this);
@@ -147,12 +147,12 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 tcp_ = null;
                 Thread.sleep(1000);
             }
-            logging_.push("[E] Exit by user");
+            logging_.push(Log.Type.FAILURE, "Exit by user");
             socket.close();
         } catch (InterruptedException e) {
-            logging_.push("[E] Exit by user");
+            logging_.push(Log.Type.FAILURE, "Exit by user");
         } catch (Exception e) {
-            logging_.push("[E] " + e.getMessage());
+            logging_.push(Log.Type.FAILURE, e.getMessage());
         }
         
     }

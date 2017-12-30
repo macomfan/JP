@@ -26,7 +26,7 @@ class Job_RebaseReceive extends Job_Base {
         if (msg.getType() == Message.MSG_SYN) {
             String number = msg.getTag(Constant.NUMBER);
             number_ = Integer.parseInt(number);
-            logging_.push("[N] Receive the number is " + number);
+            logging_.push(Log.Type.HARMLESS, "Receive the number is " + number);
             Message ack = new Message(Message.MSG_ACK);
             tcp_.send(ack);
             return JobResult.SUCCESS;
@@ -36,11 +36,11 @@ class Job_RebaseReceive extends Job_Base {
             dict_.addWord(word);
             index_++;
             if (index_ == number_) {
-                logging_.push("[N] Received done");
+                logging_.push(Log.Type.HARMLESS, "Received done");
             }
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_ACK) {
-            logging_.push(String.format("[N] Send finished, received %d", index_));
+            logging_.push(Log.Type.HARMLESS, String.format("Send finished, received %d", index_));
             try {
                 dict_.save();
             } catch (Exception e) {
@@ -50,7 +50,7 @@ class Job_RebaseReceive extends Job_Base {
             tcp_.send(bye);
             return JobResult.DONE;
         } else if (msg.getType() == Message.MSG_BYE) {
-            logging_.push("[E] Closed by sender");
+            logging_.push(Log.Type.WARNING, "Closed by sender");
             return JobResult.FAIL;
         }
         return JobResult.FAIL;
