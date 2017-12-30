@@ -144,9 +144,10 @@ class Meaning implements IMeaning {
             }
         }
         for (int i = 1; i < meaningItems.length; i++) {
-            IExample example = new Example();
+            Example example = new Example();
             if (example.decodeFromString(meaningItems[i])) {
-                addExample(example);
+                examples_.add(example);
+                example.parent_ = this;
             }
         }
         return true;

@@ -68,7 +68,7 @@ class Word extends Tagable implements IWord {
     @Override
     public void setContent(String value) {
         content_ = value;
-        changeFlag_ = true;
+        updatedFlag();
     }
 
     @Override
@@ -80,7 +80,7 @@ class Word extends Tagable implements IWord {
     public void setKana(String value) {
         kana_ = value;
         roma_ = Yin50.getInstance().kanaToRoma(kana_);
-        changeFlag_ = true;
+        updatedFlag();
     }
 
     @Override
@@ -91,12 +91,12 @@ class Word extends Tagable implements IWord {
     @Override
     public void setTone(String value) {
         tone_ = value;
-        changeFlag_ = true;
+        updatedFlag();
     }
 
     @Override
     public ITag addTag(String Name, String Value) {
-        changeFlag_ = true;
+        updatedFlag();
         return super.addTag(Name, Value);
     }
 
@@ -139,7 +139,7 @@ class Word extends Tagable implements IWord {
         value = value.replaceAll("\\r", "");
         value = value.replaceAll("\\n", "<&N>");
         note.setValue(value);
-        changeFlag_ = true;
+        updatedFlag();
     }
 
     @Override
@@ -165,8 +165,8 @@ class Word extends Tagable implements IWord {
         } else if (value > 5) {
             setHardFlag(false);
         }
-        UpdateReviewTime();
-        changeFlag_ = true;
+        updateReviewTime();
+        updatedFlag();
     }
 
     @Override
@@ -209,7 +209,7 @@ class Word extends Tagable implements IWord {
         return tag;
     }
 
-    private void UpdateReviewTime() {
+    private void updateReviewTime() {
         Calendar now = Calendar.getInstance();
         ITag rt = getTagItem("RD");
         if (rt == null) {
@@ -228,7 +228,7 @@ class Word extends Tagable implements IWord {
         } else {
             hard.setValue("N");
         }
-        changeFlag_ = true;
+        updatedFlag();
     }
 
     @Override
@@ -290,11 +290,12 @@ class Word extends Tagable implements IWord {
         for (int i = 4; i < items.length; i++) {
             if (items[i].length() != 0) {
                 if (items[i].charAt(0) == '#') {
-                    timestamp_ = Long.parseLong(items[i].substring(1, items.length), 10);
+                    timestamp_ = Long.parseLong(items[i].substring(1, items[i].length()), 10);
                 } else if (items[i].charAt(0) != SOH.charAt(0)) {
                     Meaning mean = new Meaning();
                     if (mean.decodeFromString(items[i])) {
-                        addMeaning(mean);
+                        mean.parent_ = this;
+                        means_.add(mean);
                     }
                 } else {
                     parseTag(items[i]);
@@ -318,7 +319,7 @@ class Word extends Tagable implements IWord {
             }
             String name = tagString.substring(0, eqIndex);
             String value = tagString.substring(eqIndex + 1);
-            addTag(name, value);
+            super.addTag(name, value);
         }
     }
 
@@ -326,7 +327,7 @@ class Word extends Tagable implements IWord {
     public void updateMeaning(List<IMeaning> meanings) {
         means_.clear();
         means_.addAll(meanings);
-        changeFlag_ = true;
+        updatedFlag();
     }
 
 }
