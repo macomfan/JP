@@ -12,14 +12,14 @@ import JPWord.Data.IWordDictionary;
  *
  * @author u0151316
  */
-public class Job_AutoSyncSend extends Job_Base {
+class Job_AutoSyncSend extends Job_Base {
 
     public Job_AutoSyncSend(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
         super(tcp, dict, logging);
     }
 
     private int number_ = 0;
-    
+
     @Override
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_ACK) {
@@ -40,17 +40,19 @@ public class Job_AutoSyncSend extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             String action = msg.getTag(Constant.ACTION);
-            
+
         } else if (msg.getType() == Message.MSG_REP) {
-            
+
         }
         return JobResult.FAIL;
     }
 
     @Override
     public void start() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Message msg = new Message(Message.MSG_SYN);
+        msg.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
+        logging_.push(Log.Type.HARMLESS, "Sending number: %d" + Integer.toString(dict_.getWords().size(), 10));
+        tcp_.send(msg);
     }
-    
-    
+
 }

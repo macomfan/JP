@@ -17,7 +17,7 @@ abstract class Job_Base {
     {
         FAIL,
         SUCCESS,
-        EXPECTRD,
+        EXPECTED,
         DONE,
     }
 

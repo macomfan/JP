@@ -12,13 +12,6 @@ import JPWord.Data.IWordDictionary;
  * @author u0151316
  */
 public class Sync {
-
-    public enum Method {
-        REBASE_TO_MASTER,
-        REBASE_FROM_MASTER,
-        AUTO_SYNC,
-    }
-
     private static Sync instance_;
     private Logging logging_ = new Logging();
     public final static int BroadcastPort = 13998;

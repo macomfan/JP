@@ -5,13 +5,19 @@
  */
 package JPWord.Synchronizer;
 
+import JPWord.Data.Database;
+import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
 /**
  *
  * @author u0151316
  */
-public class Job_AutoSyncReceive extends Job_Base {
+class Job_AutoSyncReceive extends Job_Base {
+
+    private int number_ = 0;
+    private int index_ = 0;
+    private IWordDictionary tempDict_ = null;
 
     public Job_AutoSyncReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
         super(tcp, dict, logging);
@@ -19,12 +25,45 @@ public class Job_AutoSyncReceive extends Job_Base {
 
     @Override
     public JobResult doAction(Message msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (msg.getType() == Message.MSG_SYN) {
+            String number = msg.getTag(Constant.NUMBER);
+            number_ = Integer.parseInt(number);
+            logging_.push(Log.Type.HARMLESS, "Received number is " + number);
+            Message ack = new Message(Message.MSG_ACK);
+            tcp_.send(ack);
+            tempDict_ = Database.createWordDictionary(null, null);
+            
+            return JobResult.SUCCESS;
+        } else if (msg.getType() == Message.MSG_DAT) {
+            IWord word = tempDict_.createWord();
+            word.decodeFromString(msg.getValue());
+            
+            tempDict_.addWord(word);
+            index_++;
+            if (index_ == number_) {
+                logging_.push(Log.Type.HARMLESS, "Received done");
+            }
+            return JobResult.SUCCESS;
+        } else if (msg.getType() == Message.MSG_ACK) {
+            logging_.push(Log.Type.HARMLESS, String.format("Received complete, number is %d", index_));
+            try {
+                //dict_.save();
+            } catch (Exception e) {
+            }
+
+            Message bye = new Message(Message.MSG_BYE);
+            tcp_.send(bye);
+            return JobResult.DONE;
+        } else if (msg.getType() == Message.MSG_BYE) {
+            logging_.push(Log.Type.WARNING, "Closed by sender");
+            return JobResult.FAIL;
+        }
+        return JobResult.FAIL;
     }
 
     @Override
     public void start() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // do nothing
     }
 
 }

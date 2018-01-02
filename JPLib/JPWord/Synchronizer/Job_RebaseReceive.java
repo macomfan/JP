@@ -58,7 +58,9 @@ class Job_RebaseReceive extends Job_Base {
 
     @Override
     public void start() {
-        // do nothing
+        Message msg = new Message(Message.MSG_SYN);
+        msg.addTag(Constant.ACTION, "READY");
+        tcp_.send(msg);
     }
 
 }

@@ -115,10 +115,11 @@ final class TCPCommunication {
         try {
             InputStream inputStream = socket_.getInputStream();
             BufferedInputStream reader = new BufferedInputStream(inputStream);
-            byte[] buf = new byte[1024 * 8];
+            byte[] buf = new byte[1024 * 1024];
             int size = 0;
             do {
                 size = reader.read(buf);
+                System.out.println(Integer.toString(size, 10));
                 if (size == 0) {
                     continue;
                 }
@@ -163,8 +164,13 @@ final class TCPCommunication {
 
     public void send(Message msg) {
         try {
+            System.err.println(String.format("----Send msg %d", msg.getType()));
             outputStream_.write(msg.toByteArray());
             outputStream_.flush();
+            try {
+                Thread.sleep(1);
+            } catch (Exception e) {
+            }
         } catch (IOException ex) {
             Logger.getLogger(TCPCommunication.class
                     .getName()).log(Level.SEVERE, null, ex);

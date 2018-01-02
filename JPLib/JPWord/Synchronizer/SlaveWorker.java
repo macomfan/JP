@@ -22,7 +22,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
 
     private TCPCommunication tcp_ = new TCPCommunication();
     private IWordDictionary dictionary_ = null;
-    private Sync.Method method_;
+    private Method method_;
     private Job_Base currentJob_ = null;
 
     Logging logging_ = null;
@@ -31,7 +31,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         logging_ = logging;
     }
 
-    public SlaveWorker(IWordDictionary wordDictionary, Sync.Method method) {
+    public SlaveWorker(IWordDictionary wordDictionary, Method method) {
         dictionary_ = wordDictionary;
         method_ = method;
     }
@@ -39,29 +39,9 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
     @Override
     public void onConnect() {
         logging_.push(Log.Type.SUCCESS, "Connected to master");
-        String method = "";
-        if (null != method_) switch (method_) {
-            case REBASE_FROM_MASTER:
-                method = Constant.REBASE_FROM_MASTER;
-                currentJob_ = new Job_RebaseReceive(tcp_, dictionary_, logging_);
-                currentJob_.start();
-                break;
-            case REBASE_TO_MASTER:
-                currentJob_ = new Job_RebaseSend(tcp_, dictionary_, logging_);
-                currentJob_.start();
-                method = Constant.REBASE_TO_MASTER;
-                break;
-            case AUTO_SYNC:
-                currentJob_ = new Job_AutoSyncSend(tcp_, dictionary_, logging_);
-                currentJob_.start();
-                method = Constant.AUTO_SYNC;
-                break;
-            default:
-                break;
-        }
         Message msg = new Message(Message.MSG_SYN);
         msg.setValue("Hello");
-        msg.addTag("METHOD", method);
+        msg.addTag("METHOD", method_.getValue());
         logging_.push(Log.Type.HARMLESS, "Send request to master");
         tcp_.send(msg);
     }
@@ -85,27 +65,24 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         System.out.println("Msg --");
         switch (msg.getType()) {
             case Message.MSG_ACK: {
-                // Send data
-                System.out.println("ACK");
-
-                for (IWord w : dictionary_.getWords()) {
-                    Message newMsg = new Message(Message.MSG_DAT);
-                    String line = w.encodeToString();
-                    if (line != null && !line.equals("")) {
-                        newMsg.setValue(line);
-                    }
-                    tcp_.send(newMsg);
+                logging_.push(Log.Type.SUCCESS, "ACK received");
+                Method method = new Method(msg.getTag(Constant.METHOD));
+                if (method.is(Method.AUTO_SYNC)) {
+                    currentJob_ = new Job_AutoSyncSend(tcp_, dictionary_, logging_);
+                    currentJob_.start();
+                } else if (method.is(Method.REBASE_FROM_MASTER)) {
+                    currentJob_ = new Job_RebaseReceive(tcp_, dictionary_, logging_);
+                    currentJob_.start();
+                } else if (method.is(Method.REBASE_TO_MASTER)) {
+                    currentJob_ = new Job_RebaseSend(tcp_, dictionary_, logging_);
+                    currentJob_.start();
                 }
-
-                Message ack = new Message(Message.MSG_ACK);
-                tcp_.send(ack);
-                System.out.println("Sent ACK");
                 break;
             }
 
             case Message.MSG_BYE: {
                 // Complete, close
-                System.out.println("BYE");
+                logging_.push(Log.Type.WARNING, "BYE received");
                 tcp_.close();
                 break;
             }
