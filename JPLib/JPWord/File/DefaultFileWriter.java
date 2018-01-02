@@ -19,12 +19,16 @@ public class DefaultFileWriter implements IJPFileWriter {
     private File file_ = null;
     private BufferedWriter writer_ = null;
 
+    public DefaultFileWriter() {
+    }
+
     public DefaultFileWriter(String filename) {
         file_ = new File(filename);
     }
 
-    public DefaultFileWriter(File file) {
-        file_ = file;
+    @Override
+    public IJPFileWriter clone(String filename) {
+        return new DefaultFileWriter(filename);
     }
 
     @Override

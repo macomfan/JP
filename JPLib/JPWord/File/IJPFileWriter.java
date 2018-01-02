@@ -11,6 +11,8 @@ package JPWord.File;
  */
 public interface IJPFileWriter {
 
+    IJPFileWriter clone(String filename);
+    
     void open() throws Exception;
 
     void writeline(String value) throws Exception;

@@ -17,7 +17,6 @@ class Job_AutoSyncReceive extends Job_Base {
 
     private int number_ = 0;
     private int index_ = 0;
-    private IWordDictionary tempDict_ = null;
 
     public Job_AutoSyncReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
         super(tcp, dict, logging);
@@ -31,14 +30,14 @@ class Job_AutoSyncReceive extends Job_Base {
             logging_.push(Log.Type.HARMLESS, "Received number is " + number);
             Message ack = new Message(Message.MSG_ACK);
             tcp_.send(ack);
-            tempDict_ = Database.createWordDictionary(null, null);
+            //tempDict_ = Database.createWordDictionary(null, null);
             
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
-            IWord word = tempDict_.createWord();
-            word.decodeFromString(msg.getValue());
+            //IWord word = tempDict_.createWord();
+            // word.decodeFromString(msg.getValue());
             
-            tempDict_.addWord(word);
+            //tempDict_.addWord(word);
             index_++;
             if (index_ == number_) {
                 logging_.push(Log.Type.HARMLESS, "Received done");

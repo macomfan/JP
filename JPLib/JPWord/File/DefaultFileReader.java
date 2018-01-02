@@ -19,12 +19,16 @@ public class DefaultFileReader implements IJPFileReader {
     private File file_ = null;
     private BufferedReader reader_ = null;
 
+    public DefaultFileReader() {
+    }
+
     public DefaultFileReader(String filename) {
         file_ = new File(filename);
     }
 
-    public DefaultFileReader(File file) {
-        file_ = file;
+    @Override
+    public IJPFileReader clone(String filename) {
+        return new DefaultFileReader(filename);
     }
 
     @Override
@@ -37,7 +41,7 @@ public class DefaultFileReader implements IJPFileReader {
     }
 
     @Override
-    public String readline() throws Exception{
+    public String readline() throws Exception {
         if (reader_ == null) {
             return null;
         }
@@ -46,10 +50,10 @@ public class DefaultFileReader implements IJPFileReader {
     }
 
     @Override
-    public void close() throws Exception{
+    public void close() throws Exception {
         if (reader_ != null) {
-                reader_.close();
-                reader_ = null;
+            reader_.close();
+            reader_ = null;
         }
     }
 }

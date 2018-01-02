@@ -19,6 +19,7 @@ import java.util.HashMap;
  */
 class WordDictionary implements IWordDictionary {
 
+    private String name_ = "";
     private File file_ = null;
     private Map<String, Word> quickKey_ = new HashMap<>();
     private List<Word> words_ = new LinkedList<>();
@@ -34,6 +35,8 @@ class WordDictionary implements IWordDictionary {
     @Override
     public void load() throws Exception {
         reader_.open();
+        name_ = reader_.readline();
+        
         String line;
         while ((line = reader_.readline()) != null) {
             IWord word = new Word();
@@ -42,6 +45,7 @@ class WordDictionary implements IWordDictionary {
                 words_.add((Word) word);
             }
         }
+        reader_.close();
     }
 
     @Override
@@ -58,6 +62,7 @@ class WordDictionary implements IWordDictionary {
         }
         writer_.open();
 
+        writer_.writeline(name_);
         for (Word word : words_) {
             String line = word.encodeToString();
             if (line != null && !line.equals("")) {
