@@ -34,6 +34,9 @@ class WordDictionary implements IWordDictionary {
 
     @Override
     public void load() throws Exception {
+        if (!quickKey_.isEmpty()) {
+            return;
+        }
         reader_.open();
         name_ = reader_.readline();
         
