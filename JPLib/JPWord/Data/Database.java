@@ -23,7 +23,8 @@ public class Database {
     private List<String> fileNameList_ = new LinkedList<>();
     private IJPFileReader reader_ = null;
     private IJPFileWriter writer_ = null;
-    private Map<String, String> dictFilenameMap_ = new HashMap<>();
+    private String rootFolder_ = "";
+    private List<String> dictList_ = new LinkedList<>();
 
     public static Database getInstance() {
         if (instance_ == null) {
@@ -32,46 +33,35 @@ public class Database {
         return instance_;
     }
 
-    public void initialize(IJPFileReader reader, IJPFileWriter writer) {
+    public void initialize(String footFolder, IJPFileReader reader, IJPFileWriter writer) {
         reader_ = reader;
         writer_ = writer;
-    }
-
-    public List<String> getDictionaryNameList() {
-        List<String> res = new LinkedList<>();
-        for (Map.Entry<String, String> entry : dictFilenameMap_.entrySet()) {
-            res.add(entry.getKey());
+        rootFolder_ = footFolder.replace('\\', '/');
+        if (rootFolder_.charAt(footFolder.length() - 1) != '/') {
+            rootFolder_ += "/";
         }
-        return res;
-    }
-
-    public boolean addFile(String filename) {
-        final String NAME = "#NAME=";
-        IJPFileReader reader = reader_.clone(filename);
-        try {
-            reader.open();
-            String line = reader.readline();
-
-            if (line.indexOf(NAME) != 0) {
-                return false;
+        
+        
+        File folder = new File(rootFolder_);
+        File[] subFile = folder.listFiles();
+        for (File file : subFile) {
+            if (!file.isDirectory()) {
+                String filename = file.getName();
+                if(filename.endsWith(".dat")) {
+                    String dictname = filename.substring(0, filename.length() - 4);
+                    dictList_.add(dictname);
+                }
             }
-            String name = line.substring(NAME.length(), line.length());
-            dictFilenameMap_.put(name, filename);
-            reader.close();
-
-        } catch (Exception e) {
-            return false;
         }
-        return true;
     }
 
     public IWordDictionary loadDictionary(String dictname) {
-        if (!dictFilenameMap_.containsKey(dictname)) {
+        if (!dictList_.contains(dictname)) {
             return null;
         }
-        IJPFileReader reader = reader_.clone(dictFilenameMap_.get(dictname));
-        IJPFileWriter writer = writer_.clone(dictFilenameMap_.get(dictname));
-        IWordDictionary dict = new WordDictionary(reader, writer);
+        IJPFileReader reader = reader_.clone(rootFolder_ + dictname + ".dat");
+        IJPFileWriter writer = writer_.clone(rootFolder_ + dictname + ".dat");
+        IWordDictionary dict = new WordDictionary(dictname, reader, writer);
         try {
             dict.load();
         } catch (Exception e) {
@@ -80,7 +70,10 @@ public class Database {
         return dict;
     }
 
-//    public static IWordDictionary createWordDictionary(IJPFileReader reader, IJPFileWriter writer) {
-//        return (IWordDictionary) (new WordDictionary(reader, writer));
-//    }
+    public IWordDictionary createDictionary(String dictname) {
+        IJPFileReader reader = reader_.clone(rootFolder_ + dictname + ".dat");
+        IJPFileWriter writer = writer_.clone(rootFolder_ + dictname + ".dat");
+        IWordDictionary dict = new WordDictionary(dictname, reader, writer);
+        return dict;
+    }
 }

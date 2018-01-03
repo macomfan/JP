@@ -19,4 +19,5 @@ class Constant {
     public final static String ACTION = "ACTION";
     public final static String UPDATE = "UPDATE";
     public final static String DELETE = "DELETE";
+    public final static String DICTNAME = "DICTNAME";
 }

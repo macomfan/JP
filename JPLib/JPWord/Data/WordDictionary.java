@@ -27,9 +27,10 @@ class WordDictionary implements IWordDictionary {
     private IJPFileReader reader_ = null;
     private IJPFileWriter writer_ = null;
 
-    public WordDictionary(IJPFileReader reader, IJPFileWriter writer) {
+    public WordDictionary(String name, IJPFileReader reader, IJPFileWriter writer) {
         reader_ = reader;
         writer_ = writer;
+        name_ = name;
     }
 
     @Override
@@ -38,8 +39,6 @@ class WordDictionary implements IWordDictionary {
             return;
         }
         reader_.open();
-        name_ = reader_.readline();
-        
         String line;
         while ((line = reader_.readline()) != null) {
             IWord word = new Word();
@@ -64,8 +63,6 @@ class WordDictionary implements IWordDictionary {
             return;
         }
         writer_.open();
-
-        writer_.writeline(name_);
         for (Word word : words_) {
             String line = word.encodeToString();
             if (line != null && !line.equals("")) {
