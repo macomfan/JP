@@ -24,7 +24,7 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         //File file = new File("C:\\Users\\u0151316\\Documents\\JP\\Dictionary.dat");
-        Database.getInstance().initialize();
+        Database.getInstance();
         //Database.getInstance().initialize("C:\\Users\\u0151316\\Documents\\Visual Studio 2010\\Projects\\JPWord\\JPWord\\bin\\Debug\\Dictionary_test.dat");
         initComponents();
         editPanel1.initialize();

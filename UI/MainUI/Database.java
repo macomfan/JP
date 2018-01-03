@@ -16,9 +16,10 @@ import java.io.File;
  */
 public class Database {
 
-    private static Database instance_;
+    private static Database instance_ = null;
     private IWordDictionary dictionary_ = null;
-    private String filename_ = "";
+    private String rootFolder_ = "";
+    private String currentDictname_ = "Standard_JP_Junior";
 
     private Database() {
 
@@ -27,16 +28,15 @@ public class Database {
     public static Database getInstance() {
         if (instance_ == null) {
             instance_ = new Database();
+            instance_.initialize();
         }
         return instance_;
     }
 
-    public void initialize() {
-        filename_ = Setting.getInstance().getFilename();
-        File file = new File(filename_);
-        DefaultFileReader reader = new DefaultFileReader(filename_);
-        DefaultFileWriter writer = new DefaultFileWriter(filename_);
-        dictionary_ = JPWord.Data.Database.createWordDictionary(reader, writer);
+    private void initialize() {
+        rootFolder_ = Setting.getInstance().getRootFolder();
+        JPWord.Data.Database.getInstance().initialize(rootFolder_, new DefaultFileReader(), new DefaultFileWriter());
+        dictionary_ = JPWord.Data.Database.getInstance().loadDictionary(currentDictname_);
         try {
             dictionary_.load();
         } catch (Exception e) {
@@ -44,8 +44,8 @@ public class Database {
 
     }
 
-    public String getFilename() {
-        return filename_;
+    public String getCurrentDictName() {
+        return currentDictname_;
     }
 
     public IWordDictionary getDatabase() {

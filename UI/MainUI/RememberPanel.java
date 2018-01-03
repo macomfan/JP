@@ -52,7 +52,7 @@ public class RememberPanel extends javax.swing.JPanel {
     }
     
     private void findNext() {
-        currentWord_ = (IWord) group_.Next();
+        currentWord_ = (IWord) group_.next();
         if (currentWord_ != null) {
             currentNumber_++;
         }
@@ -64,8 +64,8 @@ public class RememberPanel extends javax.swing.JPanel {
             temp.add(filterList_.get(i).filter_);
         }
         group_ = new ItemGroup(dictionary_.getWords());
-        group_.Shuffle();
-        group_.Sort(temp);
+        group_.shuffle();
+        group_.sort(temp);
         currentNumber_ = 0;
     }
     

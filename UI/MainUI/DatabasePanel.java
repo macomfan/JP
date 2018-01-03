@@ -10,6 +10,7 @@ import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 import JPWord.Synchronizer.IController;
 import JPWord.Synchronizer.ILogging;
+import JPWord.Synchronizer.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -51,22 +52,22 @@ public class DatabasePanel extends javax.swing.JPanel {
             try {
                 ILogging logging = Sync.getInstance().getLogging();
                 while (true) {
-                    String msg = logging.pop();
-                    if (msg != null) {
-                        String type = "";
-                        if (msg.length() > 3) {
-                            type = msg.substring(0, 3);
+                    Log log = logging.pop();
+                    if (log != null) {
+                        switch (log.type()) {
+                            case HARMLESS:
+                                jlistLog.addLog(JLogList.LogType.NORMAL, log.what());
+                                break;
+                            case FAILURE:
+                                jlistLog.addLog(JLogList.LogType.ERROR, log.what());
+                                break;
+                            case SUCCESS:
+                                jlistLog.addLog(JLogList.LogType.SUCCESSFUL, log.what());
+                                break;
+                            default:
+                                jlistLog.addLog(JLogList.LogType.NORMAL, log.what());
+                                break;
                         }
-                        if (type.equals("[N]")) {
-                            jlistLog.addLog(JLogList.LogType.NORMAL, msg);
-                        } else if (type.equals("[E]")) {
-                            jlistLog.addLog(JLogList.LogType.ERROR, msg);
-                        } else if (type.equals("[S]")) {
-                            jlistLog.addLog(JLogList.LogType.SUCCESSFUL, msg);
-                        } else {
-                            jlistLog.addLog(JLogList.LogType.NORMAL, msg);
-                        }
-
                     }
                     Thread.sleep(10);
                 }
@@ -85,7 +86,7 @@ public class DatabasePanel extends javax.swing.JPanel {
      */
     public DatabasePanel() {
         initComponents();
-        jtxtFilename.setText(Database.getInstance().getFilename());
+        jtxtFilename.setText(Database.getInstance().getCurrentDictName());
         worker_ = new WorkerClass();
         worker_.p_ = this;
         worker_.start();
@@ -182,11 +183,11 @@ public class DatabasePanel extends javax.swing.JPanel {
 
     private void jbtnBackupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnBackupActionPerformed
         // TODO add your handling code here:
-        String filename = Database.getInstance().getFilename();
-        Path p = FileSystems.getDefault().getPath(filename);
-        String s1 = p.getParent().toString();
-        String s2 = p.getRoot().toString();
-        String s3 = p.getFileName().toString();
+//        String filename = Database.getInstance().getFilename();
+//        Path p = FileSystems.getDefault().getPath(filename);
+//        String s1 = p.getParent().toString();
+//        String s2 = p.getRoot().toString();
+//        String s3 = p.getFileName().toString();
     }//GEN-LAST:event_jbtnBackupActionPerformed
 
     private void jbtnRunAsMasterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRunAsMasterActionPerformed
@@ -204,7 +205,7 @@ public class DatabasePanel extends javax.swing.JPanel {
     private void jbtnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnImportActionPerformed
         // TODO add your handling code here:
         JFileChooser chooser = new JFileChooser();
-        String filename = Database.getInstance().getFilename();
+        String filename = Setting.getInstance().getRootFolder();
         Path p = FileSystems.getDefault().getPath(filename);
         chooser.setCurrentDirectory(new File(p.toString()));
         int res = chooser.showOpenDialog(this);

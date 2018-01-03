@@ -80,23 +80,24 @@ public class Setting {
         }
     }
 
+    private String rootFolder_ = "";
     private String filename_ = "";
     public List<FilterStruct> filters_ = new LinkedList<>();
     private SettingFile setting_ = new SettingFile();
     private static Setting instance_;
 
     private Setting() {
-        if (!setting_.hasValue("Filename"))
+        if (!setting_.hasValue("RootFolder"))
         {
-            filename_ = "C:\\Users\\u0151316\\Documents\\JP\\Dictionary.dat";
+            filename_ = "C:\\Users\\u0151316\\Documents\\JP\\";
         }
         else {
-            filename_ = setting_.getValue("Filename");
+            filename_ = setting_.getValue("RootFolder");
         }
         
     }
 
-    public String getFilename() {
+    public String getRootFolder() {
         return filename_;
     }
 
