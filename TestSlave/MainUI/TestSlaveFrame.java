@@ -6,10 +6,14 @@
 package MainUI;
 
 import JPWord.Data.Database;
+import JPWord.Data.IRoma;
 import JPWord.Data.IWordDictionary;
+import JPWord.Data.Yin50;
 import JPWord.File.DefaultFileReader;
 import JPWord.File.DefaultFileWriter;
 import JPWord.Synchronizer.ILogging;
+import JPWord.Synchronizer.Log;
+import JPWord.Synchronizer.Method;
 import JPWord.Synchronizer.Sync;
 import java.io.File;
 
@@ -28,10 +32,10 @@ public class TestSlaveFrame extends javax.swing.JFrame {
             try {
                 ILogging logging = Sync.getInstance().getLogging();
                 while (true) {
-                    String msg = logging.pop();
+                    Log msg = logging.pop();
                     if (msg != null) {
                         String log = p_.jtxtLog.getText();
-                        log += msg;
+                        log += msg.what();
                         log += "\r\n";
                         p_.jtxtLog.setText(log);
                     }
@@ -106,11 +110,18 @@ public class TestSlaveFrame extends javax.swing.JFrame {
 
     private void jbtnStartSlaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnStartSlaveActionPerformed
         // TODO add your handling code here:
-        File file = new File("C:\\Users\\u0151316\\Documents\\JP\\Dictionary_Slave.dat");
-        DefaultFileReader reader = new DefaultFileReader(file);
-        DefaultFileWriter writer = new DefaultFileWriter(file);
-        IWordDictionary dict = Database.createWordDictionary(reader, writer);
-        Sync.getInstance().startAsSlave(dict, Sync.Method.REBASE_FROM_MASTER);
+        Database.getInstance().initialize(
+                "C:\\Users\\u0151316\\Documents\\JP\\Slave", 
+                new DefaultFileReader(),
+                new DefaultFileWriter());
+        //Database.getInstance().addFile("C:\\Users\\u0151316\\Documents\\JP\\Dictionary_Slave.dat");
+        IWordDictionary dict = Database.getInstance().loadDictionary("Standard_JP_Junior");
+        try {
+            dict.load();
+        } catch (Exception e) {
+        }
+
+        Sync.getInstance().startAsSlave(dict, Method.AUTO_SYNC);
         try {
             dict.save();
         } catch (Exception e) {
