@@ -51,7 +51,9 @@ class Job_AutoSyncSend extends Job_Base {
     public void start() {
         Message msg = new Message(Message.MSG_SYN);
         msg.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
+        msg.addTag(Constant.DICTNAME, dict_.getName());
         logging_.push(Log.Type.HARMLESS, "Sending number: %d" + Integer.toString(dict_.getWords().size(), 10));
+        
         tcp_.send(msg);
     }
 

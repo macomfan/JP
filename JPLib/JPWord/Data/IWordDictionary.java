@@ -28,4 +28,6 @@ public interface IWordDictionary {
     public IMeaning createMeaning();
 
     public IExample createExample();
+    
+    public String getName();
 }

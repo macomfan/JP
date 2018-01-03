@@ -34,6 +34,11 @@ class WordDictionary implements IWordDictionary {
     }
 
     @Override
+    public String getName() {
+        return name_;
+    }
+
+    @Override
     public void load() throws Exception {
         if (!quickKey_.isEmpty()) {
             return;
