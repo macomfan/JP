@@ -33,14 +33,14 @@ public class Sync {
         return logging_;
     }
 
-    public void startAsSlave(IWordDictionary wordDictionary, Method method) {
-        SlaveWorker slave = new SlaveWorker(wordDictionary, method);
+    public void startAsSlave(String dictName, Method method) {
+        SlaveWorker slave = new SlaveWorker(dictName, method);
         slave.setLogging(logging_);
         slave.start();
     }
 
-    public IController runAsMaster(IWordDictionary wordDictionary) {
-        MasterWorker master = new MasterWorker(wordDictionary);
+    public IController runAsMaster() {
+        MasterWorker master = new MasterWorker();
         master.setLogging(logging_);
         master.start();
         return master;

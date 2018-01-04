@@ -112,6 +112,9 @@ class Word extends Tagable implements IWord {
 
     @Override
     public IRoma getRoma() {
+        if (roma_ == null) {
+            roma_ = Yin50.getInstance().kanaToRoma(kana_);
+        }
         return roma_;
     }
 
@@ -282,11 +285,10 @@ class Word extends Tagable implements IWord {
         id_ = UUID.fromString(items[0].substring(1, 37));
         content_ = items[1];
         kana_ = items[2];
-        roma_ = Yin50.getInstance().kanaToRoma(kana_);
         tone_ = items[3];
-        if (!tone_.equals("")) {
-            Constant.getInstance().addTone(tone_);
-        }
+//        if (!tone_.equals("")) {
+//            Constant.getInstance().addTone(tone_);
+//        }
         for (int i = 4; i < items.length; i++) {
             if (items[i].length() != 0) {
                 if (items[i].charAt(0) == '#') {

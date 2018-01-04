@@ -18,8 +18,14 @@ class Job_AutoSyncReceive extends Job_Base {
     private int number_ = 0;
     private int index_ = 0;
 
-    public Job_AutoSyncReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
-        super(tcp, dict, logging);
+    @Override
+    public JobResult start() {
+        // do nothing
+        return JobResult.SUCCESS;
+    }
+
+    public Job_AutoSyncReceive(TCPCommunication tcp, String dictName, Logging logging) {
+        super(tcp, dictName, logging);
     }
 
     @Override
@@ -29,14 +35,14 @@ class Job_AutoSyncReceive extends Job_Base {
             number_ = Integer.parseInt(number);
             logging_.push(Log.Type.HARMLESS, "Received number is " + number);
             Message ack = new Message(Message.MSG_ACK);
-            tcp_.send(ack);
+            sendMessage(ack);
             //tempDict_ = Database.createWordDictionary(null, null);
-            
+
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             //IWord word = tempDict_.createWord();
             // word.decodeFromString(msg.getValue());
-            
+
             //tempDict_.addWord(word);
             index_++;
             if (index_ == number_) {
@@ -50,19 +56,13 @@ class Job_AutoSyncReceive extends Job_Base {
             } catch (Exception e) {
             }
 
-            Message bye = new Message(Message.MSG_BYE);
-            tcp_.send(bye);
+            Message bye = new Message(Message.MSG_FIN);
+            sendMessage(bye);
             return JobResult.DONE;
-        } else if (msg.getType() == Message.MSG_BYE) {
+        } else if (msg.getType() == Message.MSG_FIN) {
             logging_.push(Log.Type.WARNING, "Closed by sender");
             return JobResult.FAIL;
         }
         return JobResult.FAIL;
     }
-
-    @Override
-    public void start() {
-        // do nothing
-    }
-
 }

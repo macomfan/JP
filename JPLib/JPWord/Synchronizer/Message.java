@@ -16,12 +16,17 @@ import java.util.Map;
  * @author u0151316
  */
 public class Message {
-
-    public final static byte MSG_DETECT = 0x01;
+    
+    
+    public final static byte SYS_DETECT = 0x10;
+    public final static byte SYS_REQUEST = 0x20;
+    public final static byte SYS_RESPONSE = 0x30;
+    public final static byte SYS_BYE = 0x40;
+    
     public final static byte MSG_SYN = 0x02;
     public final static byte MSG_ACK = 0x03;
     public final static byte MSG_DAT = 0x04;
-    public final static byte MSG_BYE = 0x05;
+    public final static byte MSG_FIN = 0x05;
     public final static byte MSG_REP = 0x06;
     public final static byte MSG_UNKNOWN = 0x00;
 
@@ -45,6 +50,10 @@ public class Message {
         value_ = value;
     }
 
+    public boolean isSystemMessage() {
+        return (type_ & 0xF0) != 0;
+    }
+    
     public String getValue() {
         return value_;
     }

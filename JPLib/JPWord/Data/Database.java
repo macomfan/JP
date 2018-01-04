@@ -8,10 +8,8 @@ package JPWord.Data;
 import JPWord.File.IJPFileReader;
 import JPWord.File.IJPFileWriter;
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -20,7 +18,6 @@ import java.util.Map;
 public class Database {
 
     private static Database instance_ = null;
-    private List<String> fileNameList_ = new LinkedList<>();
     private IJPFileReader reader_ = null;
     private IJPFileWriter writer_ = null;
     private String rootFolder_ = "";
@@ -40,8 +37,7 @@ public class Database {
         if (rootFolder_.charAt(footFolder.length() - 1) != '/') {
             rootFolder_ += "/";
         }
-        
-        
+
         File folder = new File(rootFolder_);
         File[] subFile = folder.listFiles();
         for (File file : subFile) {
@@ -55,6 +51,10 @@ public class Database {
         }
     }
 
+    public List<String> getDictList() {
+        return dictList_;
+    }
+    
     public IWordDictionary loadDictionary(String dictname) {
         if (!dictList_.contains(dictname)) {
             return null;

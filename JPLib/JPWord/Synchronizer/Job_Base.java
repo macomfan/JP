@@ -21,17 +21,23 @@ abstract class Job_Base {
         DONE,
     }
 
-    protected TCPCommunication tcp_ = null;
-    protected IWordDictionary dict_ = null;
+    private TCPCommunication tcp_ = null;
+    protected String dictName_ = "";
     protected Logging logging_ = null;
 
-    public Job_Base(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
+    public Job_Base(TCPCommunication tcp, String dictName, Logging logging) {
         tcp_ = tcp;
-        dict_ = dict;
+        dictName_ = dictName;
         logging_ = logging;
     }
 
+    protected void sendMessage(Message msg) {
+        if (tcp_.getStatus() == TCPCommunication.Status.CONNECTED) {
+            tcp_.send(msg);
+        }
+    }
+    
     public abstract JobResult doAction(Message msg);
 
-    public abstract void start();
+    public abstract JobResult start();
 }

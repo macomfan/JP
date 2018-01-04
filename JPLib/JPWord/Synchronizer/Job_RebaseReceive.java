@@ -5,6 +5,7 @@
  */
 package JPWord.Synchronizer;
 
+import JPWord.Data.Database;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
@@ -16,9 +17,19 @@ class Job_RebaseReceive extends Job_Base {
 
     private int number_ = 0;
     private int index_ = 0;
+    private IWordDictionary dict_ = null;
 
-    public Job_RebaseReceive(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
-        super(tcp, dict, logging);
+    public Job_RebaseReceive(TCPCommunication tcp, String dictName, Logging logging) {
+        super(tcp, dictName, logging);
+    }
+
+    @Override
+    public JobResult start() {
+        dict_ = Database.getInstance().createDictionary(dictName_);
+        Message syn = new Message(Message.MSG_SYN);
+        syn.addTag(Constant.ACTION, "READY");
+        sendMessage(syn);
+        return JobResult.SUCCESS;
     }
 
     @Override
@@ -28,7 +39,7 @@ class Job_RebaseReceive extends Job_Base {
             number_ = Integer.parseInt(number);
             logging_.push(Log.Type.HARMLESS, "Receive the number is " + number);
             Message ack = new Message(Message.MSG_ACK);
-            tcp_.send(ack);
+            sendMessage(ack);
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
@@ -46,21 +57,13 @@ class Job_RebaseReceive extends Job_Base {
             } catch (Exception e) {
             }
 
-            Message bye = new Message(Message.MSG_BYE);
-            tcp_.send(bye);
+            Message fin = new Message(Message.MSG_FIN);
+            sendMessage(fin);
             return JobResult.DONE;
-        } else if (msg.getType() == Message.MSG_BYE) {
+        } else if (msg.getType() == Message.MSG_FIN) {
             logging_.push(Log.Type.WARNING, "Closed by sender");
             return JobResult.FAIL;
         }
         return JobResult.FAIL;
     }
-
-    @Override
-    public void start() {
-        Message msg = new Message(Message.MSG_SYN);
-        msg.addTag(Constant.ACTION, "READY");
-        tcp_.send(msg);
-    }
-
 }

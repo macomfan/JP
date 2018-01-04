@@ -132,9 +132,9 @@ class Meaning implements IMeaning {
             String typeString = meaningString.substring(0, typeIndex);
             meaningString = meaningString.substring(typeIndex + 1);
             type_ = typeString.trim();
-            if (!type_.equals("")) {
-                Constant.getInstance().addType(type_);
-            }
+//            if (!type_.equals("")) {
+//                Constant.getInstance().addType(type_);
+//            }
             String[] meaningCHSAndJP = meaningString.split("\\" + MEAN_SEP);
             if (meaningCHSAndJP.length > 0) {
                 meaningInCHS_ = meaningCHSAndJP[0].trim();

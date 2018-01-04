@@ -35,7 +35,7 @@ public class Constant {
     }
 
     public void addTone(String tone) {
-        if (tone == null || tone == "") {
+        if (tone == null || tone.equals("")) {
             return;
         }
         if (!tones_.contains(tone)) {
@@ -45,7 +45,7 @@ public class Constant {
     }
 
     public void addType(String type) {
-        if (type == null || type == "") {
+        if (type == null || type.equals("")) {
             return;
         }
         if (!types_.contains(type)) {

@@ -5,6 +5,7 @@
  */
 package JPWord.Synchronizer;
 
+import JPWord.Data.Database;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
@@ -14,16 +15,26 @@ import JPWord.Data.IWordDictionary;
  */
 class Job_RebaseSend extends Job_Base {
 
-    public Job_RebaseSend(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
-        super(tcp, dict, logging);
+    private IWordDictionary dict_ = null;
+
+    public Job_RebaseSend(TCPCommunication tcp, String dictName, Logging logging) {
+        super(tcp, dictName, logging);
     }
 
     @Override
-    public void start() {
+    public JobResult start() {
+        dict_ = Database.getInstance().loadDictionary(dictName_);
+        if (dict_ == null) {
+            Message reason = new Message(Message.MSG_FIN);
+            reason.addTag(Constant.REASON, "Cannot find dict name");
+            sendMessage(reason);
+            return JobResult.FAIL;
+        }
         Message number = new Message(Message.MSG_SYN);
         number.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
-        tcp_.send(number);
+        sendMessage(number);
         logging_.push(Log.Type.HARMLESS, "Send number");
+        return JobResult.SUCCESS;
     }
 
     @Override
@@ -36,21 +47,21 @@ class Job_RebaseSend extends Job_Base {
                 Message data = new Message(Message.MSG_DAT);
                 String wordString = word.encodeToString();
                 data.setValue(wordString);
-                tcp_.send(data);
+                sendMessage(data);
                 try {
                     Thread.sleep(1);
                 } catch (Exception e) {
                 }
             }
             Message done = new Message(Message.MSG_ACK);
-            tcp_.send(done);
-            return JobResult.SUCCESS;
+            sendMessage(done);
+            return JobResult.DONE;
         } else if (msg.getType() == Message.MSG_REP) {
             logging_.push(Log.Type.HARMLESS, "Receive retransmission request, NOT supported");
-            Message data = new Message(Message.MSG_BYE);
-            tcp_.send(msg);
-            tcp_.close();
-        } else if (msg.getType() == Message.MSG_BYE) {
+            Message fin = new Message(Message.MSG_FIN);
+            sendMessage(fin);
+            return JobResult.DONE;
+        } else if (msg.getType() == Message.MSG_FIN) {
             return JobResult.DONE;
         }
         return JobResult.FAIL;

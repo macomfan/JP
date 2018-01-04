@@ -5,6 +5,7 @@
  */
 package JPWord.Synchronizer;
 
+import JPWord.Data.Database;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
@@ -14,11 +15,29 @@ import JPWord.Data.IWordDictionary;
  */
 class Job_AutoSyncSend extends Job_Base {
 
-    public Job_AutoSyncSend(TCPCommunication tcp, IWordDictionary dict, Logging logging) {
-        super(tcp, dict, logging);
+    public Job_AutoSyncSend(TCPCommunication tcp, String dictName, Logging logging) {
+        super(tcp, dictName, logging);
     }
-
+    private IWordDictionary dict_ = null;
     private int number_ = 0;
+
+    @Override
+    public JobResult start() {
+        dict_ = Database.getInstance().loadDictionary(dictName_);
+        if (dict_ == null) {
+            Message reason = new Message(Message.MSG_FIN);
+            reason.addTag(Constant.REASON, "Cannot find dict name");
+            sendMessage(reason);
+            return JobResult.FAIL;
+        }
+        Message msg = new Message(Message.MSG_SYN);
+        msg.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
+        msg.addTag(Constant.DICTNAME, dict_.getName());
+        logging_.push(Log.Type.HARMLESS, "Sending number: %d" + Integer.toString(dict_.getWords().size(), 10));
+
+        sendMessage(msg);
+        return JobResult.SUCCESS;
+    }
 
     @Override
     public JobResult doAction(Message msg) {
@@ -29,7 +48,7 @@ class Job_AutoSyncSend extends Job_Base {
                 Message data = new Message(Message.MSG_DAT);
                 String wordString = word.encodeToString();
                 data.setValue(wordString);
-                tcp_.send(data);
+                sendMessage(data);
             }
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_SYN) {
@@ -46,15 +65,4 @@ class Job_AutoSyncSend extends Job_Base {
         }
         return JobResult.FAIL;
     }
-
-    @Override
-    public void start() {
-        Message msg = new Message(Message.MSG_SYN);
-        msg.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
-        msg.addTag(Constant.DICTNAME, dict_.getName());
-        logging_.push(Log.Type.HARMLESS, "Sending number: %d" + Integer.toString(dict_.getWords().size(), 10));
-        
-        tcp_.send(msg);
-    }
-
 }

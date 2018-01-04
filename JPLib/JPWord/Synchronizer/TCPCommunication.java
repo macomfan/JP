@@ -196,6 +196,7 @@ final class TCPCommunication {
             } catch (Exception e) {
                 System.out.println("3 Error :" + e.getMessage());
             }
+            status_ = Status.CLOSED;
         }
     }
 }
