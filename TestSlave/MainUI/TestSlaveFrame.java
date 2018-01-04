@@ -117,11 +117,16 @@ public class TestSlaveFrame extends javax.swing.JFrame {
         //Database.getInstance().addFile("C:\\Users\\u0151316\\Documents\\JP\\Dictionary_Slave.dat");
         IWordDictionary dict = Database.getInstance().loadDictionary("Standard_JP_Junior");
         try {
-            dict.load();
+            if (dict == null) {
+                dict = Database.getInstance().createDictionary("Standard_JP_Junior");
+            }
+            else {
+                dict.load();
+            }
         } catch (Exception e) {
         }
 
-        Sync.getInstance().startAsSlave(dict, Method.AUTO_SYNC);
+        Sync.getInstance().startAsSlave(dict.getName(), Method.REBASE_FROM_MASTER);
         try {
             dict.save();
         } catch (Exception e) {
