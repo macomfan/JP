@@ -193,7 +193,7 @@ public class DatabasePanel extends javax.swing.JPanel {
     private void jbtnRunAsMasterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRunAsMasterActionPerformed
         // TODO add your handling code here:
         if (serviceController_ == null) {
-            serviceController_ = Sync.getInstance().runAsMaster(Database.getInstance().getDatabase());
+            serviceController_ = Sync.getInstance().runAsMaster();
             jbtnRunAsMaster.setText("Stop");
         } else {
             serviceController_.stopWorker();
