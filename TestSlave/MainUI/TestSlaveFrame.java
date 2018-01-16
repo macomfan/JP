@@ -6,6 +6,7 @@
 package MainUI;
 
 import JPWord.Data.Database;
+import JPWord.Data.Filter.IItemFilter;
 import JPWord.Data.IRoma;
 import JPWord.Data.IWordDictionary;
 import JPWord.Data.Yin50;
@@ -52,9 +53,11 @@ public class TestSlaveFrame extends javax.swing.JFrame {
      */
     public TestSlaveFrame() {
         initComponents();
+        
+        
         WorkerClass worker = new WorkerClass();
         worker.p_ = this;
-        worker.start();
+        //worker.start();
     }
 
     /**
@@ -126,7 +129,7 @@ public class TestSlaveFrame extends javax.swing.JFrame {
         } catch (Exception e) {
         }
 
-        Sync.getInstance().startAsSlave(dict.getName(), Method.REBASE_FROM_MASTER);
+        Sync.getInstance().startAsSlave(dict.getName(), Method.OVERLAP);
         try {
             dict.save();
         } catch (Exception e) {
