@@ -55,7 +55,7 @@ public interface IWord {
 
     List<ITag> getTags();
 
-    ITag addTag(String Name, String Value);
+    ITag setTag(String Name, String Value);
 
     String getTagValue(String Name);
 

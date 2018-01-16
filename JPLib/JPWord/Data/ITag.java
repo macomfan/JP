@@ -11,6 +11,12 @@ package JPWord.Data;
  */
 public interface ITag {
 
+    static final String TAG_MY = "MY";
+    static final String TAG_Skill = "Skill";
+    static final String TAG_RD = "RD";
+    static final String TAG_HD = "HD";
+    static final String TAG_Cls = "Cls";
+    
     String getName();
 
     String getValue();

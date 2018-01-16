@@ -38,12 +38,18 @@ class Tagable {
         return temp;
     }
 
-    public ITag addTag(String Name, String Value) {
-        Tag tag = new Tag();
-        tag.setName(Name);
-        tag.setValue(Value);
-        tags_.put(Name, (ITag) tag);
-        return tag;
+    public ITag setTag(String Name, String Value) {
+        if (!tags_.containsKey(Name)) {
+            Tag tag = new Tag();
+            tag.setName(Name);
+            tag.setValue(Value);
+            tags_.put(Name, (ITag) tag);
+            return tag;
+        } else {
+            ITag tag = tags_.get(Name);
+            tag.setValue(Value);
+            return tag;
+        }
     }
 
     public String getTagValue(String Name) {

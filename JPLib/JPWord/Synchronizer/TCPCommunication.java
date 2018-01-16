@@ -50,7 +50,6 @@ final class TCPCommunication {
             }
 
         }
-
     }
 
     enum Status {

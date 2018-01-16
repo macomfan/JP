@@ -59,6 +59,9 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 } else if (method.is(Method.AUTO_SYNC)) {
                     logging_.push(Log.Type.HARMLESS, "Work mode: AUTO SYNC");
                     currentJob_ = new Job_AutoSyncReceive(tcp_, dictName, logging_);
+                } else if (method.is(Method.OVERLAP)) {
+                    logging_.push(Log.Type.HARMLESS, "Work mode: OVERLAP");
+                    currentJob_ = new Job_OverlapReceive(tcp_, dictName, logging_);
                 } else {
                     logging_.push(Log.Type.FAILURE, "Work mode: UNKNOWN");
                     Message byeMsg = new Message(Message.SYS_BYE);

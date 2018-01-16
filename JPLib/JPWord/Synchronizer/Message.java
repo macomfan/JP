@@ -28,6 +28,7 @@ public class Message {
     public final static byte MSG_DAT = 0x04;
     public final static byte MSG_FIN = 0x05;
     public final static byte MSG_REP = 0x06;
+    public final static byte MSG_ERR = 0x07;
     public final static byte MSG_UNKNOWN = 0x00;
 
     private final static String header_ = "#JP#";

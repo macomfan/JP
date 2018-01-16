@@ -16,7 +16,11 @@ import java.util.List;
 public class FilterHardOnly implements IItemFilter {
 
     public FilterHardOnly() {
+    }
 
+    @Override
+    public IItemFilter createSelf(String mainParam, List<String> params) {
+        return new FilterHardOnly();
     }
 
     @Override

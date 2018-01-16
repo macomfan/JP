@@ -5,8 +5,8 @@
  */
 package JPWord.Data.Filter;
 
-import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,32 +14,33 @@ import java.util.List;
  *
  * @author u0151316
  */
-public class FilterByType implements IItemFilter {
+public class FilterByTextTag implements IItemFilter {
 
-    private List<String> types_ = new LinkedList<>();
-    
-    public FilterByType() {
+    private List<String> tagvalues_ = new LinkedList<>();
+    private String tagname_ = "";
+
+    public FilterByTextTag() {
         
     }
     
-    public FilterByType(List<String> types) {
-        types_ = types;
+    public FilterByTextTag(String tagname, List<String> tagvalues) {
+        tagvalues_ = tagvalues;
+        tagname_ = tagname;
     }
 
-    public FilterByType(String... types) {
-        for (int i = 0; i < types.length; i++) {
-            types_.add(types[i]);
-        }
+    public FilterByTextTag(String tagname, String... tagvalues) {
+        tagvalues_.addAll(Arrays.asList(tagvalues));
+        tagname_ = tagname;
     }
 
     @Override
     public IItemFilter createSelf(String mainParam, List<String> params) {
-        return new FilterByType(params);
+        return new FilterByTextTag(mainParam, params);
     }
 
     @Override
     public int buildChildGroup(List<Object> items) {
-        return types_.size();
+        return tagvalues_.size();
     }
 
     @Override
@@ -49,11 +50,9 @@ public class FilterByType implements IItemFilter {
         if (w == null) {
             return objGroup;
         }
-        for (int i = 0; i < types_.size(); i++) {
-            for (IMeaning m : w.getMeanings()) {
-                if (m.getType().equals(types_.get(i))) {
-                    objGroup.add(i);
-                }
+        for (int i = 0; i < tagvalues_.size(); i++) {
+            if (tagvalues_.get(i).equals(w.getTagValue(tagname_)) || tagvalues_.get(i).equals("*")) {
+                objGroup.add(i);
             }
         }
         return objGroup;

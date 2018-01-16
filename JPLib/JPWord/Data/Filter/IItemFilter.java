@@ -11,7 +11,11 @@ import java.util.List;
  *
  * @author u0151316
  */
-public  interface IItemFilter {
-        public int buildChildGroup(List<Object> items);
-        public List<Integer> distributeItem(Object item);
+public interface IItemFilter {
+
+    int buildChildGroup(List<Object> items);
+
+    List<Integer> distributeItem(Object item);
+
+    IItemFilter createSelf(String mainParam, List<String> params);
 }

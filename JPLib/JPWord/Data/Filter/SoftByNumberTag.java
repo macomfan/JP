@@ -4,10 +4,7 @@
  * and open the template in the editor.
  */
 package JPWord.Data.Filter;
-
-import JPWord.Data.Filter.IItemFilter;
 import JPWord.Data.IWord;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -17,10 +14,20 @@ public class SoftByNumberTag implements IItemFilter {
 
     private List<String> dateList_ = new LinkedList<>();
     private String tagName_ = "";
-
-    public SoftByNumberTag(String tagName) {
+    
+    public SoftByNumberTag() {
+        
+    }
+    
+    public SoftByNumberTag(String tagName, List<String> params) {
         tagName_ = tagName;
     }
+
+    @Override
+    public IItemFilter createSelf(String mainParam, List<String> params) {
+        return new SoftByNumberTag(mainParam, params);
+    }
+    
     private void insertNumber(String num) {
         if (dateList_.isEmpty()) {
             dateList_.add(num);

@@ -7,6 +7,7 @@ package JPWord.Data.Filter;
 
 import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,32 +15,30 @@ import java.util.List;
  *
  * @author u0151316
  */
-public class FilterByType implements IItemFilter {
+public class FilterBySpecial implements IItemFilter {
 
-    private List<String> types_ = new LinkedList<>();
-    
-    public FilterByType() {
-        
-    }
-    
-    public FilterByType(List<String> types) {
-        types_ = types;
+    private List<String> special_ = new LinkedList<>();
+
+    public FilterBySpecial() {
+
     }
 
-    public FilterByType(String... types) {
-        for (int i = 0; i < types.length; i++) {
-            types_.add(types[i]);
-        }
+    public FilterBySpecial(List<String> values) {
+        special_ = values;
+    }
+
+    public FilterBySpecial(String tagname, String... tagvalues) {
+        special_.addAll(Arrays.asList(tagvalues));
     }
 
     @Override
     public IItemFilter createSelf(String mainParam, List<String> params) {
-        return new FilterByType(params);
+        return new FilterBySpecial(params);
     }
 
     @Override
     public int buildChildGroup(List<Object> items) {
-        return types_.size();
+        return special_.size();
     }
 
     @Override
@@ -49,11 +48,10 @@ public class FilterByType implements IItemFilter {
         if (w == null) {
             return objGroup;
         }
-        for (int i = 0; i < types_.size(); i++) {
-            for (IMeaning m : w.getMeanings()) {
-                if (m.getType().equals(types_.get(i))) {
-                    objGroup.add(i);
-                }
+        for (int i = 0; i < special_.size(); i++) {
+            if (w.getContent().indexOf(special_.get(i)) != -1
+                    || w.getKana().indexOf(special_.get(i)) != -1) {
+                objGroup.add(i);
             }
         }
         return objGroup;

@@ -14,10 +14,11 @@ import java.util.List;
  * @author u0151316
  */
 public class Constant {
-
+    
     private static Constant instance_;
     private List<String> tones_ = new LinkedList<>();
     private List<String> types_ = new LinkedList<>();
+    private List<String> classes_ = new LinkedList<>();
 
     private Constant() {
 
@@ -25,6 +26,10 @@ public class Constant {
 
     public List<String> getTypes() {
         return types_;
+    }
+
+    public List<String> getClasses() {
+        return classes_;
     }
 
     public static Constant getInstance() {
@@ -52,5 +57,15 @@ public class Constant {
             types_.add(type);
         }
         Collections.sort(types_);
+    }
+
+    public void addClass(String cls) {
+        if (cls == null || cls.equals("")) {
+            return;
+        }
+        if (!classes_.contains(cls)) {
+            classes_.add(cls);
+        }
+        Collections.sort(classes_);
     }
 }

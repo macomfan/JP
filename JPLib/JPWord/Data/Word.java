@@ -27,7 +27,6 @@ class Word extends Tagable implements IWord {
     private List<IMeaning> means_ = new LinkedList<>();
     private UUID id_ = null;
     private IRoma roma_ = null;
-    private SortedMap<String, ITag> tags_ = new TreeMap<>();
     private boolean changeFlag_ = false;
     private long timestamp_ = 0;
 
@@ -40,7 +39,7 @@ class Word extends Tagable implements IWord {
 
     @Override
     public boolean isEmpty() {
-        if (content_.isEmpty() && kana_.isEmpty() && tone_.isEmpty() && tags_.size() == 0) {
+        if (content_.isEmpty() && kana_.isEmpty() && tone_.isEmpty() && getTags().size() == 0) {
             for (IMeaning iMeaning : means_) {
                 if (!iMeaning.isEmpty()) {
                     return false;
@@ -95,9 +94,9 @@ class Word extends Tagable implements IWord {
     }
 
     @Override
-    public ITag addTag(String Name, String Value) {
+    public ITag setTag(String Name, String Value) {
         updatedFlag();
-        return super.addTag(Name, Value);
+        return super.setTag(Name, Value);
     }
 
     @Override
@@ -120,7 +119,7 @@ class Word extends Tagable implements IWord {
 
     @Override
     public int getSkill() {
-        ITag skill = getTagItem("Skill");
+        ITag skill = getTagItem(ITag.TAG_Skill);
         if (skill == null) {
             return 0;
         }
@@ -157,9 +156,9 @@ class Word extends Tagable implements IWord {
 
     @Override
     public void updateSkill(int skillValue) {
-        ITag skill = getTagItem("Skill");
+        ITag skill = getTagItem(ITag.TAG_Skill);
         if (skill == null) {
-            skill = addTag("Skill", "0");
+            skill = setTag(ITag.TAG_Skill, "0");
         }
         int value = Integer.parseInt(skill.getValue(), 10);
         skill.setValue(Integer.toString(skillValue));
@@ -174,14 +173,14 @@ class Word extends Tagable implements IWord {
 
     @Override
     public void setAsMyWord(boolean flag) {
-        ITag my = getTagItem("MY");
+        ITag my = getTagItem(ITag.TAG_MY);
         if (my == null) {
             if (flag != false) {
-                my = addTag("MY", "1");
+                my = setTag(ITag.TAG_MY, "1");
             }
         } else {
             if (flag == false) {
-                removeTag("MY");
+                removeTag(ITag.TAG_MY);
             }
         }
     }
@@ -207,7 +206,7 @@ class Word extends Tagable implements IWord {
     private ITag getAndCreateTag(String Name) {
         ITag tag = getTagItem(Name);
         if (tag == null) {
-            tag = addTag(Name, "");
+            tag = setTag(Name, "");
         }
         return tag;
     }
@@ -216,7 +215,7 @@ class Word extends Tagable implements IWord {
         Calendar now = Calendar.getInstance();
         ITag rt = getTagItem("RD");
         if (rt == null) {
-            rt = addTag("RD", "0");
+            rt = setTag("RD", "0");
         }
         rt.setValue(String.format("%04d%02d%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH)));
     }
@@ -224,7 +223,7 @@ class Word extends Tagable implements IWord {
     private void setHardFlag(boolean flag) {
         ITag hard = getTagItem("HD");
         if (hard == null) {
-            hard = addTag("HD", "N");
+            hard = setTag("HD", "N");
         }
         if (flag == true) {
             hard.setValue("Y");
@@ -321,7 +320,7 @@ class Word extends Tagable implements IWord {
             }
             String name = tagString.substring(0, eqIndex);
             String value = tagString.substring(eqIndex + 1);
-            super.addTag(name, value);
+            super.setTag(name, value);
         }
     }
 

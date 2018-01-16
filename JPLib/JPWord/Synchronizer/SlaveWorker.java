@@ -51,6 +51,8 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
             currentJob_ = new Job_RebaseReceive(tcp_, dictName_, logging_);
         } else if (method_.is(Method.REBASE_TO_MASTER)) {
             currentJob_ = new Job_RebaseSend(tcp_, dictName_, logging_);
+        } else if (method_.is(Method.OVERLAP)) {
+            currentJob_ = new Job_OverlapSend(tcp_, dictName_, logging_);
         }
         tcp_.send(msg);
     }
