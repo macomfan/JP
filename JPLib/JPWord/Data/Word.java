@@ -196,11 +196,7 @@ class Word extends Tagable implements IWord {
 
     @Override
     public List<IMeaning> getMeanings() {
-        List<IMeaning> means = new LinkedList<>();
-        for (IMeaning m : means_) {
-            means.add(m);
-        }
-        return means;
+        return means_;
     }
 
     private ITag getAndCreateTag(String Name) {
