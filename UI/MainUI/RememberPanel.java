@@ -11,6 +11,7 @@ import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 import JPWord.Data.Filter.ItemGroup;
 import JPWord.Data.Filter.SoftByNumberTag;
+import JPWord.Data.ITag;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -45,8 +46,8 @@ public class RememberPanel extends javax.swing.JPanel {
     public void initialize() {
         dictionary_ = Database.getInstance().getDatabase();
         group_ = new ItemGroup(dictionary_.getWords());
-        filterList_.add(new FilterStruct("Sort by skill", new SoftByNumberTag("Skill")));
-        filterList_.add(new FilterStruct("Sort by review date", new SoftByNumberTag("RD")));
+        filterList_.add(new FilterStruct("Sort by skill", new SoftByNumberTag(ITag.TAG_Skill, null)));
+        filterList_.add(new FilterStruct("Sort by review date", new SoftByNumberTag("RD", null)));
         displayFilter();
         reSort();
     }
@@ -123,8 +124,8 @@ public class RememberPanel extends javax.swing.JPanel {
         } else {
             this.jtxtNote.setText("");
         }
-        jtxtSkill.setText(currentWord_.getTagValue("Skill"));
-        jtxtRD.setText(currentWord_.getTagValue("RD"));
+        jtxtSkill.setText(currentWord_.getTagValue(ITag.TAG_Skill));
+        jtxtRD.setText(currentWord_.getTagValue(ITag.TAG_RD));
         if (group_ != null) {
             jtxtCount.setText(String.format("%d/%d", currentNumber_, group_.getCount()));
         }

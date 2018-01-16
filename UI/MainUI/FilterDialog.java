@@ -6,10 +6,11 @@
 package MainUI;
 
 import JPWord.Data.Constant;
-import JPWord.Data.Filter.FilterByClass;
+import JPWord.Data.Filter.FilterByTextTag;
 import JPWord.Data.Filter.FilterByType;
 import JPWord.Data.Filter.FilterHardOnly;
 import JPWord.Data.Filter.SoftByNumberTag;
+import JPWord.Data.ITag;
 import javax.swing.DefaultComboBoxModel;
 
 /**
@@ -133,13 +134,13 @@ public class FilterDialog extends javax.swing.JDialog {
         isOK_ = true;
         if (jrbCls.isSelected()) {
             String f = "Filter by class: " + jtxtCls.getText();
-            filter_ = new FilterStruct(f, new FilterByClass(jtxtCls.getText()));
+            filter_ = new FilterStruct(f, new FilterByTextTag("CLS", jtxtCls.getText()));
         } else if (jrbHD.isSelected()) {
             filter_ = new FilterStruct("Hard only", new FilterHardOnly());
         } else if (jrbRD.isSelected()) {
-            filter_ = new FilterStruct("Sort by review date", new SoftByNumberTag("RD"));
+            filter_ = new FilterStruct("Sort by review date", new SoftByNumberTag(ITag.TAG_RD, null));
         } else if (jrbSkill.isSelected()) {
-            filter_ = new FilterStruct("Sort by skill", new SoftByNumberTag("Skill"));
+            filter_ = new FilterStruct("Sort by skill", new SoftByNumberTag(ITag.TAG_Skill, null));
         } else if (jrbType.isSelected()) {
             String f = "Filter by type: " + (String)jcbType.getSelectedItem();
             filter_ = new FilterStruct(f, new FilterByType((String)jcbType.getSelectedItem()));
