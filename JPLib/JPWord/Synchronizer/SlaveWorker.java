@@ -24,6 +24,8 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
     private String dictName_ = "";
     private Method method_;
     private Job_Base currentJob_ = null;
+    
+    private static final int ERROR_ = 1;
 
     Logging logging_ = null;
 
@@ -41,9 +43,9 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         logging_.push(Log.Type.SUCCESS, "Connected to master");
         Message msg = new Message(Message.SYS_REQUEST);
         msg.setValue("Hello");
-        msg.addTag(Constant.METHOD, method_.getValue());
+        msg.addTag(Constant.METHOD, method_.getStringValue());
         msg.addTag(Constant.DICTNAME, dictName_);
-        logging_.push(Log.Type.HARMLESS, "Send request to master");
+        logging_.push(Log.Type.HARMLESS, "Send request to master, sync mode is " + method_.getStringValue());
 
         if (method_.is(Method.AUTO_SYNC)) {
             currentJob_ = new Job_AutoSyncSend(tcp_, dictName_, logging_);
@@ -113,6 +115,7 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
     @Override
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
+        logging_.push(Log.Type.SUCCESS, "Start as slave ...");
         try {
             tcp_.setCallback(this);
             tcp_.listen();
@@ -121,17 +124,25 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
             Message msg = new Message(Message.SYS_DETECT);
             byte[] buf = msg.toByteArray();
             DatagramSocket socket = new DatagramSocket();
+            boolean connected = false;
             for (int i = 0; i < Sync.TryTimes; i++) {
                 DatagramPacket dp = new DatagramPacket(buf, buf.length, adds, Sync.BroadcastPort);
                 socket.send(dp);
-                logging_.push(Log.Type.HARMLESS, "Sending...");
+                logging_.push(Log.Type.HARMLESS, "Finding master services ...");
                 Thread.sleep(1000);
                 if (tcp_.getStatus() == TCPCommunication.Status.CONNECTED) {
+                    connected = true;
                     tcp_.receive();
                     break;
                 }
             }
-            logging_.push(Log.Type.HARMLESS, "Done");
+            if (connected) {
+                logging_.push(Log.Type.SUCCESS, "Done");
+            }
+            else {
+                logging_.push(Log.Type.FAILURE, "Cannot find master");
+            }
+            logging_.setJobDone();
             closeJob();
             socket.close();
         } catch (Exception e) {

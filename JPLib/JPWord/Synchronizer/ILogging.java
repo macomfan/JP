@@ -11,4 +11,6 @@ package JPWord.Synchronizer;
  */
 public interface ILogging {
     Log pop();
+    
+    boolean isJobDone();
 }

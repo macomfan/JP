@@ -75,7 +75,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                         closeJob();
                     }
                 }
-                newMsg.addTag(Constant.METHOD, method.getValue());
+                newMsg.addTag(Constant.METHOD, method.getStringValue());
                 tcp_.send(newMsg);
                 file_ = new File("backup.dat");
                 break;

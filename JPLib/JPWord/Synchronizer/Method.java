@@ -22,7 +22,7 @@ public class Method {
         value_ = value;
     }
 
-    public String getValue() {
+    public String getStringValue() {
         return value_;
     }
 
@@ -34,6 +34,6 @@ public class Method {
     }
 
     public boolean is(Method method) {
-        return is(method.getValue());
+        return is(method.getStringValue());
     }
 }

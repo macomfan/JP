@@ -14,9 +14,9 @@ public class Log {
     public enum Type {
         HARMLESS,
         WARNING,
-        FAILURE,
         SUCCESS,
-        UNKNOWN
+        UNKNOWN,
+        FAILURE,
     }
 
     private String what_ = "";

@@ -34,6 +34,7 @@ public class Sync {
     }
 
     public void startAsSlave(String dictName, Method method) {
+        logging_ = new Logging();
         SlaveWorker slave = new SlaveWorker(dictName, method);
         slave.setLogging(logging_);
         slave.start();

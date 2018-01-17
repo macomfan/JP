@@ -16,6 +16,8 @@ class Logging implements ILogging {
     
     Queue<Log> logs_ = new ArrayBlockingQueue<>(1000);
     
+    private boolean mJobDone = false;
+    
     public Logging() {
         
     }
@@ -29,10 +31,20 @@ class Logging implements ILogging {
         push(new Log(type, what));
     }
     
+    public void setJobDone() {
+        mJobDone = true;
+    }
+    
+    @Override
     public synchronized Log pop() {
         if (logs_.isEmpty()) {
             return null;
         }
         return logs_.poll();
+    }
+    
+    @Override
+    public boolean isJobDone() {
+        return mJobDone;
     }
 }
