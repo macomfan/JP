@@ -40,10 +40,6 @@ public class Job_OverlapReceive extends Job_Base {
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_SYN) {
             number_ = confirmDataSummary(msg);
-            if (number_ == 0) {
-                sendError("Receive number is 0");
-                return JobResult.FAIL;
-            }
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
