@@ -30,6 +30,10 @@ public class Database {
         return instance_;
     }
 
+    private Database() {
+        
+    }
+    
     public void initialize(String footFolder, IJPFileReader reader, IJPFileWriter writer) {
         reader_ = reader;
         writer_ = writer;
@@ -49,6 +53,14 @@ public class Database {
                 }
             }
         }
+        
+        Persistence.getInstance().addCodec(Word.class, "V1", new Word.Codec_V1());
+        Persistence.getInstance().addCodec(Meaning.class, "V1", new Meaning.Codec_V1());
+        Persistence.getInstance().addCodec(Meaning.class, "V2", new Meaning.Codec_V2());
+        Persistence.getInstance().addCodec(Example.class, "V1", new Example.Codec_V1());
+        Persistence.getInstance().addCodec(Tagable.class, "V1", new Tagable.Codec_V1());
+        
+        Persistence.getInstance().setCurrentCodecVersion("V2");
     }
 
     public List<String> getDictList() {
@@ -65,6 +77,7 @@ public class Database {
         try {
             dict.load();
         } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         return dict;

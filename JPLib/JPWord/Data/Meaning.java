@@ -14,9 +14,125 @@ import java.util.LinkedList;
  */
 class Meaning implements IMeaning {
 
-    private static final String TYPE_SEP = ":";
-    private static final String MEAN_SEP = "\\";
-    private static final String MEAN_EXAMPLE_SEP = "-";
+    public static class Codec_V1 implements ICodec {
+
+        private static final String TYPE_SEP = ":";
+        private static final String MEAN_SEP = "\\";
+        private static final String MEAN_EXAMPLE_SEP = "-";
+
+        public String encodeToString(Object obj) {
+            Meaning mean = (Meaning)obj;
+            String line = "";
+            if (mean.type_.equals("") && mean.meaningInCHS_.equals("") && mean.meaningInJP_.equals("")) {
+                return "";
+            }
+            line += mean.type_ + ":";
+            if (!mean.meaningInCHS_.equals("")) {
+                line += mean.meaningInCHS_;
+            }
+            if (!mean.meaningInJP_.equals("")) {
+                line += "\\" + mean.meaningInJP_;
+            }
+
+            for (IExample example : mean.examples_) {
+                line += "-";
+                line += example.encodeToString();
+            }
+            return line;
+        }
+
+        public boolean decodeFromString(Object obj, String str) {
+            Meaning mean = (Meaning)obj;
+            String[] meaningItems = str.split("\\" + MEAN_EXAMPLE_SEP);
+            if (meaningItems.length > 0) {
+                String meaningString = meaningItems[0];
+                if (meaningString.length() == 0) {
+                    return false;
+                }
+                meaningString = meaningString.replace('/', '\\');
+                int typeIndex = meaningString.indexOf(TYPE_SEP);
+                String typeString = meaningString.substring(0, typeIndex);
+                meaningString = meaningString.substring(typeIndex + 1);
+                mean.type_ = typeString.trim();
+
+                String[] meaningCHSAndJP = meaningString.split("\\" + MEAN_SEP);
+                if (meaningCHSAndJP.length > 0) {
+                    mean.meaningInCHS_ = meaningCHSAndJP[0].trim();
+                }
+                if (meaningCHSAndJP.length > 1) {
+                    mean.meaningInJP_ = meaningCHSAndJP[1].trim();
+                }
+            }
+            for (int i = 1; i < meaningItems.length; i++) {
+                Example example = new Example();
+                if (example.decodeFromString(meaningItems[i])) {
+                    mean.examples_.add(example);
+                    example.parent_ = mean;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static class Codec_V2 implements ICodec {
+
+        private static final String TYPE_SEP = ":";
+        private static final String MEAN_SEP = "\\";
+        private static final String MEAN_EXAMPLE_SEP = "<E>";
+
+        public String encodeToString(Object obj) {
+            Meaning mean = (Meaning)obj;
+            String line = "";
+            if (mean.type_.equals("") && mean.meaningInCHS_.equals("") && mean.meaningInJP_.equals("")) {
+                return "";
+            }
+            line += mean.type_ + ":";
+            if (!mean.meaningInCHS_.equals("")) {
+                line += mean.meaningInCHS_;
+            }
+            if (!mean.meaningInJP_.equals("")) {
+                line += MEAN_SEP + mean.meaningInJP_;
+            }
+
+            for (IExample example : mean.examples_) {
+                line += MEAN_EXAMPLE_SEP;
+                line += example.encodeToString();
+            }
+            return line;
+        }
+
+        public boolean decodeFromString(Object obj, String str) {
+            Meaning mean = (Meaning)obj;
+            String[] meaningItems = str.split("\\" + MEAN_EXAMPLE_SEP);
+            if (meaningItems.length > 0) {
+                String meaningString = meaningItems[0];
+                if (meaningString.length() == 0) {
+                    return false;
+                }
+                meaningString = meaningString.replace('/', '\\');
+                int typeIndex = meaningString.indexOf(TYPE_SEP);
+                String typeString = meaningString.substring(0, typeIndex);
+                meaningString = meaningString.substring(typeIndex + 1);
+                mean.type_ = typeString.trim();
+
+                String[] meaningCHSAndJP = meaningString.split("\\" + MEAN_SEP);
+                if (meaningCHSAndJP.length > 0) {
+                    mean.meaningInCHS_ = meaningCHSAndJP[0].trim();
+                }
+                if (meaningCHSAndJP.length > 1) {
+                    mean.meaningInJP_ = meaningCHSAndJP[1].trim();
+                }
+            }
+            for (int i = 1; i < meaningItems.length; i++) {
+                Example example = new Example();
+                if (example.decodeFromString(meaningItems[i])) {
+                    mean.examples_.add(example);
+                    example.parent_ = mean;
+                }
+            }
+            return true;
+        }
+    }
 
     private String meaningInCHS_ = "";
     private String meaningInJP_ = "";
@@ -25,6 +141,7 @@ class Meaning implements IMeaning {
     public Word parent_ = null;
 
     public Meaning(Word parent) {
+        this();
         parent_ = parent;
     }
 
@@ -99,58 +216,12 @@ class Meaning implements IMeaning {
 
     @Override
     public String encodeToString() {
-        String line = "";
-        if (type_.equals("") && meaningInCHS_.equals("") && meaningInJP_.equals("")) {
-            return "";
-        }
-        line += type_ + ":";
-        if (!meaningInCHS_.equals("")) {
-            line += meaningInCHS_;
-        }
-        if (!meaningInJP_.equals("")) {
-            line += "\\" + meaningInJP_;
-        }
-
-        for (IExample example : examples_) {
-            line += "-";
-            line += example.encodeToString();
-        }
-        return line;
+        return Persistence.getInstance().getCurrentMeanCodec().encodeToString(this);
     }
 
     @Override
     public boolean decodeFromString(String str) {
-        String[] meaningItems = str.split("\\" + MEAN_EXAMPLE_SEP);
-        IMeaning mean = null;
-        if (meaningItems.length > 0) {
-            String meaningString = meaningItems[0];
-            if (meaningString.length() == 0) {
-                return false;
-            }
-            meaningString = meaningString.replace('/', '\\');
-            int typeIndex = meaningString.indexOf(TYPE_SEP);
-            String typeString = meaningString.substring(0, typeIndex);
-            meaningString = meaningString.substring(typeIndex + 1);
-            type_ = typeString.trim();
-//            if (!type_.equals("")) {
-//                Constant.getInstance().addType(type_);
-//            }
-            String[] meaningCHSAndJP = meaningString.split("\\" + MEAN_SEP);
-            if (meaningCHSAndJP.length > 0) {
-                meaningInCHS_ = meaningCHSAndJP[0].trim();
-            }
-            if (meaningCHSAndJP.length > 1) {
-                meaningInJP_ = meaningCHSAndJP[1].trim();
-            }
-        }
-        for (int i = 1; i < meaningItems.length; i++) {
-            Example example = new Example();
-            if (example.decodeFromString(meaningItems[i])) {
-                examples_.add(example);
-                example.parent_ = this;
-            }
-        }
-        return true;
+        return Persistence.getInstance().getCurrentMeanCodec().decodeFromString(this, str);
     }
 
 }

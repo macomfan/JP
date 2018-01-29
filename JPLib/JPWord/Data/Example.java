@@ -11,7 +11,36 @@ package JPWord.Data;
  */
 class Example implements IExample {
 
-    private static final String EXAMPLE_SEP = "\\";
+    public static class Codec_V1 implements ICodec {
+
+        private static final String EXAMPLE_SEP = "\\";
+
+        public String encodeToString(Object obj) {
+            Example example = (Example)obj;
+            
+            if (example.isEmpty()) {
+                return "";
+            }
+            return example.exampleInJP_ + EXAMPLE_SEP + example.exampleInCHS_;
+        }
+
+        public boolean decodeFromString(Object obj, String str) {
+            Example example = (Example)obj;
+            if (str.length() == 0) {
+                return false;
+            }
+
+            String exampleItem = str.replace('/', '\\');
+            String[] exampleCHSAndJP = exampleItem.split("\\" + EXAMPLE_SEP);
+            if (exampleCHSAndJP.length > 0) {
+                example.exampleInJP_ = exampleCHSAndJP[0].trim();
+            }
+            if (exampleCHSAndJP.length > 1) {
+                example.exampleInCHS_ = exampleCHSAndJP[1].trim();
+            }
+            return true;
+        }
+    }
 
     private String exampleInJP_;
     private String exampleInCHS_;
@@ -29,30 +58,15 @@ class Example implements IExample {
         }
         return false;
     }
-    
+
     @Override
     public String encodeToString() {
-        if (isEmpty()) {
-            return "";
-        }
-        return exampleInJP_ + EXAMPLE_SEP + exampleInCHS_;
+        return Persistence.getInstance().getCurrentExampleCodec().encodeToString(this);
     }
 
     @Override
     public boolean decodeFromString(String str) {
-        if (str.length() == 0) {
-            return false;
-        }
-        
-        String exampleItem = str.replace('/', '\\');
-        String[] exampleCHSAndJP = exampleItem.split("\\" + EXAMPLE_SEP);
-        if (exampleCHSAndJP.length > 0) {
-            exampleInJP_ = exampleCHSAndJP[0].trim();
-        }
-        if (exampleCHSAndJP.length > 1) {
-            exampleInCHS_ = exampleCHSAndJP[1].trim();
-        }
-        return true;
+        return Persistence.getInstance().getCurrentExampleCodec().decodeFromString(this, str);
     }
 
     public void setExampleInJP(String value) {

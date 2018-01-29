@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface IWordDictionary {
 
+    public String getVersion();
+    
     public IWord getWord(String id);
 
     public void load() throws Exception;

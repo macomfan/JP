@@ -17,6 +17,44 @@ import java.util.TreeMap;
  */
 class Tagable {
 
+    public static class Codec_V1 implements ICodec {
+
+        private final String SOH = String.valueOf((char) 0x01);
+
+        @Override
+        public String encodeToString(Object obj) {
+            Tagable tagable = (Tagable) obj;
+            String tagString = "";
+            for (ITag tag : tagable.getTags()) {
+                tagString += tag.getName();
+                tagString += "=";
+                tagString += tag.getValue();
+                tagString += SOH;
+            }
+            return tagString;
+        }
+
+        @Override
+        public boolean decodeFromString(Object obj, String str) {
+            Tagable tagable = (Tagable) obj;
+            if (str == null || str.equals("")) {
+                return false;
+            }
+            String[] tagstrings = str.substring(1).split("\\" + SOH);
+            for (String tagString : tagstrings) {
+                int eqIndex = tagString.indexOf('=');
+                if (eqIndex == -1) {
+                    continue;
+                }
+                String name = tagString.substring(0, eqIndex);
+                String value = tagString.substring(eqIndex + 1);
+                tagable.setTag(name, value);
+            }
+            return true;
+        }
+
+    }
+
     private SortedMap<String, ITag> tags_ = new TreeMap<>();
 
     public Tagable() {

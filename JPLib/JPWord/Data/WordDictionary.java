@@ -17,7 +17,7 @@ import java.util.HashMap;
  *
  * @author u0151316
  */
-class WordDictionary implements IWordDictionary {
+class WordDictionary extends Tagable implements IWordDictionary {
 
     private String name_ = "";
     private File file_ = null;
@@ -39,6 +39,11 @@ class WordDictionary implements IWordDictionary {
     }
 
     @Override
+    public String getVersion() {
+        return getTagValue("Version");
+    }
+
+    @Override
     public void load() throws Exception {
         if (!quickKey_.isEmpty()) {
             return;
@@ -46,13 +51,24 @@ class WordDictionary implements IWordDictionary {
         reader_.open();
         String line;
         while ((line = reader_.readline()) != null) {
-            IWord word = new Word();
-            if (word.decodeFromString(line)) {
-                quickKey_.put(word.getID(), (Word) word);
-                words_.add((Word) word);
+            if (line.indexOf(":") == 0) {
+                Persistence.getInstance().getCurrentTagCodec().decodeFromString(this, line);
+                Persistence.getInstance().setCurrentCodecVersion(this.getVersion());
+            } else {
+                IWord word = new Word();
+                ((Word) word).parent_ = this;
+                if (word.decodeFromString(line)) {
+                    ((Word) word).parent_ = this;
+                    quickKey_.put(word.getID(), (Word) word);
+                    words_.add((Word) word);
+                }
             }
         }
         reader_.close();
+        if (getVersion().equals("V1")) {
+            setTag("Version", "V2");
+            Persistence.getInstance().setCurrentCodecVersion(this.getVersion());
+        }
     }
 
     @Override
@@ -68,6 +84,9 @@ class WordDictionary implements IWordDictionary {
             return;
         }
         writer_.open();
+        String tagline = Persistence.getInstance().getCurrentTagCodec().encodeToString(this);
+        tagline = ":" + tagline;
+        writer_.writeline(tagline);
         for (Word word : words_) {
             String line = word.encodeToString();
             if (line != null && !line.equals("")) {
@@ -88,6 +107,7 @@ class WordDictionary implements IWordDictionary {
     @Override
     public IWord createWord() {
         Word w = new Word(java.util.UUID.randomUUID());
+        w.parent_ = this;
         return (IWord) w;
     }
 
@@ -115,6 +135,7 @@ class WordDictionary implements IWordDictionary {
         if (!quickKey_.containsKey(word.getID())) {
             quickKey_.put(word.getID(), (Word) word);
             words_.add((Word) word);
+            ((Word) word).parent_ = this;
             ((Word) word).updatedFlag();
         }
     }

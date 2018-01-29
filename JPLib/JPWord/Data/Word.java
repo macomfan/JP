@@ -8,9 +8,10 @@ package JPWord.Data;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
 
 /**
  *
@@ -18,8 +19,77 @@ import java.util.Calendar;
  */
 class Word extends Tagable implements IWord {
 
-    private static final String ITEM_SEP = "|";
-    private static final String SOH = String.valueOf((char) 0x01);
+    public static class Codec_V1 implements ICodec {
+
+        private final String ITEM_SEP = "|";
+        private final String SOH = String.valueOf((char) 0x01);
+
+        public String encodeToString(Object obj) {
+            Word word = (Word)obj;
+            
+            if (word.content_.equals("")) {
+                return null;
+            }
+            String line = "\"" + word.getID();
+            line += "\"" + "|";
+            line += word.content_ + "|";
+            line += word.kana_ + "|";
+            line += word.tone_;
+            boolean meanExist = false;
+            for (IMeaning mean : word.means_) {
+                meanExist = true;
+                line += "|";
+                line += mean.encodeToString();
+            }
+            if (!meanExist) {
+                line += "|";
+            }
+            line += "|";
+            String tagString = Persistence.getInstance().getCurrentTagCodec().encodeToString(obj);
+            if (tagString.length() != 0) {
+                tagString = SOH + tagString;
+                tagString += "|";
+                line += tagString;
+            }
+            line += "#";
+            line += Long.toString(word.timestamp_, 10);
+            return line;
+        }
+
+        public boolean decodeFromString(Object obj, String str) {
+            Word word = (Word)obj;
+            String items[] = str.split("\\" + ITEM_SEP);
+            if (items.length < 4) {
+                System.out.println(String.format("Pares error at: %s", str));
+                return false;
+            }
+            if (items[0].length() != 38) {
+                System.out.println(String.format("Not start with GUID: %s", str));
+                return false;
+            }
+            word.id_ = UUID.fromString(items[0].substring(1, 37));
+            word.content_ = items[1];
+            word.kana_ = items[2];
+            word.tone_ = items[3];
+            for (int i = 4; i < items.length; i++) {
+                if (items[i].length() != 0) {
+                    if (items[i].charAt(0) == '#') {
+                        word.timestamp_ = Long.parseLong(items[i].substring(1, items[i].length()), 10);
+                    } else if (items[i].charAt(0) != SOH.charAt(0)) {
+                        Meaning mean = new Meaning();
+                        if (mean.decodeFromString(items[i])) {
+                            mean.parent_ = word;
+                            word.means_.add(mean);
+                        }
+                    } else {
+                        Persistence.getInstance().getCurrentTagCodec().decodeFromString(obj, items[i]);
+                    }
+                }
+            }
+            word.changeFlag_ = false;
+            return true;
+        }
+    }
 
     private String kana_ = "";
     private String content_ = "";
@@ -29,6 +99,7 @@ class Word extends Tagable implements IWord {
     private IRoma roma_ = null;
     private boolean changeFlag_ = false;
     private long timestamp_ = 0;
+    public WordDictionary parent_ = null;
 
     public Word(UUID id) {
         id_ = id;
@@ -231,93 +302,12 @@ class Word extends Tagable implements IWord {
 
     @Override
     public String encodeToString() {
-        if (content_.equals("")) {
-            return null;
-        }
-        String line = "\"" + getID();
-        line += "\"" + "|";
-        line += content_ + "|";
-        line += kana_ + "|";
-        line += tone_;
-        boolean meanExist = false;
-        for (IMeaning mean : means_) {
-            meanExist = true;
-            line += "|";
-            line += mean.encodeToString();
-        }
-        if (!meanExist) {
-            line += "|";
-        }
-        line += "|";
-        String tagString = "";
-        for (ITag tag : getTags()) {
-            tagString += tag.getName();
-            tagString += "=";
-            tagString += tag.getValue();
-            tagString += SOH;
-        }
-        if (tagString.length() != 0) {
-            tagString = SOH + tagString;
-            tagString += "|";
-            line += tagString;
-        }
-        line += "#";
-        line += Long.toString(timestamp_, 10);
-        return line;
+        return Persistence.getInstance().getCurrentWordCodec().encodeToString(this);
     }
 
     @Override
     public boolean decodeFromString(String str) {
-        String items[] = str.split("\\" + ITEM_SEP);
-        if (items.length < 4) {
-            System.out.println(String.format("Pares error at: %s", str));
-            return false;
-        }
-        if (items[0].length() != 38) {
-            System.out.println(String.format("Not start with GUID: %s", str));
-            return false;
-        }
-        id_ = UUID.fromString(items[0].substring(1, 37));
-        content_ = items[1];
-        kana_ = items[2];
-        tone_ = items[3];
-//        if (!tone_.equals("")) {
-//            Constant.getInstance().addTone(tone_);
-//        }
-        for (int i = 4; i < items.length; i++) {
-            if (items[i].length() != 0) {
-                if (items[i].charAt(0) == '#') {
-                    timestamp_ = Long.parseLong(items[i].substring(1, items[i].length()), 10);
-                } else if (items[i].charAt(0) != SOH.charAt(0)) {
-                    Meaning mean = new Meaning();
-                    if (mean.decodeFromString(items[i])) {
-                        mean.parent_ = this;
-                        means_.add(mean);
-                    }
-                } else {
-                    parseTag(items[i]);
-                }
-            }
-
-        }
-        changeFlag_ = false;
-        return true;
-    }
-
-    private void parseTag(String item) {
-        if (item == null || item.equals("")) {
-            return;
-        }
-        String[] tagstrings = item.substring(1).split("\\" + SOH);
-        for (String tagString : tagstrings) {
-            int eqIndex = tagString.indexOf('=');
-            if (eqIndex == -1) {
-                continue;
-            }
-            String name = tagString.substring(0, eqIndex);
-            String value = tagString.substring(eqIndex + 1);
-            super.setTag(name, value);
-        }
+        return Persistence.getInstance().getCurrentWordCodec().decodeFromString(this, str);
     }
 
     @Override
