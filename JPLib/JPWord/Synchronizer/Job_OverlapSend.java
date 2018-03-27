@@ -68,6 +68,9 @@ public class Job_OverlapSend extends Job_Base {
                 }
                 orgWord.setNote(word.getNote());
                 orgWord.setTag(ITag.TAG_Cls, word.getTagValue(ITag.TAG_Cls));
+                orgWord.setContent(word.getContent());
+                orgWord.setKana(word.getKana());
+                orgWord.setTone(word.getTone());
             }
             if (index_ == number_) {
                 logging_.push(Log.Type.HARMLESS, "Received done");

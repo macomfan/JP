@@ -13,7 +13,7 @@ import JPWord.Data.IWordDictionary;
  *
  * @author u0151316
  */
-class Job_RebaseSend extends Job_Base {
+class Job_RebaseSend extends Job_Base { 
 
     private IWordDictionary dict_ = null;
 

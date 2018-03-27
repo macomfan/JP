@@ -128,6 +128,7 @@ class Word extends Tagable implements IWord {
 
     public void updatedFlag() {
         changeFlag_ = true;
+        parent_.mIsUpdated = true;
         timestamp_ = System.currentTimeMillis();
     }
 
@@ -191,7 +192,7 @@ class Word extends Tagable implements IWord {
     @Override
     public int getSkill() {
         ITag skill = getTagItem(ITag.TAG_Skill);
-        if (skill == null) {
+        if (skill == null || skill.getValue().equals("")) {
             return 0;
         }
         return Integer.parseInt(skill.getValue(), 10);
@@ -228,7 +229,7 @@ class Word extends Tagable implements IWord {
     @Override
     public void updateSkill(int skillValue) {
         ITag skill = getTagItem(ITag.TAG_Skill);
-        if (skill == null) {
+        if (skill == null || skill.getValue().equals("")) {
             skill = setTag(ITag.TAG_Skill, "0");
         }
         int value = Integer.parseInt(skill.getValue(), 10);

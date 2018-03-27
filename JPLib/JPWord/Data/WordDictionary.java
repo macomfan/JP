@@ -23,6 +23,7 @@ class WordDictionary extends Tagable implements IWordDictionary {
     private File file_ = null;
     private Map<String, Word> quickKey_ = new HashMap<>();
     private List<Word> words_ = new LinkedList<>();
+    public boolean mIsUpdated = false;
 
     private IJPFileReader reader_ = null;
     private IJPFileWriter writer_ = null;
@@ -61,11 +62,16 @@ class WordDictionary extends Tagable implements IWordDictionary {
                     ((Word) word).parent_ = this;
                     quickKey_.put(word.getID(), (Word) word);
                     words_.add((Word) word);
+                    if(word.getTagValue("Cls").equals("")) {
+                        int a = 0;
+                        a++;
+                    }
                 }
             }
         }
         reader_.close();
-        if (getVersion().equals("V1")) {
+        mIsUpdated = false;
+        if (getVersion().equals("V1") || getVersion().equals("")) {
             setTag("Version", "V2");
             Persistence.getInstance().setCurrentCodecVersion(this.getVersion());
         }
@@ -73,14 +79,7 @@ class WordDictionary extends Tagable implements IWordDictionary {
 
     @Override
     public void save() throws Exception {
-        boolean needSave = false;
-        for (Word w : words_) {
-            if (w.isUpdated() == true) {
-                needSave = true;
-                break;
-            }
-        }
-        if (!needSave) {
+        if (!mIsUpdated) {
             return;
         }
         writer_.open();
@@ -94,6 +93,7 @@ class WordDictionary extends Tagable implements IWordDictionary {
             }
         }
         writer_.close();
+        mIsUpdated = false;
     }
 
     @Override
@@ -140,4 +140,8 @@ class WordDictionary extends Tagable implements IWordDictionary {
         }
     }
 
+    @Override
+    public boolean isUpdated() {
+        return mIsUpdated;
+    }
 }

@@ -32,4 +32,6 @@ public interface IWordDictionary {
     public IExample createExample();
     
     public String getName();
+    
+    public boolean isUpdated();
 }
