@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:rowCount="2">
+
+    <TextView
+        android:id="@+id/txtType"
+        android:layout_width="60dp"
+        android:layout_rowSpan="2"
+        android:gravity="center"
+        android:text="[T]"
+        android:textColor="#FF6600"
+        android:textSize="18sp" />
+
+    <Space
+        android:layout_width="10dp"
+        android:layout_rowSpan="2" />
+
+    <TextView
+        android:id="@+id/txtMeaning"
+        android:text="IN_CHS"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/txtExample"
+        android:text="EX_INCHS"
+        android:textColor="#777777" />
+</GridLayout>
