@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">JPWord</string>
-    <string name="title_remember">Remember</string>
-    <string name="title_find">Find</string>
-    <string name="title_my">My</string>
-    <string name="title_sync">Sync</string>
-</resources>
