@@ -10,8 +10,6 @@ import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 import JPWord.Data.Filter.ItemGroup;
-import JPWord.Data.Filter.SoftByNumberTag;
-import JPWord.Data.ITag;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -46,8 +44,8 @@ public class RememberPanel extends javax.swing.JPanel {
     public void initialize() {
         dictionary_ = Database.getInstance().getDatabase();
         group_ = new ItemGroup(dictionary_.getWords());
-        filterList_.add(new FilterStruct("Sort by skill", new SoftByNumberTag(ITag.TAG_Skill, null)));
-        filterList_.add(new FilterStruct("Sort by review date", new SoftByNumberTag("RD", null)));
+        //filterList_.add(new FilterStruct("Sort by skill", new SoftByNumberTag(ITag.TAG_Skill, null)));
+        //filterList_.add(new FilterStruct("Sort by review date", new SoftByNumberTag("RD", null)));
         displayFilter();
         reSort();
     }
@@ -85,7 +83,7 @@ public class RememberPanel extends javax.swing.JPanel {
             this.jtxtNote.setText("");
             jtxtCount.setText("0");
             jtxtSkill.setText("");
-            jtxtRD.setText("");
+            jtxtCls.setText("");
             return;
         }
         String tone = "";
@@ -124,8 +122,9 @@ public class RememberPanel extends javax.swing.JPanel {
         } else {
             this.jtxtNote.setText("");
         }
-        jtxtSkill.setText(currentWord_.getTagValue(ITag.TAG_Skill));
-        jtxtRD.setText(currentWord_.getTagValue(ITag.TAG_RD));
+        jtxtSkill.setText(Integer.toString(currentWord_.getSkill()));
+        jtxtRD.setText(currentWord_.getReviewDate());
+        jtxtCls.setText(Integer.toString(currentWord_.getCls()));
         if (group_ != null) {
             jtxtCount.setText(String.format("%d/%d", currentNumber_, group_.getCount()));
         }
@@ -161,9 +160,11 @@ public class RememberPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jtxtSkill = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jtxtRD = new javax.swing.JTextField();
+        jtxtCls = new javax.swing.JTextField();
         jScrollPane4 = new javax.swing.JScrollPane();
         jtxtImi = new MainUI.JMeaningPane();
+        jLabel4 = new javax.swing.JLabel();
+        jtxtRD = new javax.swing.JTextField();
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         setMinimumSize(new java.awt.Dimension(680, 400));
@@ -344,9 +345,9 @@ public class RememberPanel extends javax.swing.JPanel {
         jLabel3.setText("RD");
         add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(375, 80, -1, -1));
 
-        jtxtRD.setToolTipText("");
-        jtxtRD.setEnabled(false);
-        add(jtxtRD, new org.netbeans.lib.awtextra.AbsoluteConstraints(413, 77, 88, -1));
+        jtxtCls.setToolTipText("");
+        jtxtCls.setEnabled(false);
+        add(jtxtCls, new org.netbeans.lib.awtextra.AbsoluteConstraints(413, 110, 88, -1));
 
         jtxtImi.setFont(new java.awt.Font("SimSun", 0, 14)); // NOI18N
         jtxtImi.setMinimumSize(new java.awt.Dimension(680, 400));
@@ -355,6 +356,13 @@ public class RememberPanel extends javax.swing.JPanel {
         jScrollPane4.setViewportView(jtxtImi);
 
         add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(77, 110, 280, 125));
+
+        jLabel4.setText("Cls");
+        add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(375, 110, -1, -1));
+
+        jtxtRD.setToolTipText("");
+        jtxtRD.setEnabled(false);
+        add(jtxtRD, new org.netbeans.lib.awtextra.AbsoluteConstraints(413, 77, 88, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void jcbKanjiItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbKanjiItemStateChanged
@@ -500,6 +508,7 @@ public class RememberPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JList<String> jListFilter;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -514,6 +523,7 @@ public class RememberPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox jcbKanji;
     private javax.swing.JCheckBox jcbNote;
     private javax.swing.JCheckBox jcbRoma;
+    private javax.swing.JTextField jtxtCls;
     private javax.swing.JTextField jtxtCount;
     private MainUI.JMeaningPane jtxtImi;
     private javax.swing.JTextField jtxtKana;

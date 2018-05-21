@@ -103,6 +103,16 @@ public class EditPanel extends javax.swing.JPanel {
         dtm.addRow(new Object[]{content, kana, type, w});
     }
     
+    private boolean hitMean(IWord word) {
+        for (IMeaning meaning : word.getMeanings()) {
+            if (meaning.getInCHS().indexOf(searchText_) != -1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private void refreshMainTable(IWord word) {
         String currentSearchText = jtxtSearch.getText();
         if (searchText_ == currentSearchText) {
@@ -122,7 +132,8 @@ public class EditPanel extends javax.swing.JPanel {
                 addWordToRow(w, dtm);
             } else if (w.getContent().indexOf(currentSearchText) != -1
                     || w.getKana().indexOf(currentSearchText) != -1
-                    || w.getRoma().hitTest(currentSearchText) == true) {
+                    || w.getRoma().hitTest(currentSearchText) == true
+                    || hitMean(w)) {
                 row++;
                 addWordToRow(w, dtm);
             }

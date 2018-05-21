@@ -6,9 +6,8 @@
 package MainUI;
 
 import JPWord.Data.IWordDictionary;
-import JPWord.File.DefaultFileReader;
-import JPWord.File.DefaultFileWriter;
 import java.io.File;
+import SqliteEngine_JDBC.JDBC_SQLEngine;
 
 /**
  *
@@ -35,10 +34,10 @@ public class Database {
 
     private void initialize() {
         rootFolder_ = Setting.getInstance().getRootFolder();
-        JPWord.Data.Database.getInstance().initialize(rootFolder_, new DefaultFileReader(), new DefaultFileWriter());
+        JPWord.Data.Database.getInstance().initialize(rootFolder_, new JDBC_SQLEngine());
         dictionary_ = JPWord.Data.Database.getInstance().loadDictionary(currentDictname_);
         try {
-            dictionary_.load();
+            //dictionary_.load();
         } catch (Exception e) {
         }
 
