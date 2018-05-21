@@ -5,19 +5,21 @@
  */
 package JPWord.Data;
 
-import JPWord.File.IJPFileReader;
-import JPWord.File.IJPFileWriter;
 import java.io.File;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.util.UUID;
+import sqliteEngine_interface.ISQLEngine;
+import sqliteEngine_interface.ISQLResult;
 
 /**
  *
  * @author u0151316
  */
-class WordDictionary extends Tagable implements IWordDictionary {
+class WordDictionary implements IWordDictionary {
 
     private String name_ = "";
     private File file_ = null;
@@ -25,12 +27,10 @@ class WordDictionary extends Tagable implements IWordDictionary {
     private List<Word> words_ = new LinkedList<>();
     public boolean mIsUpdated = false;
 
-    private IJPFileReader reader_ = null;
-    private IJPFileWriter writer_ = null;
+    private ISQLEngine engine_ = null;
 
-    public WordDictionary(String name, IJPFileReader reader, IJPFileWriter writer) {
-        reader_ = reader;
-        writer_ = writer;
+    public WordDictionary(String name, ISQLEngine engine) {
+        engine_ = engine;
         name_ = name;
     }
 
@@ -40,60 +40,29 @@ class WordDictionary extends Tagable implements IWordDictionary {
     }
 
     @Override
-    public String getVersion() {
-        return getTagValue("Version");
-    }
-
-    @Override
-    public void load() throws Exception {
-        if (!quickKey_.isEmpty()) {
-            return;
+    public void loadFromDB() throws Exception {
+        if (!engine_.isConnected()) {
+            throw new Exception("SQL is not connected");
         }
-        reader_.open();
-        String line;
-        while ((line = reader_.readline()) != null) {
-            if (line.indexOf(":") == 0) {
-                Persistence.getInstance().getCurrentTagCodec().decodeFromString(this, line);
-                Persistence.getInstance().setCurrentCodecVersion(this.getVersion());
-            } else {
-                IWord word = new Word();
-                ((Word) word).parent_ = this;
-                if (word.decodeFromString(line)) {
-                    ((Word) word).parent_ = this;
-                    quickKey_.put(word.getID(), (Word) word);
-                    words_.add((Word) word);
-                    if(word.getTagValue("Cls").equals("")) {
-                        int a = 0;
-                        a++;
-                    }
-                }
-            }
-        }
-        reader_.close();
-        mIsUpdated = false;
-        if (getVersion().equals("V1") || getVersion().equals("")) {
-            setTag("Version", "V2");
-            Persistence.getInstance().setCurrentCodecVersion(this.getVersion());
+        //ISQLResult rs = engine_.executeQuery("select * from WORD order by WORD.rowid");
+        Word.DBS.queryAll();
+        ISQLResult rs = Word.DBS.executeQuery(engine_);
+        while (rs.next()) {
+            Word word = new Word();
+            word.decodeFromSQL(rs);
+            addWord(word);
         }
     }
 
-    @Override
-    public void save() throws Exception {
-        if (!mIsUpdated) {
-            return;
-        }
-        writer_.open();
-        String tagline = Persistence.getInstance().getCurrentTagCodec().encodeToString(this);
-        tagline = ":" + tagline;
-        writer_.writeline(tagline);
+    public void saveToDB() throws Exception {
         for (Word word : words_) {
-            String line = word.encodeToString();
-            if (line != null && !line.equals("")) {
-                writer_.writeline(line);
+            if (word.type_ == Word.Type.OTF) {
+                word.encodeToSQL(engine_);
             }
         }
-        writer_.close();
-        mIsUpdated = false;
+        Word.DBS.executeChange(engine_);
+        engine_.executeBatch();
+        engine_.commit();
     }
 
     @Override
@@ -136,12 +105,6 @@ class WordDictionary extends Tagable implements IWordDictionary {
             quickKey_.put(word.getID(), (Word) word);
             words_.add((Word) word);
             ((Word) word).parent_ = this;
-            ((Word) word).updatedFlag();
         }
-    }
-
-    @Override
-    public boolean isUpdated() {
-        return mIsUpdated;
     }
 }

@@ -7,7 +7,6 @@ package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
 import JPWord.Data.IMeaning;
-import JPWord.Data.ITag;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
@@ -54,7 +53,7 @@ public class Job_OverlapSend extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
-            word.decodeFromString(msg.getValue());
+            //word.decodeFromString(msg.getValue());
             index_++;
             IWord orgWord = dict_.getWord(word.getID());
             if (orgWord == null) {
@@ -67,7 +66,7 @@ public class Job_OverlapSend extends Job_Base {
                     orgWord.addMeaning(meaning);
                 }
                 orgWord.setNote(word.getNote());
-                orgWord.setTag(ITag.TAG_Cls, word.getTagValue(ITag.TAG_Cls));
+//                orgWord.setTag(ITag.TAG_Cls, word.getTagValue(ITag.TAG_Cls));
                 orgWord.setContent(word.getContent());
                 orgWord.setKana(word.getKana());
                 orgWord.setTone(word.getTone());
@@ -79,7 +78,7 @@ public class Job_OverlapSend extends Job_Base {
         } else if (msg.getType() == Message.MSG_FIN) {
             logging_.push(Log.Type.HARMLESS, "Received FIN");
             try {
-                dict_.save();
+                dict_.saveToDB();
             } catch (Exception e) {
             }
             return JobResult.DONE;

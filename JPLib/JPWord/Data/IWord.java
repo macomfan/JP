@@ -6,6 +6,7 @@
 package JPWord.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -13,9 +14,9 @@ import java.util.List;
  */
 public interface IWord {
 
-    boolean isEmpty();
+    static String Tag_MYWORD = "MY";
     
-    long getTimeStamp();
+    boolean isEmpty();
     
     void setContent(String value);
 
@@ -34,6 +35,12 @@ public interface IWord {
     IRoma getRoma();
 
     int getSkill();
+    
+    String getReviewDate();
+    
+    int getCls();
+    
+    void setCls(int cls);
 
     String getNote();
 
@@ -53,13 +60,12 @@ public interface IWord {
     
     List<IMeaning> getMeanings();
 
-    List<ITag> getTags();
+    // Tags
+    Map<String, String> getTags();
 
-    ITag setTag(String Name, String Value);
+    void setTag(String name, String value);
 
-    String getTagValue(String Name);
-
-    public String encodeToString();
-
-    public boolean decodeFromString(String str);
+    String getTag(String name);
+    
+    void removeTag(String name);
 }

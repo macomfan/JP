@@ -11,36 +11,7 @@ package JPWord.Data;
  */
 class Example implements IExample {
 
-    public static class Codec_V1 implements ICodec {
-
-        private static final String EXAMPLE_SEP = "\\";
-
-        public String encodeToString(Object obj) {
-            Example example = (Example)obj;
-            
-            if (example.isEmpty()) {
-                return "";
-            }
-            return example.exampleInJP_ + EXAMPLE_SEP + example.exampleInCHS_;
-        }
-
-        public boolean decodeFromString(Object obj, String str) {
-            Example example = (Example)obj;
-            if (str.length() == 0) {
-                return false;
-            }
-
-            String exampleItem = str.replace('/', '\\');
-            String[] exampleCHSAndJP = exampleItem.split("\\" + EXAMPLE_SEP);
-            if (exampleCHSAndJP.length > 0) {
-                example.exampleInJP_ = exampleCHSAndJP[0].trim();
-            }
-            if (exampleCHSAndJP.length > 1) {
-                example.exampleInCHS_ = exampleCHSAndJP[1].trim();
-            }
-            return true;
-        }
-    }
+    private static final String EXAMPLE_SEP = "\\";
 
     private String exampleInJP_;
     private String exampleInCHS_;
@@ -61,18 +32,32 @@ class Example implements IExample {
 
     @Override
     public String encodeToString() {
-        return Persistence.getInstance().getCurrentExampleCodec().encodeToString(this);
+        if (this.isEmpty()) {
+            return "";
+        }
+        return this.exampleInJP_ + EXAMPLE_SEP + this.exampleInCHS_;
     }
 
     @Override
     public boolean decodeFromString(String str) {
-        return Persistence.getInstance().getCurrentExampleCodec().decodeFromString(this, str);
+        if (str.length() == 0) {
+            return false;
+        }
+
+        String exampleItem = str.replace('/', '\\');
+        String[] exampleCHSAndJP = exampleItem.split("\\" + EXAMPLE_SEP);
+        if (exampleCHSAndJP.length > 0) {
+            this.exampleInJP_ = exampleCHSAndJP[0].trim();
+        }
+        if (exampleCHSAndJP.length > 1) {
+            this.exampleInCHS_ = exampleCHSAndJP[1].trim();
+        }
+        return true;
     }
 
     public void setExampleInJP(String value) {
         exampleInJP_ = value;
         if (parent_ != null && parent_.parent_ != null) {
-            parent_.parent_.updatedFlag();
         }
     }
 
@@ -83,7 +68,6 @@ class Example implements IExample {
     public void setExampleInCHS(String value) {
         exampleInCHS_ = value;
         if (parent_ != null && parent_.parent_ != null) {
-            parent_.parent_.updatedFlag();
         }
     }
 

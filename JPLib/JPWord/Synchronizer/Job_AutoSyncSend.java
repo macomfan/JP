@@ -46,8 +46,8 @@ class Job_AutoSyncSend extends Job_Base {
             logging_.push(Log.Type.HARMLESS, "Sending content...");
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
-                String wordString = word.encodeToString();
-                data.setValue(wordString);
+                //String wordString = word.encodeToString();
+                //data.setValue(wordString);
                 sendMessage(data);
             }
             return JobResult.SUCCESS;

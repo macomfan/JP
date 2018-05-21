@@ -45,8 +45,8 @@ class Job_RebaseSend extends Job_Base {
             int logindex = 0;
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
-                String wordString = word.encodeToString();
-                data.setValue(wordString);
+                //String wordString = word.encodeToString();
+                //data.setValue(wordString);
                 sendMessage(data);
                 try {
                     Thread.sleep(1);

@@ -5,100 +5,44 @@
  */
 package JPWord.Data;
 
+import JPWord.DBStruct.DB_Word;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.List;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
+import sqliteEngine_interface.DB.OP_Update;
+import sqliteEngine_interface.ISQLEngine;
+import sqliteEngine_interface.ISQLResult;
 
 /**
  *
  * @author u0151316
  */
-class Word extends Tagable implements IWord {
+class Word implements IWord {
 
-    public static class Codec_V1 implements ICodec {
+    public static DB_Word DBS = new DB_Word();
 
-        private final String ITEM_SEP = "|";
-        private final String SOH = String.valueOf((char) 0x01);
-
-        public String encodeToString(Object obj) {
-            Word word = (Word)obj;
-            
-            if (word.content_.equals("")) {
-                return null;
-            }
-            String line = "\"" + word.getID();
-            line += "\"" + "|";
-            line += word.content_ + "|";
-            line += word.kana_ + "|";
-            line += word.tone_;
-            boolean meanExist = false;
-            for (IMeaning mean : word.means_) {
-                meanExist = true;
-                line += "|";
-                line += mean.encodeToString();
-            }
-            if (!meanExist) {
-                line += "|";
-            }
-            line += "|";
-            String tagString = Persistence.getInstance().getCurrentTagCodec().encodeToString(obj);
-            if (tagString.length() != 0) {
-                tagString = SOH + tagString;
-                tagString += "|";
-                line += tagString;
-            }
-            line += "#";
-            line += Long.toString(word.timestamp_, 10);
-            return line;
-        }
-
-        public boolean decodeFromString(Object obj, String str) {
-            Word word = (Word)obj;
-            String items[] = str.split("\\" + ITEM_SEP);
-            if (items.length < 4) {
-                System.out.println(String.format("Pares error at: %s", str));
-                return false;
-            }
-            if (items[0].length() != 38) {
-                System.out.println(String.format("Not start with GUID: %s", str));
-                return false;
-            }
-            word.id_ = UUID.fromString(items[0].substring(1, 37));
-            word.content_ = items[1];
-            word.kana_ = items[2];
-            word.tone_ = items[3];
-            for (int i = 4; i < items.length; i++) {
-                if (items[i].length() != 0) {
-                    if (items[i].charAt(0) == '#') {
-                        word.timestamp_ = Long.parseLong(items[i].substring(1, items[i].length()), 10);
-                    } else if (items[i].charAt(0) != SOH.charAt(0)) {
-                        Meaning mean = new Meaning();
-                        if (mean.decodeFromString(items[i])) {
-                            mean.parent_ = word;
-                            word.means_.add(mean);
-                        }
-                    } else {
-                        Persistence.getInstance().getCurrentTagCodec().decodeFromString(obj, items[i]);
-                    }
-                }
-            }
-            word.changeFlag_ = false;
-            return true;
-        }
+    enum Type {
+        DB,
+        OTF,
     }
 
     private String kana_ = "";
     private String content_ = "";
     private String tone_ = "";
+    private String note_ = "";
     private List<IMeaning> means_ = new LinkedList<>();
     private UUID id_ = null;
     private IRoma roma_ = null;
-    private boolean changeFlag_ = false;
-    private long timestamp_ = 0;
+    private int cls_ = 0;
+    private int skill_ = 0;
+    private String reviewDate_ = "";
+    private Tagable tags_ = new Tagable();
+    public Type type_ = Type.OTF;
+
+    private final String MEAN_SEP = "|";
+
     public WordDictionary parent_ = null;
 
     public Word(UUID id) {
@@ -108,9 +52,15 @@ class Word extends Tagable implements IWord {
     public Word() {
     }
 
+    private void updateSingle(OP_Update update) {
+        if (type_ == Type.DB) {
+            DBS.update(DBS.GUID.where(id_.toString()), update);
+        }
+    }
+
     @Override
     public boolean isEmpty() {
-        if (content_.isEmpty() && kana_.isEmpty() && tone_.isEmpty() && getTags().size() == 0) {
+        if (content_.isEmpty() && kana_.isEmpty() && tone_.isEmpty() && getTags().isEmpty()) {
             for (IMeaning iMeaning : means_) {
                 if (!iMeaning.isEmpty()) {
                     return false;
@@ -122,24 +72,11 @@ class Word extends Tagable implements IWord {
     }
 
     @Override
-    public long getTimeStamp() {
-        return timestamp_;
-    }
-
-    public void updatedFlag() {
-        changeFlag_ = true;
-        parent_.mIsUpdated = true;
-        timestamp_ = System.currentTimeMillis();
-    }
-
-    public boolean isUpdated() {
-        return changeFlag_;
-    }
-
-    @Override
     public void setContent(String value) {
-        content_ = value;
-        updatedFlag();
+        if (!content_.equals(value)) {
+            content_ = value;
+            updateSingle(DBS.CONTENT.update(value));
+        }
     }
 
     @Override
@@ -149,9 +86,11 @@ class Word extends Tagable implements IWord {
 
     @Override
     public void setKana(String value) {
-        kana_ = value;
-        roma_ = Yin50.getInstance().kanaToRoma(kana_);
-        updatedFlag();
+        if (!kana_.equals(value)) {
+            kana_ = value;
+            roma_ = Yin50.getInstance().kanaToRoma(kana_);
+            updateSingle(DBS.KANA.update(value));
+        }
     }
 
     @Override
@@ -161,14 +100,10 @@ class Word extends Tagable implements IWord {
 
     @Override
     public void setTone(String value) {
-        tone_ = value;
-        updatedFlag();
-    }
-
-    @Override
-    public ITag setTag(String Name, String Value) {
-        updatedFlag();
-        return super.setTag(Name, Value);
+        if (!tone_.equals(value)) {
+            tone_ = value;
+            updateSingle(DBS.TONE.update(value));
+        }
     }
 
     @Override
@@ -191,29 +126,20 @@ class Word extends Tagable implements IWord {
 
     @Override
     public int getSkill() {
-        ITag skill = getTagItem(ITag.TAG_Skill);
-        if (skill == null || skill.getValue().equals("")) {
-            return 0;
-        }
-        return Integer.parseInt(skill.getValue(), 10);
+        return skill_;
     }
 
     @Override
     public String getNote() {
-        ITag note = getTagItem("Note");
-        if (note == null) {
-            return "";
-        }
-        return note.getValue().replaceAll("<&N>", "\n");
+        return note_;
     }
 
     @Override
     public void setNote(String value) {
-        ITag note = getAndCreateTag("Note");
-        value = value.replaceAll("\\r", "");
-        value = value.replaceAll("\\n", "<&N>");
-        note.setValue(value);
-        updatedFlag();
+        if (!note_.equals(value)) {
+            note_ = value;
+            updateSingle(DBS.NOTE.update(value));
+        }
     }
 
     @Override
@@ -228,32 +154,19 @@ class Word extends Tagable implements IWord {
 
     @Override
     public void updateSkill(int skillValue) {
-        ITag skill = getTagItem(ITag.TAG_Skill);
-        if (skill == null || skill.getValue().equals("")) {
-            skill = setTag(ITag.TAG_Skill, "0");
+        if (skill_ != skillValue) {
+            skill_ = skillValue;
+            updateSingle(DBS.SKILL.update(skill_));
+            updateReviewDate();
         }
-        int value = Integer.parseInt(skill.getValue(), 10);
-        skill.setValue(Integer.toString(skillValue));
-        if (value < 0) {
-            setHardFlag(true);
-        } else if (value > 5) {
-            setHardFlag(false);
-        }
-        updateReviewTime();
-        updatedFlag();
     }
 
     @Override
     public void setAsMyWord(boolean flag) {
-        ITag my = getTagItem(ITag.TAG_MY);
-        if (my == null) {
-            if (flag != false) {
-                my = setTag(ITag.TAG_MY, "1");
-            }
+        if (flag) {
+            setTag(Tag_MYWORD, "1");
         } else {
-            if (flag == false) {
-                removeTag(ITag.TAG_MY);
-            }
+            removeTag(Tag_MYWORD);
         }
     }
 
@@ -261,9 +174,20 @@ class Word extends Tagable implements IWord {
     public void addMeaning(IMeaning meaning) {
         ((Meaning) meaning).parent_ = this;
         if (!meaning.isEmpty()) {
-            updatedFlag();
         }
         means_.add((IMeaning) meaning);
+        if (type_ == Type.DB) {
+            updateSingle(DBS.MEANS.update(encodeMeans()));
+        }
+    }
+
+    private String encodeMeans() {
+        String meansString = "";
+        for (IMeaning iMeaning : means_) {
+            meansString += iMeaning.encodeToString();
+            meansString += MEAN_SEP;
+        }
+        return meansString;
     }
 
     @Override
@@ -271,51 +195,111 @@ class Word extends Tagable implements IWord {
         return means_;
     }
 
-    private ITag getAndCreateTag(String Name) {
-        ITag tag = getTagItem(Name);
-        if (tag == null) {
-            tag = setTag(Name, "");
-        }
-        return tag;
+    @Override
+    public String getReviewDate() {
+        return reviewDate_;
     }
-
-    private void updateReviewTime() {
+    
+    private void updateReviewDate() {
         Calendar now = Calendar.getInstance();
-        ITag rt = getTagItem("RD");
-        if (rt == null) {
-            rt = setTag("RD", "0");
+        String newReviewDate = String.format("%04d%02d%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH));
+        if (!newReviewDate.equals(reviewDate_)) {
+            reviewDate_ = newReviewDate;
+            updateSingle(DBS.REVIEWDATE.update(reviewDate_));
         }
-        rt.setValue(String.format("%04d%02d%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH)));
-    }
-
-    private void setHardFlag(boolean flag) {
-        ITag hard = getTagItem("HD");
-        if (hard == null) {
-            hard = setTag("HD", "N");
-        }
-        if (flag == true) {
-            hard.setValue("Y");
-        } else {
-            hard.setValue("N");
-        }
-        updatedFlag();
-    }
-
-    @Override
-    public String encodeToString() {
-        return Persistence.getInstance().getCurrentWordCodec().encodeToString(this);
-    }
-
-    @Override
-    public boolean decodeFromString(String str) {
-        return Persistence.getInstance().getCurrentWordCodec().decodeFromString(this, str);
     }
 
     @Override
     public void updateMeaning(List<IMeaning> meanings) {
         means_.clear();
         means_.addAll(meanings);
-        updatedFlag();
+        if (type_ == Type.DB) {
+            updateSingle(DBS.MEANS.update(encodeMeans()));
+        }
+    }
+
+    @Override
+    public int getCls() {
+        return cls_;
+    }
+
+    @Override
+    public void setCls(int cls) {
+        cls_ = cls;
+    }
+
+    @Override
+    public Map<String, String> getTags() {
+        return tags_.getTags();
+    }
+
+    @Override
+    public String getTag(String name) {
+        return tags_.getTag(name);
+    }
+
+    @Override
+    public void setTag(String name, String value) {
+        String tagString = tags_.getTag(name);
+        if (!tagString.equals(value)) {
+            tags_.setTag(name, value);
+            updateSingle(DBS.TAGS.update(tags_.encodeToString()));
+        }
+    }
+
+    @Override
+    public void removeTag(String name) {
+        if (tags_.isExist(name)) {
+            tags_.removeTag(name);
+            updateSingle(DBS.TAGS.update(tags_.encodeToString()));
+        }
+    }
+    static int ind = 0;
+
+    public void decodeFromSQL(ISQLResult rs) throws Exception {
+
+        try {
+            type_ = Type.DB;
+            String guid = DBS.GUID.getValueFromRS(rs);
+            id_ = UUID.fromString(guid);
+            content_ = DBS.CONTENT.getValueFromRS(rs);
+            kana_ = DBS.KANA.getValueFromRS(rs);
+            tone_ = DBS.TONE.getValueFromRS(rs);
+            note_ = DBS.NOTE.getValueFromRS(rs);
+            String means = DBS.MEANS.getValueFromRS(rs);
+            if (means != null && !"".equals(means)) {
+                String meanItems[] = means.split("\\" + MEAN_SEP);
+                for (String meanItem : meanItems) {
+                    Meaning mean = new Meaning(this);
+                    mean.decodeFromString(meanItem);
+                    means_.add(mean);
+                }
+            }
+            cls_ = DBS.CLASS.getValueFromRS(rs);
+            skill_ = DBS.SKILL.getValueFromRS(rs);
+            reviewDate_ = DBS.REVIEWDATE.getValueFromRS(rs);
+            String tags = DBS.TAGS.getValueFromRS(rs);
+            tags_.decodeFromString(tags);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    public void encodeToSQL(ISQLEngine engine) {
+        String tagString = tags_.encodeToString();
+        DBS.insert(
+                DBS.GUID.update(id_.toString()),
+                DBS.CONTENT.update(content_),
+                DBS.KANA.update(kana_),
+                DBS.TONE.update(tone_),
+                DBS.NOTE.update(note_),
+                DBS.MEANS.update(encodeMeans()),
+                DBS.CLASS.update(cls_),
+                DBS.SKILL.update(skill_),
+                DBS.REVIEWDATE.update(reviewDate_),
+                DBS.TAGS.update(tagString));
+        type_ = Type.DB;
     }
 
 }

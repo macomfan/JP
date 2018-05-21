@@ -6,7 +6,6 @@
 package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
-import JPWord.Data.ITag;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 import java.io.File;

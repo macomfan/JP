@@ -6,7 +6,6 @@
 package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
-import JPWord.Data.ITag;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 
@@ -43,15 +42,15 @@ public class Job_OverlapReceive extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
-            word.decodeFromString(msg.getValue());
+            //word.decodeFromString(msg.getValue());
             index_++;
             IWord orgWord = dict_.getWord(word.getID());
             if (orgWord == null) {
                 logging_.push(Log.Type.WARNING, "Cannot find word: " + word.getContent());
             } else {
-                orgWord.setTag(ITag.TAG_Skill, word.getTagValue(ITag.TAG_Skill));
-                orgWord.setTag(ITag.TAG_RD, word.getTagValue(ITag.TAG_RD));
-                orgWord.setTag(ITag.TAG_MY, word.getTagValue(ITag.TAG_MY));
+//                orgWord.setTag(ITag.TAG_Skill, word.getTagValue(ITag.TAG_Skill));
+//                orgWord.setTag(ITag.TAG_RD, word.getTagValue(ITag.TAG_RD));
+                //orgWord.setTag(ITag.TAG_MY, word.getTagValue(ITag.TAG_MY));
             }
             if (index_ == number_) {
                 logging_.push(Log.Type.HARMLESS, "Received done");
@@ -60,7 +59,7 @@ public class Job_OverlapReceive extends Job_Base {
         } else if (msg.getType() == Message.MSG_FIN) {
             logging_.push(Log.Type.HARMLESS, String.format("Send finished by sender, received %d", index_));
             try {
-                dict_.save();
+                dict_.saveToDB();
             } catch (Exception e) {
             }
             sendDataSummary(dict_);

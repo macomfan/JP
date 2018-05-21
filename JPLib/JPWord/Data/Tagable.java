@@ -5,11 +5,8 @@
  */
 package JPWord.Data;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  *
@@ -17,87 +14,68 @@ import java.util.TreeMap;
  */
 class Tagable {
 
-    public static class Codec_V1 implements ICodec {
-
-        private final String SOH = String.valueOf((char) 0x01);
-
-        @Override
-        public String encodeToString(Object obj) {
-            Tagable tagable = (Tagable) obj;
-            String tagString = "";
-            for (ITag tag : tagable.getTags()) {
-                tagString += tag.getName();
-                tagString += "=";
-                tagString += tag.getValue();
-                tagString += SOH;
-            }
-            return tagString;
-        }
-
-        @Override
-        public boolean decodeFromString(Object obj, String str) {
-            Tagable tagable = (Tagable) obj;
-            if (str == null || str.equals("")) {
-                return false;
-            }
-            String[] tagstrings = str.substring(1).split("\\" + SOH);
-            for (String tagString : tagstrings) {
-                int eqIndex = tagString.indexOf('=');
-                if (eqIndex == -1) {
-                    continue;
-                }
-                String name = tagString.substring(0, eqIndex);
-                String value = tagString.substring(eqIndex + 1);
-                tagable.setTag(name, value);
-            }
-            return true;
-        }
-
-    }
-
-    private SortedMap<String, ITag> tags_ = new TreeMap<>();
+    private final String SOH = String.valueOf((char) 0x01);
+    private final Map<String, String> tags_ = new HashMap<>();
 
     public Tagable() {
-
     }
 
-    protected ITag getTagItem(String Name) {
+    public boolean isExist(String name) {
+        return tags_.containsKey(name);
+    }
+    
+    protected String getTag(String Name) {
         if (tags_.containsKey(Name)) {
             return tags_.get(Name);
-        }
-        return null;
-    }
-
-    public List<ITag> getTags() {
-        List<ITag> temp = new LinkedList<>();
-        for (Map.Entry<String, ITag> entry : tags_.entrySet()) {
-            temp.add(entry.getValue());
-        }
-        return temp;
-    }
-
-    public ITag setTag(String Name, String Value) {
-        if (!tags_.containsKey(Name)) {
-            Tag tag = new Tag();
-            tag.setName(Name);
-            tag.setValue(Value);
-            tags_.put(Name, (ITag) tag);
-            return tag;
-        } else {
-            ITag tag = tags_.get(Name);
-            tag.setValue(Value);
-            return tag;
-        }
-    }
-
-    public String getTagValue(String Name) {
-        if (tags_.containsKey(Name)) {
-            return tags_.get(Name).getValue();
         }
         return "";
     }
 
+    public Map<String, String> getTags() {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : tags_.entrySet()) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    public void setTag(String name, String value) {
+        if (!tags_.containsKey(name)) {
+            tags_.put(name, value);
+        } else {
+            tags_.put(name, value);
+        }
+    }
+
     public void removeTag(String Name) {
         tags_.remove(Name);
+    }
+
+    public String encodeToString() {
+        String tagString = "";
+        for (Map.Entry<String, String> entry : tags_.entrySet()) {
+            tagString += entry.getKey();
+            tagString += "=";
+            tagString += entry.getValue();
+            tagString += SOH;
+        }
+        return tagString;
+    }
+
+    public boolean decodeFromString(String str) {
+        if (str == null || str.equals("")) {
+            return false;
+        }
+        String[] tagstrings = str.substring(1).split("\\" + SOH);
+        for (String tagString : tagstrings) {
+            int eqIndex = tagString.indexOf('=');
+            if (eqIndex == -1) {
+                continue;
+            }
+            String name = tagString.substring(0, eqIndex);
+            String value = tagString.substring(eqIndex + 1);
+            this.setTag(name, value);
+        }
+        return true;
     }
 }

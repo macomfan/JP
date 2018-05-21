@@ -43,7 +43,7 @@ class Job_RebaseReceive extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
-            word.decodeFromString(msg.getValue());
+            //word.decodeFromString(msg.getValue());
             dict_.addWord(word);
             index_++;
             if (index_ == number_) {
@@ -53,7 +53,7 @@ class Job_RebaseReceive extends Job_Base {
         } else if (msg.getType() == Message.MSG_ACK) {
             logging_.push(Log.Type.HARMLESS, String.format("Send finished, received %d", index_));
             try {
-                dict_.save();
+                dict_.saveToDB();
             } catch (Exception e) {
             }
 

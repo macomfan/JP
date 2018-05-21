@@ -16,6 +16,4 @@ public interface IItemFilter {
     int buildChildGroup(List<Object> items);
 
     List<Integer> distributeItem(Object item);
-
-    IItemFilter createSelf(String mainParam, List<String> params);
 }

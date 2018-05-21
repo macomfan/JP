@@ -5,8 +5,7 @@
  */
 package JPWord.Data;
 
-import JPWord.File.IJPFileReader;
-import JPWord.File.IJPFileWriter;
+import SqliteEngine_Interface.*;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,10 +17,9 @@ import java.util.List;
 public class Database {
 
     private static Database instance_ = null;
-    private IJPFileReader reader_ = null;
-    private IJPFileWriter writer_ = null;
     private String rootFolder_ = "";
     private List<String> dictList_ = new LinkedList<>();
+    private ISQLEngine sqlEngine_ = null;
 
     public static Database getInstance() {
         if (instance_ == null) {
@@ -31,12 +29,15 @@ public class Database {
     }
 
     private Database() {
-        
+
     }
-    
-    public void initialize(String footFolder, IJPFileReader reader, IJPFileWriter writer) {
-        reader_ = reader;
-        writer_ = writer;
+
+//    public void generateNullDatabase(String name) {
+//        DatabaseCodec_V1 v1 = new DatabaseCodec_V1();
+//        v1.generateNullDatabase(sqlEngine_, name);
+//    }
+    public void initialize(String footFolder, ISQLEngine engine) {
+        sqlEngine_ = engine;
         rootFolder_ = footFolder.replace('\\', '/');
         if (rootFolder_.charAt(footFolder.length() - 1) != '/') {
             rootFolder_ += "/";
@@ -47,46 +48,38 @@ public class Database {
         for (File file : subFile) {
             if (!file.isDirectory()) {
                 String filename = file.getName();
-                if(filename.endsWith(".dat")) {
-                    String dictname = filename.substring(0, filename.length() - 4);
+                if (filename.endsWith(".db")) {
+                    String dictname = filename.substring(0, filename.length() - 3);
                     dictList_.add(dictname);
                 }
             }
         }
-        
-        Persistence.getInstance().addCodec(Word.class, "V1", new Word.Codec_V1());
-        Persistence.getInstance().addCodec(Meaning.class, "V1", new Meaning.Codec_V1());
-        Persistence.getInstance().addCodec(Meaning.class, "V2", new Meaning.Codec_V2());
-        Persistence.getInstance().addCodec(Example.class, "V1", new Example.Codec_V1());
-        Persistence.getInstance().addCodec(Tagable.class, "V1", new Tagable.Codec_V1());
-        
-        Persistence.getInstance().setCurrentCodecVersion("V2");
     }
 
     public List<String> getDictList() {
         return dictList_;
     }
-    
+
     public IWordDictionary loadDictionary(String dictname) {
         if (!dictList_.contains(dictname)) {
             return null;
         }
-        IJPFileReader reader = reader_.clone(rootFolder_ + dictname + ".dat");
-        IJPFileWriter writer = writer_.clone(rootFolder_ + dictname + ".dat");
-        IWordDictionary dict = new WordDictionary(dictname, reader, writer);
         try {
-            dict.load();
+            ISQLEngine engine = sqlEngine_.clone();
+            IWordDictionary dict = new WordDictionary(dictname, engine);
+            engine.connect(rootFolder_ + dictname + ".db");
+            dict.loadFromDB();
+            return dict;
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        return null;
 
-        return dict;
     }
 
     public IWordDictionary createDictionary(String dictname) {
-        IJPFileReader reader = reader_.clone(rootFolder_ + dictname + ".dat");
-        IJPFileWriter writer = writer_.clone(rootFolder_ + dictname + ".dat");
-        IWordDictionary dict = new WordDictionary(dictname, reader, writer);
+        ISQLEngine engine = sqlEngine_.clone();
+        IWordDictionary dict = new WordDictionary(rootFolder_ + dictname + ".db", engine);
         return dict;
     }
 }

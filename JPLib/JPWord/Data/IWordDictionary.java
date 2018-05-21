@@ -12,14 +12,12 @@ import java.util.List;
  * @author u0151316
  */
 public interface IWordDictionary {
-
-    public String getVersion();
     
     public IWord getWord(String id);
 
-    public void load() throws Exception;
-
-    public void save() throws Exception;
+    public void loadFromDB() throws Exception;
+    
+    public void saveToDB() throws Exception;
 
     public List<IWord> getWords();
 
@@ -32,6 +30,4 @@ public interface IWordDictionary {
     public IExample createExample();
     
     public String getName();
-    
-    public boolean isUpdated();
 }
