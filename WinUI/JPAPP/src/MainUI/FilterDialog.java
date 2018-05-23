@@ -17,8 +17,8 @@ import JPWord.Data.Filter.IStringChecker;
 import JPWord.Data.Filter.IIntegerChecker;
 import JPWord.Data.Filter.IIntegerGetter;
 import JPWord.Data.Filter.IStringGetter;
-import JPWord.Data.Filter.SoftByInteger;
-import JPWord.Data.Filter.SoftByString;
+import JPWord.Data.Filter.SortByInteger;
+import JPWord.Data.Filter.SortByString;
 
 /**
  *
@@ -158,14 +158,14 @@ public class FilterDialog extends javax.swing.JDialog {
         } else if (jrbHD.isSelected()) {
             //filter_ = new FilterStruct("Hard only", new FilterHardOnly());
         } else if (jrbRD.isSelected()) {
-            filter_ = new FilterStruct("Sort by review date", new SoftByString(new IStringGetter() {
+            filter_ = new FilterStruct("Sort by review date", new SortByString(new IStringGetter() {
                 @Override
                 public String getString(IWord word) {
                     return word.getReviewDate();
                 }
             }));
         } else if (jrbSkill.isSelected()) {
-            filter_ = new FilterStruct("Sort by skill", new SoftByInteger(new IIntegerGetter() {
+            filter_ = new FilterStruct("Sort by skill", new SortByInteger(new IIntegerGetter() {
                 @Override
                 public int getInteger(IWord word) {
                     return word.getSkill();

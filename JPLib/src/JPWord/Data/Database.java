@@ -32,11 +32,8 @@ public class Database {
 
     }
 
-//    public void generateNullDatabase(String name) {
-//        DatabaseCodec_V1 v1 = new DatabaseCodec_V1();
-//        v1.generateNullDatabase(sqlEngine_, name);
-//    }
     public void initialize(String footFolder, ISQLEngine engine) {
+        dictList_.clear();
         sqlEngine_ = engine;
         rootFolder_ = footFolder.replace('\\', '/');
         if (rootFolder_.charAt(footFolder.length() - 1) != '/') {
@@ -74,12 +71,42 @@ public class Database {
             System.out.println(e.getMessage());
         }
         return null;
+    }
 
+    public void deleteDictionary(String dictname) {
+        File file = new File(rootFolder_ + dictname + ".db");
+        if (file.exists()) {
+            file.delete();
+            dictList_.remove(dictname);
+        }
+    }
+
+    public void deleteDictionary(IWordDictionary dict) {
+        File file = new File(rootFolder_ + dict.getName() + ".db");
+        if (file.exists()) {
+            file.delete();
+            dictList_.remove(dict.getName());
+        }
+    }
+
+    public void closeDictionary(IWordDictionary dict) throws Exception {
+        WordDictionary d = (WordDictionary) dict;
+        d.close();
+        dict = null;
     }
 
     public IWordDictionary createDictionary(String dictname) {
-        ISQLEngine engine = sqlEngine_.clone();
-        IWordDictionary dict = new WordDictionary(rootFolder_ + dictname + ".db", engine);
-        return dict;
+        try {
+            ISQLEngine engine = sqlEngine_.clone();
+            engine.connect(rootFolder_ + dictname + ".db");
+            Word.DBS.createNewTable(engine);
+            engine.commit();
+            dictList_.add(dictname);
+            IWordDictionary dict = new WordDictionary(rootFolder_ + dictname + ".db", engine);
+            return dict;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }

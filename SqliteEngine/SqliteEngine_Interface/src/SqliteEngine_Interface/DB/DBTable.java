@@ -29,6 +29,25 @@ public class DBTable {
         name_ = name;
     }
 
+    final public void createNewTable(ISQLEngine engine) throws Exception {
+        String createTableString = "CREATE TABLE " + name_ + " (";
+        int i = 0;
+        for (DBEntity dBEntity : entities_) {
+            createTableString += dBEntity.name_ + " ";
+            createTableString += dBEntity.type_.toTypeString();
+            if (dBEntity.size_ != 0) {
+                createTableString += "(" + Integer.toString(dBEntity.size_) + ") ";
+            }
+            createTableString += dBEntity.attr_.toAttrString();
+            if (++i < entities_.size()) {
+                createTableString += ", ";
+            }
+        }
+        createTableString += ")";
+        engine.addBatch(createTableString);
+        engine.executeBatch();
+    }
+
     final public void addEntity(DBEntity entity, String name) {
         entity.index_ = entities_.size();
         entity.name_ = name;
@@ -50,7 +69,7 @@ public class DBTable {
         }
         String updateString = "UPDATE " + name_ + " SET ";
         int i = 0;
-        for (Map.Entry<String, String> entry : entityMap.entrySet()) { 
+        for (Map.Entry<String, String> entry : entityMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             updateString += key + " = " + value;

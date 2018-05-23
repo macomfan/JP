@@ -13,6 +13,10 @@ import SqliteEngine_Interface.ISQLResult;
  */
 public class DBInteger extends DBEntity {
 
+    public DBInteger(DBDef.Type type, int size, DBDef.Attr attr) {
+        super(type, size, attr);
+    }
+
     public int getValueFromRS(ISQLResult rs) throws Exception {
         return rs.getInteger(name_);
     }

@@ -5,7 +5,6 @@
  */
 package JPWord.Data;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
@@ -16,12 +15,11 @@ import SqliteEngine_Interface.*;
  *
  * @author u0151316
  */
-class WordDictionary implements IWordDictionary {
+final class WordDictionary implements IWordDictionary {
 
     private String name_ = "";
-    private File file_ = null;
-    private Map<String, Word> quickKey_ = new HashMap<>();
-    private List<Word> words_ = new LinkedList<>();
+    private final Map<String, Word> quickKey_ = new HashMap<>();
+    private final List<Word> words_ = new LinkedList<>();
     public boolean mIsUpdated = false;
 
     private ISQLEngine engine_ = null;
@@ -41,6 +39,8 @@ class WordDictionary implements IWordDictionary {
         if (!engine_.isConnected()) {
             throw new Exception("SQL is not connected");
         }
+        words_.clear();
+        quickKey_.clear();
         //ISQLResult rs = engine_.executeQuery("select * from WORD order by WORD.rowid");
         Word.DBS.queryAll();
         ISQLResult rs = Word.DBS.executeQuery(engine_);
@@ -51,6 +51,7 @@ class WordDictionary implements IWordDictionary {
         }
     }
 
+    @Override
     public void saveToDB() throws Exception {
         for (Word word : words_) {
             if (word.type_ == Word.Type.OTF) {
@@ -103,5 +104,10 @@ class WordDictionary implements IWordDictionary {
             words_.add((Word) word);
             ((Word) word).parent_ = this;
         }
+    }
+
+    public void close() throws Exception {
+        saveToDB();
+        engine_.close();
     }
 }

@@ -19,7 +19,7 @@ import javax.swing.table.TableColumn;
  * @author u0151316
  */
 public class EditPanel extends javax.swing.JPanel {
-    
+
     private String searchText_ = null;
     IWordDictionary dictionary_ = null;
     private IWord currentWord_ = null;
@@ -29,9 +29,9 @@ public class EditPanel extends javax.swing.JPanel {
      */
     public EditPanel() {
         initComponents();
-        
+
     }
-    
+
     public void initialize() {
         dictionary_ = Database.getInstance().getDatabase();
         jtabMainTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -41,14 +41,14 @@ public class EditPanel extends javax.swing.JPanel {
                 } else {
                     selectItem((IWord) jtabMainTable.getModel().getValueAt(jtabMainTable.getSelectedRow(), 3));
                 }
-                
+
             }
         }
         );
         refreshMainTable(null);
         selectItem(null);
     }
-    
+
     private void selectItem(IWord word) {
         if (word == null) {
             jtxtContent.setText("");
@@ -69,7 +69,7 @@ public class EditPanel extends javax.swing.JPanel {
             jtxtTone.setEnabled(true);
             jtxtNode.setEnabled(true);
             jtxtMean.setEnabled(true);
-            
+
             jtxtContent.setText(currentWord_.getContent());
             if (currentWord_.getRoma() != null) {
                 jlbRoma.setText("[" + currentWord_.getRoma().getString() + "]");
@@ -79,9 +79,9 @@ public class EditPanel extends javax.swing.JPanel {
             jtxtNode.setText(currentWord_.getNote());
             jtxtMean.setText(MeaningUtil.meaningToString(currentWord_));
         }
-        
+
     }
-    
+
     private void addWordToRow(IWord w, DefaultTableModel dtm) {
         String content = w.getContent();
         String kana = w.getKana();
@@ -102,23 +102,22 @@ public class EditPanel extends javax.swing.JPanel {
         }
         dtm.addRow(new Object[]{content, kana, type, w});
     }
-    
-    private boolean hitMean(IWord word) {
+
+    private boolean hitMean(IWord word, String testString) {
         for (IMeaning meaning : word.getMeanings()) {
-            if (meaning.getInCHS().indexOf(searchText_) != -1)
-            {
+            if (meaning.getInCHS().contains(testString)) {
                 return true;
             }
         }
         return false;
     }
-    
+
     private void refreshMainTable(IWord word) {
         String currentSearchText = jtxtSearch.getText();
-        if (searchText_ == currentSearchText) {
+        if (searchText_ != null && searchText_.equals(currentSearchText)) {
             return;
         }
-        
+
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.addColumn("Word");
         dtm.addColumn("kana");
@@ -130,10 +129,10 @@ public class EditPanel extends javax.swing.JPanel {
             if (currentSearchText != null && currentSearchText.equals("")) {
                 row++;
                 addWordToRow(w, dtm);
-            } else if (w.getContent().indexOf(currentSearchText) != -1
-                    || w.getKana().indexOf(currentSearchText) != -1
+            } else if (w.getContent().contains(currentSearchText)
+                    || w.getKana().contains(currentSearchText)
                     || w.getRoma().hitTest(currentSearchText) == true
-                    || hitMean(w)) {
+                    || hitMean(w, currentSearchText)) {
                 row++;
                 addWordToRow(w, dtm);
             }
@@ -142,7 +141,7 @@ public class EditPanel extends javax.swing.JPanel {
                     selectedRow = row;
                 }
             }
-            
+
         }
         jtabMainTable.setModel(dtm);
         {
@@ -160,7 +159,7 @@ public class EditPanel extends javax.swing.JPanel {
             column.setPreferredWidth(60);
         }
         searchText_ = currentSearchText;
-        
+
         if (word != null && selectedRow != -1) {
             jtabMainTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
@@ -349,7 +348,7 @@ public class EditPanel extends javax.swing.JPanel {
             refreshMainTable(currentWord_);
         }
     }//GEN-LAST:event_jbtnSaveMouseClicked
-    
+
     private boolean checkChanged() {
         boolean changed = false;
         if (!currentWord_.getContent().equals(jtxtContent.getText())) {

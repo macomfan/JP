@@ -16,26 +16,29 @@ import java.util.List;
  *
  * @author u0151316
  */
-public class SoftByInteger implements IItemFilter {
+public class SortByString implements IItemFilter {
 
-    private List<Integer> integerList_ = new LinkedList<>();
-    private IIntegerGetter getter_ = null;
+    private List<String> stringList= new LinkedList<>();
+    private IStringGetter getter_ = null;
     
     
-    public SoftByInteger(IIntegerGetter getter) {
+    public SortByString(IStringGetter getter) {
         getter_ = getter;
     }
     
-    private void insertNumber(int num) {
-        if (integerList_.isEmpty()) {
-            integerList_.add(num);
+    private void insertString(String string) {
+        if (string == null) {
+            return;
         }
-        for (int value : integerList_) {
-            if (value == num) {
+        if (stringList.isEmpty()) {
+            stringList.add(string);
+        }
+        for (String value : stringList) {
+            if (value.equals(string)) {
                 return;
             }
         }
-        integerList_.add(num);
+        stringList.add(string);
     }
 
     @Override
@@ -45,20 +48,16 @@ public class SoftByInteger implements IItemFilter {
             if (word == null) {
                 continue;
             }
-            int num = getter_.getInteger(word);
-            insertNumber(num);
+            String string = getter_.getString(word);
+            insertString(string);
         }
-        Collections.sort(integerList_, new Comparator<Integer>() {
+        Collections.sort(stringList, new Comparator<String>() {
             @Override
-            public int compare(Integer o1, Integer o2) {
-                if (o1.intValue() == o2.intValue()) {
-                    return 0;
-                } else {
-                   return (o1 > o2) ? 1 : -1;
-                }
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
             }
         });
-        return integerList_.size();
+        return stringList.size();
     }
     
     @Override
@@ -68,8 +67,8 @@ public class SoftByInteger implements IItemFilter {
         if (word == null) {
             return objGroup;
         }
-        for (int i = 0; i < integerList_.size(); i++) {
-            if (getter_.getInteger(word) == integerList_.get(i)) {
+        for (int i = 0; i < stringList.size(); i++) {
+            if (getter_.getString(word).equals(stringList.get(i))) {
                 objGroup.add(i);
             }
         }

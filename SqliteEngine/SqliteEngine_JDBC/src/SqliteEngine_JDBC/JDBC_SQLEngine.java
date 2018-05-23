@@ -71,6 +71,7 @@ public class JDBC_SQLEngine implements ISQLEngine {
                 s.addBatch(sql);
             }
             s.executeBatch();
+            batchSQL_.clear();
         }
     }
 

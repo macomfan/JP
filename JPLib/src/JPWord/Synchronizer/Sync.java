@@ -16,7 +16,7 @@ public class Sync {
     private Logging logging_ = new Logging();
     public final static int BroadcastPort = 13998;
     public final static int TCPPort = 13999;
-    public final static int TryTimes = 10;
+    public final static int TryTimes = 5;
 
     private Sync() {
 
@@ -34,7 +34,6 @@ public class Sync {
     }
 
     public void startAsSlave(String dictName, Method method) {
-        logging_ = new Logging();
         SlaveWorker slave = new SlaveWorker(dictName, method);
         slave.setLogging(logging_);
         slave.start();

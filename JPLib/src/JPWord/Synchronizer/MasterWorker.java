@@ -115,7 +115,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
     public void run() {
         super.run(); //To change body of generated methods, choose Tools | Templates.
         try {
-            logging_.push(Log.Type.HARMLESS, "Server started...");
+            logging_.push(Log.Type.SUCCESS, "Server started...");
             DatagramSocket socket = new DatagramSocket(Sync.BroadcastPort);
             byte[] buf = new byte[1024];
             DatagramPacket dp = new DatagramPacket(buf, buf.length);

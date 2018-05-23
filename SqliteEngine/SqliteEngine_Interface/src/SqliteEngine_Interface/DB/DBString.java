@@ -12,7 +12,12 @@ import SqliteEngine_Interface.ISQLResult;
  * @author u0151316
  */
 public class DBString extends DBEntity {
-
+    private int size_ = 0;
+    
+    public DBString(DBDef.Type type, int size, DBDef.Attr attr) {
+        super(type, size, attr);
+    }
+    
     public String getValueFromRS(ISQLResult rs) throws Exception {
         String ret = rs.getString(name_);
         if (ret == null) {

@@ -13,16 +13,16 @@ import SqliteEngine_Interface.DB.*;
  */
 public class DB_Word extends DBTable {
 
-    public DBString GUID = new DBString();
-    public DBString CONTENT = new DBString();
-    public DBString KANA = new DBString();
-    public DBString TONE = new DBString();
-    public DBString NOTE = new DBString();
-    public DBString MEANS = new DBString();
-    public DBInteger CLASS = new DBInteger();
-    public DBInteger SKILL = new DBInteger();
-    public DBString REVIEWDATE = new DBString();
-    public DBString TAGS = new DBString();
+    public DBString GUID = new DBString(DBDef.Type.NCHAR, 36, DBDef.Attr.combinAttr(DBDef.Attr.NOT_NULL, DBDef.Attr.UNIQUE));
+    public DBString CONTENT = new DBString(DBDef.Type.VARCHAR, 255, DBDef.Attr.NONE);
+    public DBString KANA = new DBString(DBDef.Type.VARCHAR, 255, DBDef.Attr.NONE);
+    public DBString TONE = new DBString(DBDef.Type.VARCHAR, 20, DBDef.Attr.NONE);
+    public DBString NOTE = new DBString(DBDef.Type.TEXT, 0, DBDef.Attr.NONE);
+    public DBString MEANS = new DBString(DBDef.Type.TEXT, 0, DBDef.Attr.NONE);
+    public DBInteger CLASS = new DBInteger(DBDef.Type.INT, 0, DBDef.Attr.NONE);
+    public DBInteger SKILL = new DBInteger(DBDef.Type.INT, 0, DBDef.Attr.NONE);
+    public DBString REVIEWDATE = new DBString(DBDef.Type.VARCHAR, 8, DBDef.Attr.NONE);
+    public DBString TAGS = new DBString(DBDef.Type.TEXT, 0, DBDef.Attr.NONE);
 
     public DB_Word() {
         super("WORD");

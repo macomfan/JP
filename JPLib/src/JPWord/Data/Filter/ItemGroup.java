@@ -28,7 +28,7 @@ public class ItemGroup {
         items_.addAll(items);
     }
 
-    public ItemGroup() {
+    private ItemGroup() {
 
     }
 
