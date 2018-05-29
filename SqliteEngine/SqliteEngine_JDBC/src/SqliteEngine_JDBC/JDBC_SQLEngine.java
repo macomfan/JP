@@ -49,6 +49,17 @@ public class JDBC_SQLEngine implements ISQLEngine {
     }
 
     @Override
+    public boolean isTableExist(String tablename) throws Exception {
+        ISQLResult rs = executeQuery("SELECT * FROM sqlite_master WHERE type = 'table' and name ='" + tablename + "'");
+        if (rs.next() != false) {
+            return true;
+        }
+        return false;
+    }
+
+    
+    
+    @Override
     public ISQLResult executeQuery(String sql) throws Exception {
         if (queryStatement != null) {
             queryStatement.close();

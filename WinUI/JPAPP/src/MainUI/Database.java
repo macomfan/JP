@@ -33,7 +33,7 @@ public class Database {
     }
 
     private void initialize() {
-        rootFolder_ = Setting.getInstance().getRootFolder();
+        rootFolder_ = SettingFile.getInstance().getRootFolder();
         JPWord.Data.Database.getInstance().initialize(rootFolder_, new JDBC_SQLEngine());
         dictionary_ = JPWord.Data.Database.getInstance().loadDictionary(currentDictname_);
         try {
@@ -49,5 +49,16 @@ public class Database {
 
     public IWordDictionary getDatabase() {
         return dictionary_;
+    }
+
+    public void close() {
+        try {
+            if (dictionary_ != null) {
+                JPWord.Data.Database.getInstance().closeDictionary(dictionary_);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 }

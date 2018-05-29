@@ -72,6 +72,8 @@ public class Yin50 {
             if (result.get(i).equals("?")) {
                 if (i + 1 < result.size()) {
                     result.set(i, result.get(i + 1).substring(0, 1));
+                } else if (i + 1 == result.size()) {
+                    result.set(i, "xtsu");
                 } else {
                     return roma;
                 }
@@ -85,6 +87,7 @@ public class Yin50 {
                 }
             }
         }
+
         roma.SetVector(result);
         return roma;
     }
@@ -218,6 +221,7 @@ public class Yin50 {
         spec_.put("ディ", "dhi");
         spec_.put("デュ", "dhu");
         spec_.put("ジェ", "jye");
+        spec_.put("ウィ", "wi");
         spec_.put("～", "～");
     }
 

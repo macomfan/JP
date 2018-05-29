@@ -12,6 +12,7 @@ import JPWord.Data.IWordDictionary;
  * @author u0151316
  */
 public class Sync {
+
     private static Sync instance_;
     private Logging logging_ = new Logging();
     public final static int BroadcastPort = 13998;
@@ -33,8 +34,14 @@ public class Sync {
         return logging_;
     }
 
-    public void startAsSlave(String dictName, Method method) {
-        SlaveWorker slave = new SlaveWorker(dictName, method);
+    public void startAsSlave(String dictname, Method method) {
+        SlaveWorker slave = new SlaveWorker(dictname, dictname, method);
+        slave.setLogging(logging_);
+        slave.start();
+    }
+
+    public void startAsSlave(String objDictname, String srcDictname, Method method) {
+        SlaveWorker slave = new SlaveWorker(objDictname, srcDictname, method);
         slave.setLogging(logging_);
         slave.start();
     }

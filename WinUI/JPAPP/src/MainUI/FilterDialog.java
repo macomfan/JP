@@ -13,12 +13,8 @@ import JPWord.Data.IWordDictionary;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
-import JPWord.Data.Filter.IStringChecker;
-import JPWord.Data.Filter.IIntegerChecker;
-import JPWord.Data.Filter.IIntegerGetter;
-import JPWord.Data.Filter.IStringGetter;
-import JPWord.Data.Filter.SortByInteger;
-import JPWord.Data.Filter.SortByString;
+import JPLibFilters.*;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,7 +23,7 @@ import JPWord.Data.Filter.SortByString;
 public class FilterDialog extends javax.swing.JDialog {
 
     public boolean isOK_ = false;
-    public FilterStruct filter_ = null;
+    public FilterEntity filter_ = null;
 
     /**
      * Creates new form FilterDialog
@@ -41,16 +37,8 @@ public class FilterDialog extends javax.swing.JDialog {
         mainButtonGroup.add(jrbSkill);
         mainButtonGroup.add(jrbType);
         DefaultComboBoxModel dcbm = new DefaultComboBoxModel();
-        IWordDictionary dict = Database.getInstance().getDatabase();
-        List<String> types = new LinkedList<>();
-        for (IWord word : dict.getWords()) {
-            for (IMeaning meaning : word.getMeanings()) {
-                if (!types.contains(meaning.getType())) {
-                    types.add(meaning.getType());
-                }
-            }
-        }
-        for (String s : types) {
+        FilterTemplate typeFilter = Filters.getInstance().getTemplateByShortname("TYPE");
+        for (String s : typeFilter.candidateParams_) {
             dcbm.addElement(s);
         }
         jcbType.setModel(dcbm);
@@ -147,44 +135,24 @@ public class FilterDialog extends javax.swing.JDialog {
     private void jbtnOKMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnOKMouseClicked
         // TODO add your handling code here:
         isOK_ = true;
-        if (jrbCls.isSelected()) {
-            String f = "Filter by class: " + jtxtCls.getText();
-            filter_ = new FilterStruct(f, new FilterByInteger(new IIntegerChecker() {
-                @Override
-                public boolean checkInteger(IWord word, int value) {
-                    return word.getCls() == value;
-                }
-            }, jtxtCls.getText()));
-        } else if (jrbHD.isSelected()) {
-            //filter_ = new FilterStruct("Hard only", new FilterHardOnly());
-        } else if (jrbRD.isSelected()) {
-            filter_ = new FilterStruct("Sort by review date", new SortByString(new IStringGetter() {
-                @Override
-                public String getString(IWord word) {
-                    return word.getReviewDate();
-                }
-            }));
-        } else if (jrbSkill.isSelected()) {
-            filter_ = new FilterStruct("Sort by skill", new SortByInteger(new IIntegerGetter() {
-                @Override
-                public int getInteger(IWord word) {
-                    return word.getSkill();
-                }
-            }));
-        } else if (jrbType.isSelected()) {
-            String f = "Filter by type: " + (String) jcbType.getSelectedItem();
-            filter_ = new FilterStruct(f, new FilterByString(new IStringChecker() {
-                @Override
-                public boolean checkString(IWord word, String value) {
-                    for (IMeaning meaning : word.getMeanings()) {
-                        if (meaning.getType().equals(value)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            }, (String) jcbType.getSelectedItem()));
+        try {
+            if (jrbCls.isSelected()) {
+                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("CLS"), jtxtCls.getText());
+            } else if (jrbHD.isSelected()) {
+                JOptionPane.showMessageDialog(this, "Not supported", "Error", HEIGHT);
+                return;
+            } else if (jrbRD.isSelected()) {
+                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("RD"), "");
+            } else if (jrbSkill.isSelected()) {
+                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("SKILL"), "");
+            } else if (jrbType.isSelected()) {
+                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("TYPE"), (String) jcbType.getSelectedItem());
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", HEIGHT);
+            return;
         }
+
         this.setVisible(false);
     }//GEN-LAST:event_jbtnOKMouseClicked
 

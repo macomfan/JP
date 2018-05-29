@@ -13,7 +13,7 @@ public class Method {
 
     public final static Method REBASE_TO_MASTER = new Method("REBASE_TO_MASTER");
     public final static Method REBASE_FROM_MASTER = new Method("REBASE_FROM_MASTER");
-    public final static Method AUTO_SYNC = new Method("AUTO_SYNC");
+    // public final static Method AUTO_SYNC = new Method("AUTO_SYNC"); // Not supported
     public final static Method OVERLAP = new Method("OVERLAP");
 
     private String value_;

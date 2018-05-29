@@ -12,6 +12,7 @@ package SqliteEngine_Interface;
  */
 public interface ISQLEngine {    
     void connect(String dbFilename) throws Exception;
+    boolean isTableExist(String tablename) throws Exception;
     ISQLResult executeQuery(String sql) throws Exception;
     void addBatch(String sql) throws Exception;
     void executeBatch() throws Exception;

@@ -56,9 +56,6 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 } else if (method.is(Method.REBASE_TO_MASTER)) {
                     logging_.push(Log.Type.HARMLESS, "Work mode: REBASE TO MASTER");
                     currentJob_ = new Job_RebaseReceive(tcp_, dictName, logging_);
-                } else if (method.is(Method.AUTO_SYNC)) {
-                    logging_.push(Log.Type.HARMLESS, "Work mode: AUTO SYNC");
-                    currentJob_ = new Job_AutoSyncReceive(tcp_, dictName, logging_);
                 } else if (method.is(Method.OVERLAP)) {
                     logging_.push(Log.Type.HARMLESS, "Work mode: OVERLAP");
                     currentJob_ = new Job_OverlapReceive(tcp_, dictName, logging_);
@@ -152,7 +149,6 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
         } catch (Exception e) {
             closeJob();
             logging_.push(Log.Type.FAILURE, e.getMessage());
-        }
-        
+        }   
     }
 }

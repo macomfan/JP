@@ -51,7 +51,7 @@ public class FilterByString implements IItemFilter {
         }
         for (int i = 0; i < stringList_.size(); i++) {
             if (getter_.checkString(word, stringList_.get(i))) {
-                objGroup.add(i);
+                objGroup.add(0);
             }
         }
         return objGroup;

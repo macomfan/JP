@@ -20,7 +20,8 @@ import java.net.InetAddress;
 class SlaveWorker extends Thread implements ITCPCallback, IController {
 
     private TCPCommunication tcp_ = new TCPCommunication();
-    private String dictName_ = "";
+    private String objDictname_ = "";
+    private String srcDictname_ = "";
     private Method method_;
     private Job_Base currentJob_ = null;
     
@@ -32,8 +33,9 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         logging_ = logging;
     }
 
-    public SlaveWorker(String dictName, Method method) {
-        dictName_ = dictName;
+    public SlaveWorker(String objDictname, String srcDictname, Method method) {
+        objDictname_ = objDictname;
+        srcDictname_ = srcDictname;
         method_ = method;
     }
 
@@ -43,17 +45,15 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         Message msg = new Message(Message.SYS_REQUEST);
         msg.setValue("Hello");
         msg.addTag(Constant.METHOD, method_.getStringValue());
-        msg.addTag(Constant.DICTNAME, dictName_);
+        msg.addTag(Constant.DICTNAME, srcDictname_);
         logging_.push(Log.Type.HARMLESS, "Send request to master, sync mode is " + method_.getStringValue());
 
-        if (method_.is(Method.AUTO_SYNC)) {
-            currentJob_ = new Job_AutoSyncSend(tcp_, dictName_, logging_);
-        } else if (method_.is(Method.REBASE_FROM_MASTER)) {
-            currentJob_ = new Job_RebaseReceive(tcp_, dictName_, logging_);
+        if (method_.is(Method.REBASE_FROM_MASTER)) {
+            currentJob_ = new Job_RebaseReceive(tcp_, objDictname_, logging_);
         } else if (method_.is(Method.REBASE_TO_MASTER)) {
-            currentJob_ = new Job_RebaseSend(tcp_, dictName_, logging_);
+            currentJob_ = new Job_RebaseSend(tcp_, objDictname_, logging_);
         } else if (method_.is(Method.OVERLAP)) {
-            currentJob_ = new Job_OverlapSend(tcp_, dictName_, logging_);
+            currentJob_ = new Job_OverlapSend(tcp_, objDictname_, logging_);
         }
         tcp_.send(msg);
     }

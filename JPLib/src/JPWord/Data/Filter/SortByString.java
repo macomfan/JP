@@ -18,14 +18,19 @@ import java.util.List;
  */
 public class SortByString implements IItemFilter {
 
-    private List<String> stringList= new LinkedList<>();
+    private List<String> stringList = new LinkedList<>();
     private IStringGetter getter_ = null;
-    
-    
+    private boolean isDesc_ = false;
+
     public SortByString(IStringGetter getter) {
         getter_ = getter;
     }
-    
+
+    public SortByString(IStringGetter getter, boolean isDesc) {
+        getter_ = getter;
+        isDesc_ = isDesc;
+    }
+
     private void insertString(String string) {
         if (string == null) {
             return;
@@ -54,12 +59,17 @@ public class SortByString implements IItemFilter {
         Collections.sort(stringList, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                return o1.compareTo(o2);
+                if (isDesc_) {
+                    return o2.compareTo(o1);
+                } else {
+                    return o1.compareTo(o2);
+                }
+
             }
         });
         return stringList.size();
     }
-    
+
     @Override
     public List<Integer> distributeItem(Object item) {
         List<Integer> objGroup = new LinkedList<>();

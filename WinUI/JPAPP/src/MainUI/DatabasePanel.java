@@ -205,7 +205,7 @@ public class DatabasePanel extends javax.swing.JPanel {
     private void jbtnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnImportActionPerformed
         // TODO add your handling code here:
         JFileChooser chooser = new JFileChooser();
-        String filename = Setting.getInstance().getRootFolder();
+        String filename = SettingFile.getInstance().getRootFolder();
         Path p = FileSystems.getDefault().getPath(filename);
         chooser.setCurrentDirectory(new File(p.toString()));
         int res = chooser.showOpenDialog(this);

@@ -20,8 +20,9 @@ final class WordDictionary implements IWordDictionary {
     private String name_ = "";
     private final Map<String, Word> quickKey_ = new HashMap<>();
     private final List<Word> words_ = new LinkedList<>();
-    public boolean mIsUpdated = false;
 
+    private final Setting setting_ = new Setting();
+    
     private ISQLEngine engine_ = null;
 
     public WordDictionary(String name, ISQLEngine engine) {
@@ -39,6 +40,9 @@ final class WordDictionary implements IWordDictionary {
         if (!engine_.isConnected()) {
             throw new Exception("SQL is not connected");
         }
+        
+        setting_.loadFromDB(engine_);
+        
         words_.clear();
         quickKey_.clear();
         //ISQLResult rs = engine_.executeQuery("select * from WORD order by WORD.rowid");
@@ -58,6 +62,7 @@ final class WordDictionary implements IWordDictionary {
                 word.encodeToSQL(engine_);
             }
         }
+        setting_.saveToDB(engine_);
         Word.DBS.executeChange(engine_);
         engine_.executeBatch();
         engine_.commit();
@@ -109,5 +114,10 @@ final class WordDictionary implements IWordDictionary {
     public void close() throws Exception {
         saveToDB();
         engine_.close();
+    }
+
+    @Override
+    public ISetting getSetting() {
+        return setting_;
     }
 }

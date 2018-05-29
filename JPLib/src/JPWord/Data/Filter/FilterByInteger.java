@@ -39,7 +39,7 @@ public class FilterByInteger implements IItemFilter {
 
     @Override
     public int buildChildGroup(List<Object> items) {
-        return integerList_.size();
+        return 1;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class FilterByInteger implements IItemFilter {
         }
         for (int i = 0; i < integerList_.size(); i++) {
             if (getter_.checkInteger(word, integerList_.get(i))) {
-                objGroup.add(i);
+                objGroup.add(0);
             }
         }
         return objGroup;

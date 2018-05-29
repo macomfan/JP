@@ -22,13 +22,13 @@ import java.util.Map;
  *
  * @author u0151316
  */
-public class Setting {
+public class SettingFile {
 
-    class SettingFile {
+    class PersistFile {
 
         private Map<String, String> values_ = new HashMap<>();
 
-        public SettingFile() {
+        public PersistFile() {
             try {
                 File file = new File("setting.ini");
                 BufferedReader reader = new BufferedReader(
@@ -82,11 +82,11 @@ public class Setting {
 
     private String rootFolder_ = "";
     private String filename_ = "";
-    public List<FilterStruct> filters_ = new LinkedList<>();
-    private SettingFile setting_ = new SettingFile();
-    private static Setting instance_;
+    public List<FilterEntity> filters_ = new LinkedList<>();
+    private PersistFile setting_ = new PersistFile();
+    private static SettingFile instance_;
 
-    private Setting() {
+    private SettingFile() {
         if (!setting_.hasValue("RootFolder"))
         {
             filename_ = "C:\\Users\\u0151316\\Documents\\JP\\";
@@ -101,9 +101,9 @@ public class Setting {
         return filename_;
     }
 
-    public static Setting getInstance() {
+    public static SettingFile getInstance() {
         if (instance_ == null) {
-            instance_ = new Setting();
+            instance_ = new SettingFile();
         }
         return instance_;
     }

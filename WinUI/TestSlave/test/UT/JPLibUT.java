@@ -24,7 +24,6 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.processing.Processor;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.runners.MethodSorters;
@@ -82,29 +81,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_001_CreateNewDBAndDeleteIt() throws Exception {
-        File file = new File("NEW_TEST.db");
-        file.delete();
-
-        String Test_DB_Name = "NEW_TEST";
-        Database.getInstance().initialize(
-                new File("").getAbsolutePath(), new JDBC_SQLEngine());
-        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
-        assertNull(dict);
-        dict = Database.getInstance().createDictionary(Test_DB_Name);
-        assertNotNull(dict);
-        assertEquals(Database.getInstance().getDictList().size(), 2);
-        Database.getInstance().closeDictionary(dict);
-        Database.getInstance().deleteDictionary(Test_DB_Name);
-        assertEquals(Database.getInstance().getDictList().size(), 1);
-
-        IWordDictionary dict_new = Database.getInstance().loadDictionary(Test_DB_Name);
-        assertNull(dict_new);
-        assertEquals(Database.getInstance().getDictList().size(), 1);
-    }
-
-    @Test
-    public void test_002_DBReload() throws Exception {
+    public void test_020_DBReload() throws Exception {
         File file = new File("NEW_TEST.db");
         file.delete();
 
@@ -124,7 +101,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_003_DBAddData() throws Exception {
+    public void test_030_DBAddData() throws Exception {
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
         Database.getInstance().deleteDictionary("TEST");
@@ -154,7 +131,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_004_CheckeAddedData() throws Exception {
+    public void test_040_CheckeAddedData() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -175,7 +152,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_005_UpdateExistData() throws Exception {
+    public void test_050_UpdateExistData() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -206,7 +183,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_006_CheckUpdatedData() throws Exception {
+    public void test_060_CheckUpdatedData() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -235,7 +212,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_007_AddMoreDataForFurtherTest() throws Exception {
+    public void test_070_AddMoreDataForFurtherTest() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -256,7 +233,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_008_FilterSoftByNumber() throws Exception {
+    public void test_080_FilterSoftByNumber() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -289,7 +266,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_009_Shuffle() throws Exception {
+    public void test_090_Shuffle() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -352,7 +329,7 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_010_FilterSoftByText() throws Exception {
+    public void test_100_FilterSoftByText() throws Exception {
         String Test_DB_Name = "TEST";
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -385,21 +362,22 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_011_kanaToRoma() throws Exception {
+    public void test_110_kanaToRoma() throws Exception {
         assertEquals("chuugokujinn", Yin50.getInstance().kanaToRoma("ちゅうごくじん").getString());
         assertEquals("amerikajinn", Yin50.getInstance().kanaToRoma("アメリカじん").getString());
         assertEquals("kurisumasutsurii", Yin50.getInstance().kanaToRoma("クリスマスツリー").getString());
         assertEquals("aidhiikaado", Yin50.getInstance().kanaToRoma("アイディーカード").getString());
-//        assertEquals("amerikajinn", Yin50.getInstance().kanaToRoma("アメリカじん").getString());
-//        assertEquals("amerikajinn", Yin50.getInstance().kanaToRoma("アメリカじん").getString());
-//        assertEquals("amerikajinn", Yin50.getInstance().kanaToRoma("アメリカじん").getString());
-//        assertEquals("amerikajinn", Yin50.getInstance().kanaToRoma("アメリカじん").getString());
+        assertEquals("shiidhii", Yin50.getInstance().kanaToRoma("シーディー").getString());
+        assertEquals("dhizuniiranndo", Yin50.getInstance().kanaToRoma("ディズニーランド").getString());
+        assertEquals("～sann", Yin50.getInstance().kanaToRoma("～さん").getString());
+        assertEquals("axtsu", Yin50.getInstance().kanaToRoma("あっ").getString());
+        assertEquals("atsu", Yin50.getInstance().kanaToRoma("あつ").getString());
+        assertEquals("goorudennwiiku", Yin50.getInstance().kanaToRoma("ゴールデンウィーク").getString());
     }
 
     @Test
-    public void test_012_Tags() throws Exception {
-        
-        
+    public void test_120_Tags() throws Exception {
+
     }
 
     private void MasterStartStop() throws Exception {
@@ -410,50 +388,88 @@ public class JPLibUT {
         assertEquals(num + 1, Thread.activeCount());
         {
             Log log = logging.pop();
-            assertEquals(Log.Type.SUCCESS, log.type());
             assertEquals("Server started...", log.what());
+            assertEquals(Log.Type.SUCCESS, log.type());
         }
         master.stopWorker();
         Thread.sleep(300);
         {
             Log log = logging.pop();
-            assertEquals(Log.Type.FAILURE, log.type());
             assertEquals("Exit by user", log.what());
+            assertEquals(Log.Type.FAILURE, log.type());
         }
         assertEquals(num, Thread.activeCount());
     }
 
     @Test
-    public void test_013_MasterStartStop() throws Exception {
+    public void test_130_MasterStartStop() throws Exception {
         MasterStartStop();
         MasterStartStop();
         MasterStartStop();
         //Sync.getInstance().startAsSlave("", Method.OVERLAP);
     }
-    
-    public void SlaveWithOutMaster() throws Exception {
+
+    @Test
+    public void test_140_Rebase() throws Exception {
+        // Master start
+        int num = Thread.activeCount();
+        ILogging logging = Sync.getInstance().getLogging();
+        IController master = Sync.getInstance().runAsMaster();
+        Thread.sleep(200);
+        assertEquals(num + 1, Thread.activeCount());
+        {
+            Log log = logging.pop();
+            assertEquals("Server started...", log.what());
+            assertEquals(Log.Type.SUCCESS, log.type());
+        }
+
+        // Slave start
+        Sync.getInstance().startAsSlave("TEST_SLAVE", Method.REBASE_FROM_MASTER);
+        Thread.sleep(200);
+        {
+            Log log = logging.pop();
+            assertEquals("Start as slave ...", log.what());
+            assertEquals(Log.Type.SUCCESS, log.type());
+            log = logging.pop();
+            assertEquals("Finding master services ...", log.what());
+            assertEquals(Log.Type.HARMLESS, log.type());
+        }
+
+        // Connected
+        {
+            Log log = logging.pop();
+            assertEquals("Received broadcast", log.what());
+            assertEquals(Log.Type.SUCCESS, log.type());
+//            log = logging.pop();
+//            assertEquals("Connected to master", log.what());
+//            assertEquals(Log.Type.SUCCESS, log.type());
+        }
+        //Sync.getInstance().startAsSlave("", Method.OVERLAP);
+    }
+
+    public void SlaveWithoutMaster() throws Exception {
         ILogging logging = Sync.getInstance().getLogging();
         Sync.getInstance().startAsSlave("", Method.OVERLAP);
         Thread.sleep(7000);
         {
             Log log = logging.pop();
-            assertEquals(Log.Type.SUCCESS, log.type());
             assertEquals("Start as slave ...", log.what());
+            assertEquals(Log.Type.SUCCESS, log.type());
             for (int i = 0; i < 5; i++) {
                 log = logging.pop();
+                assertEquals("Finding master services ...", log.what());
                 assertEquals(Log.Type.HARMLESS, log.type());
-                assertEquals("Finding master services ...", log.what());                
             }
             log = logging.pop();
-            assertEquals(Log.Type.FAILURE, log.type());
             assertEquals("Cannot find master", log.what());
+            assertEquals(Log.Type.FAILURE, log.type());
         }
     }
 
     @Ignore
-    public void test_999_SlaveWithOutMaster() throws Exception {
-        SlaveWithOutMaster();
-        SlaveWithOutMaster();
-        SlaveWithOutMaster();
+    public void test_999_SlaveWithoutMaster() throws Exception {
+        SlaveWithoutMaster();
+        SlaveWithoutMaster();
+        SlaveWithoutMaster();
     }
 }

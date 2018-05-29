@@ -34,7 +34,7 @@ public class DBTable {
         int i = 0;
         for (DBEntity dBEntity : entities_) {
             createTableString += dBEntity.name_ + " ";
-            createTableString += dBEntity.type_.toTypeString();
+            createTableString += dBEntity.type_.toTypeString() + " ";
             if (dBEntity.size_ != 0) {
                 createTableString += "(" + Integer.toString(dBEntity.size_) + ") ";
             }
@@ -99,6 +99,10 @@ public class DBTable {
         updateMap_.clear();
     }
 
+    public String getName() {
+        return name_;
+    }
+    
     public void queryAll() throws Exception {
         if (!"".equals(queryString_)) {
             throw new Exception("[JPWORD] A pending query is exist");
