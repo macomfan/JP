@@ -127,7 +127,6 @@ public class JPLibUT {
         word.updateSkill(3);
         dict.saveToDB();
         Database.getInstance().closeDictionary(dict);
-
     }
 
     @Test
@@ -467,9 +466,15 @@ public class JPLibUT {
     }
 
     @Ignore
-    public void test_999_SlaveWithoutMaster() throws Exception {
+    public void test_900_SlaveWithoutMaster() throws Exception {
         SlaveWithoutMaster();
         SlaveWithoutMaster();
         SlaveWithoutMaster();
+    }
+
+    @Test
+    public void test_999_DeleteTemp() throws Exception {
+        File file = new File("TEST.db");
+        file.delete();
     }
 }
