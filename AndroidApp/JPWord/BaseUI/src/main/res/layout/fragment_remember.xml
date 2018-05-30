@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.jpword.ma.baseui.ImageViewClickedEffect
+            android:id="@+id/btnMyWord"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:background="#0000"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_grade_24dp"
+            app:unchicked_color="#333333" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="3dp"
+            android:gravity="right"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtFilter1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="MY"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtFilter2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="HARD"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtFilter3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="CLS"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtFilter4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="TYPE"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtFilter5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="RD"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/txtFilter6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/filter_view_border"
+                android:padding="2dp"
+                android:text="SKILL"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.jpword.ma.baseui.ImageButtonDisabledEffect
+            android:id="@+id/btnPrev"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="left|center"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_chevron_left_24dp" />
+
+        <TextView
+            android:id="@+id/txtRememberMainText"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Test"
+            android:textSize="22sp" />
+
+        <com.jpword.ma.baseui.ImageButtonDisabledEffect
+            android:id="@+id/btnNext"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_chevron_right_24dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cls:" />
+
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="0dp" />
+
+        <TextView
+            android:id="@+id/txtCls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <com.jpword.ma.baseui.ImageButtonDisabledEffect
+                android:id="@+id/btnPass"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_check_24dp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <com.jpword.ma.baseui.ImageButtonDisabledEffect
+                android:id="@+id/btnHint"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_help_24dp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <com.jpword.ma.baseui.ImageButtonDisabledEffect
+                android:id="@+id/btnFail"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_close_24dp" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="#AAA" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="15dp"
+        android:orientation="horizontal">
+
+        <GridLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <TextView
+                android:layout_gravity="right|center"
+                android:text="Count:" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_rowSpan="3" />
+
+            <TextView
+                android:id="@+id/txtCount"
+                android:layout_gravity="fill"
+                android:text="" />
+
+            <TextView
+                android:layout_gravity="right|center"
+                android:text="Skill:" />
+
+            <TextView
+                android:id="@+id/txtSkill"
+                android:layout_gravity="fill"
+                android:text="" />
+
+            <TextView
+                android:layout_gravity="right|center"
+                android:text="RD:" />
+
+            <TextView
+                android:id="@+id/txtRD"
+                android:layout_gravity="fill"
+                android:text="" />
+
+        </GridLayout>
+
+        <com.jpword.ma.baseui.ImageButtonDisabledEffect
+            android:id="@+id/btnRefresh"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_refresh_24dp" />
+
+    </LinearLayout>
+
+
+</LinearLayout>
