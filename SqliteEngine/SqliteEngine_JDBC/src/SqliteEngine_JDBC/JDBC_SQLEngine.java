@@ -24,7 +24,7 @@ public class JDBC_SQLEngine implements ISQLEngine {
 
     }
     private Connection connection_ = null;
-    private List<String> batchSQL_ = new LinkedList<String>();
+    private List<String> batchSQL_ = new LinkedList<>();
     private Statement queryStatement = null;
     private Statement batchStatement = null;
 
@@ -57,9 +57,6 @@ public class JDBC_SQLEngine implements ISQLEngine {
         return false;
     }
 
-    
-    
-    @Override
     public ISQLResult executeQuery(String sql) throws Exception {
         if (queryStatement != null) {
             queryStatement.close();
@@ -69,7 +66,6 @@ public class JDBC_SQLEngine implements ISQLEngine {
         return new JDBC_SQLResult(rs);
     }
 
-    @Override
     public void addBatch(String sql) throws Exception {
         batchSQL_.add(sql);
     }

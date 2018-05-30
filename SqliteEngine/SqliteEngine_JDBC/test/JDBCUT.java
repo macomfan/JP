@@ -77,6 +77,6 @@ public class JDBCUT {
         DBS.createNewTable(engine);
         engine.commit();
         assertEquals(true, engine.isTableExist(DBS.getName()));
-        engine.clone();
+        engine.close();
     }
 }
