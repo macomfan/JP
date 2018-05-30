@@ -17,19 +17,58 @@ import java.util.List;
  */
 abstract public class FilterTemplate {
 
+    /**
+     *
+     */
     public static final String FILTER_BY_SKILL = "Sort by skill";
+
+    /**
+     *
+     */
     public static final String FILTER_BY_RD = "Sort by review date";
+
+    /**
+     *
+     */
     public static final String FILTER_BY_TYPE = "Filter by type";
+
+    /**
+     *
+     */
     public static final String FILTER_BY_CLASS = "Filter by class";
+
+    /**
+     *
+     */
     public static final String FILTER_BY_MY = "Filter by my word";
 
+    /**
+     *
+     */
     public String name_ = "";
+
+    /**
+     *
+     */
     public String shortname_ = "";
+
+    /**
+     *
+     */
     public CandidateParams candidateParams_ = null;
 
+    /**
+     *
+     */
     protected FilterTemplate() {
     }
 
+    /**
+     *
+     * @param params
+     * @return
+     * @throws Exception
+     */
     public List<String> checkAndSplitParams(String params) throws Exception {
         if (params == null || params.equals("")) {
             if (candidateParams_.type_ == ParamType.Mandatory
@@ -62,23 +101,44 @@ abstract public class FilterTemplate {
         return Arrays.asList(paramItems);
     }
 
-    enum ParamType {
+    public enum ParamType {
         Mandatory,
         SignleSelect,
         SignleSelectAndMandatory,
         Unknown
     };
 
+    /**
+     *
+     */
     public class CandidateParams extends LinkedList<String> {
 
+        /**
+         *
+         */
         public ParamType type_ = ParamType.Unknown;
+
+        /**
+         *
+         */
         public String defaultParam_ = null;
 
+        /**
+         *
+         * @param type
+         * @param defaultParam
+         */
         public CandidateParams(ParamType type, String defaultParam) {
             type_ = type;
             defaultParam_ = defaultParam;
         }
     }
 
+    /**
+     *
+     * @param params
+     * @return
+     * @throws Exception
+     */
     abstract public IItemFilter createFilter(String params) throws Exception;
 }

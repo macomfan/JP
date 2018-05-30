@@ -33,7 +33,7 @@ public class Filters {
     public List<FilterTemplate> getTemplates() {
         return templates_;
     }
-    
+
     public FilterTemplate getTemplateByShortname(String shortname) {
         for (FilterTemplate filterTemplate : templates_) {
             if (filterTemplate.shortname_.equals(shortname)) {
@@ -42,7 +42,16 @@ public class Filters {
         }
         return null;
     }
-    
+
+    public FilterTemplate getTemplateByName(String name) {
+        for (FilterTemplate filterTemplate : templates_) {
+            if (filterTemplate.name_.equals(name)) {
+                return filterTemplate;
+            }
+        }
+        return null;
+    }
+
     public static Filters getInstance() {
         if (instance_ == null) {
             instance_ = new Filters();

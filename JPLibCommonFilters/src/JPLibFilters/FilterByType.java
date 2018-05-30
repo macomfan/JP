@@ -5,15 +5,12 @@
  */
 package JPLibFilters;
 
-import JPWord.Data.Filter.FilterByInteger;
 import JPWord.Data.Filter.FilterByString;
-import JPWord.Data.Filter.IIntegerChecker;
 import JPWord.Data.Filter.IItemFilter;
 import JPWord.Data.Filter.IStringChecker;
 import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,7 +22,6 @@ public class FilterByType extends FilterTemplate {
     public FilterByType(IWordDictionary dict) {
         super.name_ = "Filter by type";
         super.shortname_ = "TYPE";
-
         CandidateParams typeParam = new CandidateParams(ParamType.Mandatory, null);
 
         for (IWord word : dict.getWords()) {
@@ -42,7 +38,7 @@ public class FilterByType extends FilterTemplate {
     }
 
     @Override
-    public IItemFilter createFilter(String params) throws Exception{
+    public IItemFilter createFilter(String params) throws Exception {
         List<String> paramItemsString = checkAndSplitParams(params);
         IItemFilter filter = new FilterByString(new IStringChecker() {
             @Override

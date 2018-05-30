@@ -23,7 +23,6 @@ public class FilterByClass extends FilterTemplate {
     public FilterByClass(IWordDictionary dict) {
         super.name_ = "Filter by class";
         super.shortname_ = "CLS";
-
         CandidateParams clsParam = new CandidateParams(ParamType.Mandatory, null);
 
         for (IWord word : dict.getWords()) {
@@ -36,7 +35,7 @@ public class FilterByClass extends FilterTemplate {
     }
 
     @Override
-    public IItemFilter createFilter(String params) throws Exception{
+    public IItemFilter createFilter(String params) throws Exception {
         List<String> paramItemsString = checkAndSplitParams(params);
         List<Integer> cls = new LinkedList<>();
         for (String string : paramItemsString) {

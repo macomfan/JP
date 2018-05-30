@@ -20,7 +20,6 @@ public class SortByReviewdata extends FilterTemplate {
     public SortByReviewdata() {
         super.name_ = "Sort by review date";
         super.shortname_ = "RD";
-
         CandidateParams order = new CandidateParams(ParamType.SignleSelect, "ASCE");
         order.add("ASCE");
         order.add("DESC");
