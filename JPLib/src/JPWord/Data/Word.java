@@ -13,12 +13,13 @@ import java.util.Calendar;
 import java.util.Map;
 import SqliteEngine_Interface.DB.OP_Update;
 import SqliteEngine_Interface.*;
+import SqliteEngine_Interface.DB.Bytes_SQLResult;
 
 /**
  *
  * @author u0151316
  */
-class Word implements IWord {
+class Word implements IWord, IWordCodec {
 
     public static DB_Word DBS = new DB_Word();
 
@@ -198,7 +199,12 @@ class Word implements IWord {
     public String getReviewDate() {
         return reviewDate_;
     }
-    
+
+    @Override
+    public void setReviewDate(String rd) {
+        reviewDate_ = rd;
+    }
+
     private void updateReviewDate() {
         Calendar now = Calendar.getInstance();
         String newReviewDate = String.format("%04d%02d%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH));
@@ -256,7 +262,6 @@ class Word implements IWord {
     static int ind = 0;
 
     public void decodeFromSQL(ISQLResult rs) throws Exception {
-
         try {
             type_ = Type.DB;
             String guid = DBS.GUID.getValueFromRS(rs);
@@ -285,7 +290,7 @@ class Word implements IWord {
 
     }
 
-    public void encodeToSQL(ISQLEngine engine) {
+    public void encodeToSQL() {
         String tagString = tags_.encodeToString();
         DBS.insert(
                 DBS.GUID.update(id_.toString()),
@@ -301,4 +306,25 @@ class Word implements IWord {
         type_ = Type.DB;
     }
 
+    @Override
+    public byte[] encodeToBytes() {
+        String tagString = tags_.encodeToString();
+        return DBS.encodeToBytes(
+                DBS.GUID.updateRaw(id_.toString()),
+                DBS.CONTENT.updateRaw(content_),
+                DBS.KANA.updateRaw(kana_),
+                DBS.TONE.updateRaw(tone_),
+                DBS.NOTE.updateRaw(note_),
+                DBS.MEANS.updateRaw(encodeMeans()),
+                DBS.CLASS.updateRaw(cls_),
+                DBS.SKILL.updateRaw(skill_),
+                DBS.REVIEWDATE.updateRaw(reviewDate_),
+                DBS.TAGS.updateRaw(tagString));
+    }
+
+    @Override
+    public void decodeFromBytes(byte[] bytes) throws Exception {
+        Bytes_SQLResult rs = new Bytes_SQLResult(bytes);
+        decodeFromSQL(rs);
+    }
 }

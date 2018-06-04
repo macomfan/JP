@@ -38,6 +38,8 @@ public interface IWord {
     
     String getReviewDate();
     
+    void setReviewDate(String rd);
+    
     int getCls();
     
     void setCls(int cls);

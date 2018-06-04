@@ -7,13 +7,14 @@ package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
 import JPWord.Data.IWord;
+import JPWord.Data.IWordCodec;
 import JPWord.Data.IWordDictionary;
 
 /**
  *
  * @author u0151316
  */
-class Job_RebaseSend extends Job_Base { 
+class Job_RebaseSend extends Job_Base {
 
     private IWordDictionary dict_ = null;
 
@@ -30,23 +31,24 @@ class Job_RebaseSend extends Job_Base {
             sendMessage(reason);
             return JobResult.FAIL;
         }
-        Message number = new Message(Message.MSG_SYN);
-        number.addTag(Constant.NUMBER, Integer.toString(dict_.getWords().size(), 10));
-        sendMessage(number);
-        logging_.push(Log.Type.HARMLESS, "Send number");
+        Message numberMsg = new Message(Message.MSG_SYN);
+        String number = Integer.toString(dict_.getWords().size(), 10);
+        numberMsg.addTag(Constant.NUMBER, number);
+        sendMessage(numberMsg);
+        logging_.push(Log.Type.HARMLESS, "Send number: " + number);
         return JobResult.SUCCESS;
     }
 
     @Override
     public JobResult doAction(Message msg) {
         if (msg.getType() == Message.MSG_ACK) {
-            logging_.push(Log.Type.HARMLESS, "Get confirmed message");
-            logging_.push(Log.Type.HARMLESS, "Sending content...");
+            logging_.push(Log.Type.HARMLESS, "Get confirmed message, Sending content...");
             int logindex = 0;
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
-                //String wordString = word.encodeToString();
-                //data.setValue(wordString);
+                IWordCodec codec = (IWordCodec)word;
+                byte[] bytes = codec.encodeToBytes();
+                data.setValue(bytes);
                 sendMessage(data);
                 try {
                     Thread.sleep(1);

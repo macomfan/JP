@@ -24,7 +24,7 @@ class Logging implements ILogging {
     
     public synchronized void push(Log msg) {
         logs_.add(msg);
-        System.out.println(msg.what());
+        System.out.println("[SYNC LOG]  " + msg.what());
     }
     
     public synchronized void push(Log.Type type, String what) {

@@ -140,8 +140,10 @@ class Meaning implements IMeaning {
         for (int i = 1; i < meaningItems.length; i++) {
             Example example = new Example();
             if (example.decodeFromString(meaningItems[i])) {
-                this.examples_.add(example);
-                example.parent_ = this;
+                if (!example.isEmpty()) {
+                    this.examples_.add(example);
+                    example.parent_ = this;
+                }
             }
         }
         return true;

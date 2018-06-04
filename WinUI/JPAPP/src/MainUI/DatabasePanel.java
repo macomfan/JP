@@ -50,7 +50,7 @@ public class DatabasePanel extends javax.swing.JPanel {
         @Override
         public void run() {
             try {
-                ILogging logging = Sync.getInstance().getLogging();
+                ILogging logging = Sync.getInstance().getDefaultLogging();
                 while (true) {
                     Log log = logging.pop();
                     if (log != null) {

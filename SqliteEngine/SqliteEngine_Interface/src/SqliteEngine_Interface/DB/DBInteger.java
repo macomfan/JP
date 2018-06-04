@@ -21,6 +21,10 @@ public class DBInteger extends DBEntity {
         return rs.getInteger(name_);
     }
 
+    public OP_Update updateRaw(int value) {
+        return new OP_Update(this, Integer.toString(value));
+    }
+
     public OP_Update update(int value) {
         return new OP_Update(this, Integer.toString(value));
     }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import SqliteEngine_Interface.ISQLEngine;
 import SqliteEngine_Interface.ISQLResult;
+import java.nio.ByteBuffer;
 
 /**
  *
@@ -102,7 +103,7 @@ public class DBTable {
     public String getName() {
         return name_;
     }
-    
+
     public void queryAll() throws Exception {
         if (!"".equals(queryString_)) {
             throw new Exception("[JPWORD] A pending query is exist");
@@ -130,6 +131,27 @@ public class DBTable {
         valueString += ")";
         insertString = insertString + columnString + " VALUES " + valueString;
         insertList_.add(insertString);
+    }
+
+    public byte[] encodeToBytes(OP_Update... updates) {
+        int size = 0;
+        for (OP_Update update : updates) {
+            size += 8;
+            size += update.entity_.name_.length();
+            size += update.value_.length();
+        }
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(size);
+            for (OP_Update update : updates) {
+                buffer.putInt(update.entity_.name_.length());
+                buffer.putInt(update.value_.length());
+                buffer.put(update.entity_.name_.getBytes("UTF-8"));
+                buffer.put(update.value_.getBytes("UTF-8"));
+            }
+            return buffer.array();
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     public void update(OP_Where where, OP_Update... updates) {

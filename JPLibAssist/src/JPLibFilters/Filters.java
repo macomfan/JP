@@ -24,6 +24,7 @@ public class Filters {
     }
 
     public void initialize(IWordDictionary dict) {
+        templates_.clear();
         templates_.add(new SortBySkill());
         templates_.add(new SortByReviewdata());
         templates_.add(new FilterByType(dict));

@@ -6,7 +6,6 @@
 package MainUI;
 
 import JPWord.Data.IWordDictionary;
-import java.io.File;
 import SqliteEngine_JDBC.JDBC_SQLEngine;
 
 /**
@@ -18,7 +17,7 @@ public class Database {
     private static Database instance_ = null;
     private IWordDictionary dictionary_ = null;
     private String rootFolder_ = "";
-    private String currentDictname_ = "Standard_JP_Junior";
+    private String currentDictname_ = "JP_TEST";
 
     private Database() {
 

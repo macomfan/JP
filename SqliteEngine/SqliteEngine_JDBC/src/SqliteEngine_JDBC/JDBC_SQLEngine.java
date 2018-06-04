@@ -67,6 +67,7 @@ public class JDBC_SQLEngine implements ISQLEngine {
     }
 
     public void addBatch(String sql) throws Exception {
+        System.out.println("[SQL]" + sql);
         batchSQL_.add(sql);
     }
 

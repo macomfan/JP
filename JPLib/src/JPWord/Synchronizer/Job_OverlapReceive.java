@@ -7,6 +7,7 @@ package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
 import JPWord.Data.IWord;
+import JPWord.Data.IWordCodec;
 import JPWord.Data.IWordDictionary;
 
 /**
@@ -42,15 +43,18 @@ public class Job_OverlapReceive extends Job_Base {
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
             IWord word = dict_.createWord();
-            //word.decodeFromString(msg.getValue());
+            try {
+                IWordCodec codec = (IWordCodec) word;
+                codec.decodeFromBytes(msg.getValue());
+            } catch (Exception e) {
+            }
             index_++;
             IWord orgWord = dict_.getWord(word.getID());
             if (orgWord == null) {
                 logging_.push(Log.Type.WARNING, "Cannot find word: " + word.getContent());
             } else {
-//                orgWord.setTag(ITag.TAG_Skill, word.getTagValue(ITag.TAG_Skill));
-//                orgWord.setTag(ITag.TAG_RD, word.getTagValue(ITag.TAG_RD));
-                //orgWord.setTag(ITag.TAG_MY, word.getTagValue(ITag.TAG_MY));
+                orgWord.updateSkill(word.getSkill());
+                orgWord.setReviewDate(word.getReviewDate());
             }
             if (index_ == number_) {
                 logging_.push(Log.Type.HARMLESS, "Received done");

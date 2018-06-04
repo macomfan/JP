@@ -66,7 +66,7 @@ class Tagable {
         if (str == null || str.equals("")) {
             return false;
         }
-        String[] tagstrings = str.substring(1).split("\\" + SOH);
+        String[] tagstrings = str.split("\\" + SOH);
         for (String tagString : tagstrings) {
             int eqIndex = tagString.indexOf('=');
             if (eqIndex == -1) {

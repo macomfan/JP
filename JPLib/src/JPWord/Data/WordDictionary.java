@@ -59,7 +59,7 @@ final class WordDictionary implements IWordDictionary {
     public void saveToDB() throws Exception {
         for (Word word : words_) {
             if (word.type_ == Word.Type.OTF) {
-                word.encodeToSQL(engine_);
+                word.encodeToSQL();
             }
         }
         setting_.saveToDB(engine_);

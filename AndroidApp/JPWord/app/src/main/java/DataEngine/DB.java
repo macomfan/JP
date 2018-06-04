@@ -7,6 +7,7 @@ import com.jpword.ma.sqliteengine_android.Android_SQLEngine;
 
 import java.io.File;
 
+import JPLibFilters.Filters;
 import JPWord.Data.IWordDictionary;
 
 /**
@@ -51,8 +52,8 @@ public class DB {
         if (defaultDictname.equals("")) {
             defaultDictname = "Dictionary";
         }
-
         IWordDictionary dict = JPWord.Data.Database.getInstance().loadDictionary(defaultDictname);
+        Filters.getInstance().initialize(dict_);
         if (dict == null) {
             return;
         }
@@ -76,7 +77,7 @@ public class DB {
             }
         }
         dict_ = dict;
-
+        Filters.getInstance().initialize(dict_);
         if (dict_ != null) {
             wordSequence_ = new WordSequence(dict_);
             wordSequence_.reSort();

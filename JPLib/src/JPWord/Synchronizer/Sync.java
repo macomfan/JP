@@ -30,25 +30,40 @@ public class Sync {
         return instance_;
     }
 
-    public ILogging getLogging() {
+    public ILogging getDefaultLogging() {
         return logging_;
     }
 
-    public void startAsSlave(String dictname, Method method) {
-        SlaveWorker slave = new SlaveWorker(dictname, dictname, method);
-        slave.setLogging(logging_);
+    public ILogging createLogging() {
+        return new Logging();
+    }
+
+    public void startAsSlave(SlaveParam param, Method method, ILogging logging) {
+        if (param.masterSideDictname_.equals("") && param.slaveSideDictname_.equals("")) {
+            return;
+        }
+        if (param.masterSideDictname_.equals("")) {
+            param.masterSideDictname_ = param.slaveSideDictname_;
+        }
+        if (param.slaveSideDictname_.equals("")) {
+            param.slaveSideDictname_ = param.masterSideDictname_;
+        }
+        SlaveWorker slave = new SlaveWorker(param.masterSideDictname_, param.slaveSideDictname_, method);
+        slave.setLogging((Logging) logging);
         slave.start();
     }
 
-    public void startAsSlave(String objDictname, String srcDictname, Method method) {
-        SlaveWorker slave = new SlaveWorker(objDictname, srcDictname, method);
-        slave.setLogging(logging_);
-        slave.start();
+    public void startAsSlave(SlaveParam param, Method method) {
+        startAsSlave(param, method, logging_);
     }
 
     public IController runAsMaster() {
+        return runAsMaster(logging_);
+    }
+
+    public IController runAsMaster(ILogging logging) {
         MasterWorker master = new MasterWorker();
-        master.setLogging(logging_);
+        master.setLogging((Logging) logging);
         master.start();
         return master;
     }

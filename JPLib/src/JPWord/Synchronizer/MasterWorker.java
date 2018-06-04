@@ -48,7 +48,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 logging_.push(Log.Type.HARMLESS, "REQUEST received");
                 Method method = new Method(msg.getTag(Constant.METHOD));
                 String dictName = msg.getTag(Constant.DICTNAME);
-                Message newMsg = new Message(Message.SYS_RESPONSE);
+                Message responseMessage = new Message(Message.SYS_RESPONSE);
                 
                 if (method.is(Method.REBASE_FROM_MASTER)) {
                     logging_.push(Log.Type.HARMLESS, "Work mode: REBASE FROM MASTER");
@@ -62,7 +62,7 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                 } else {
                     logging_.push(Log.Type.FAILURE, "Work mode: UNKNOWN");
                     Message byeMsg = new Message(Message.SYS_BYE);
-                    newMsg.addTag(Constant.REASON, Constant.UNKNOW_METHOD);
+                    byeMsg.addTag(Constant.REASON, Constant.UNKNOW_METHOD);
                     tcp_.send(byeMsg);
                     tcp_.close();
                     return;
@@ -72,8 +72,8 @@ class MasterWorker extends Thread implements ITCPCallback, IController {
                         closeJob();
                     }
                 }
-                newMsg.addTag(Constant.METHOD, method.getStringValue());
-                tcp_.send(newMsg);
+                responseMessage.addTag(Constant.METHOD, method.getStringValue());
+                tcp_.send(responseMessage);
                 file_ = new File("backup.dat");
                 break;
             }

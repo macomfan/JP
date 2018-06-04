@@ -5,10 +5,6 @@
  */
 package JPWord.Synchronizer;
 
-import JPWord.Data.Database;
-import JPWord.Data.IWord;
-import JPWord.Data.IWordDictionary;
-import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,8 +16,8 @@ import java.net.InetAddress;
 class SlaveWorker extends Thread implements ITCPCallback, IController {
 
     private TCPCommunication tcp_ = new TCPCommunication();
-    private String objDictname_ = "";
-    private String srcDictname_ = "";
+    private String slaveSideDictname_ = "";
+    private String masterSideDictname_ = "";
     private Method method_;
     private Job_Base currentJob_ = null;
     
@@ -33,9 +29,9 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
         logging_ = logging;
     }
 
-    public SlaveWorker(String objDictname, String srcDictname, Method method) {
-        objDictname_ = objDictname;
-        srcDictname_ = srcDictname;
+    public SlaveWorker(String masterSideDictname, String slaveSideDictname, Method method) {
+        masterSideDictname_ = masterSideDictname;
+        slaveSideDictname_ = slaveSideDictname;
         method_ = method;
     }
 
@@ -43,17 +39,20 @@ class SlaveWorker extends Thread implements ITCPCallback, IController {
     public void onConnect() {
         logging_.push(Log.Type.SUCCESS, "Connected to master");
         Message msg = new Message(Message.SYS_REQUEST);
-        msg.setValue("Hello");
+        try {
+            msg.setValue("Hello".getBytes("UTF-8"));
+        } catch (Exception e) {
+        }
         msg.addTag(Constant.METHOD, method_.getStringValue());
-        msg.addTag(Constant.DICTNAME, srcDictname_);
+        msg.addTag(Constant.DICTNAME, masterSideDictname_);
         logging_.push(Log.Type.HARMLESS, "Send request to master, sync mode is " + method_.getStringValue());
 
         if (method_.is(Method.REBASE_FROM_MASTER)) {
-            currentJob_ = new Job_RebaseReceive(tcp_, objDictname_, logging_);
+            currentJob_ = new Job_RebaseReceive(tcp_, slaveSideDictname_, logging_);
         } else if (method_.is(Method.REBASE_TO_MASTER)) {
-            currentJob_ = new Job_RebaseSend(tcp_, objDictname_, logging_);
+            currentJob_ = new Job_RebaseSend(tcp_, slaveSideDictname_, logging_);
         } else if (method_.is(Method.OVERLAP)) {
-            currentJob_ = new Job_OverlapSend(tcp_, objDictname_, logging_);
+            currentJob_ = new Job_OverlapSend(tcp_, slaveSideDictname_, logging_);
         }
         tcp_.send(msg);
     }

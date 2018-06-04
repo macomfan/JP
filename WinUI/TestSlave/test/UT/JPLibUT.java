@@ -5,6 +5,8 @@
  */
 package UT;
 
+import JPLibFilters.FilterTemplate;
+import JPLibFilters.Filters;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,6 +21,7 @@ import JPWord.Synchronizer.ILogging;
 import JPWord.Synchronizer.Method;
 import JPWord.Synchronizer.Sync;
 import JPWord.Synchronizer.Log;
+import JPWord.Synchronizer.SlaveParam;
 import SqliteEngine_JDBC.*;
 import java.io.File;
 import java.util.Calendar;
@@ -73,7 +76,7 @@ public class JPLibUT {
         dict = Database.getInstance().createDictionary(Test_DB_Name);
         assertNotNull(dict);
         Database.getInstance().closeDictionary(dict);
-        assertEquals(Database.getInstance().getDictList().size(), 1);
+        assertEquals(1, Database.getInstance().getDictList().size());
 
         Database.getInstance().initialize(
                 new File("").getAbsolutePath(), new JDBC_SQLEngine());
@@ -335,28 +338,14 @@ public class JPLibUT {
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
         assertNotNull(dict);
         assertEquals(dict.getWords().size(), 12);
-//        ItemGroup group = new ItemGroup(dict.getWords());
-//        List<Integer> values = new LinkedList<>();
-//        values.add(1);
-//        values.add(3);
-//        FilterByInteger filterByInteger = new FilterByInteger(new IIntegerChecker() {
-//            @Override
-//            public boolean checkInteger(IWord word, int value) {
-//                return word.getCls() == value;
-//            }
-//        }, values);
-//        SortByInteger sortByInteger = new SortByInteger(new IIntegerGetter() {
-//            @Override
-//            public int getInteger(IWord word) {
-//                return word.getCls();
-//            }
-//        }, true);
-//
-//        group.sort(sortByInteger, filterByInteger);
-//        assertEquals(3, group.getCount());
-//        assertEquals(3, ((IWord) group.next()).getCls());
-//        assertEquals(3, ((IWord) group.next()).getCls());
-//        assertEquals(1, ((IWord) group.next()).getCls());
+        ItemGroup group = new ItemGroup(dict.getWords());
+        Filters.getInstance().initialize(dict);
+        FilterTemplate filterTemplate = Filters.getInstance().getTemplateByShortname("TYPE");
+        IItemFilter filter = filterTemplate.createFilter("T_B");
+        group.sort(filter);
+        assertEquals(1, group.getCount());
+        IWord word = (IWord) group.next();
+        assertEquals("CONTENT_A", word.getContent());
         Database.getInstance().closeDictionary(dict);
     }
 
@@ -375,13 +364,78 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_120_Tags() throws Exception {
+    public void test_120_AddTags() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        IWord word = dict.getWords().get(0);
+        assertEquals(0, word.getTags().size());
+        word.setTag("A", "A");
+        word.setTag("B", "B");
+        word.setTag("C", "C");
+        assertEquals(3, word.getTags().size());
+        word.removeTag("C");
+        assertEquals(2, word.getTags().size());
+        assertEquals("B", word.getTag("B"));
+        assertEquals("A", word.getTag("A"));
+        Database.getInstance().closeDictionary(dict);
+    }
 
+    @Test
+    public void test_121_CheckTags() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        IWord word = dict.getWords().get(0);
+        assertEquals(2, word.getTags().size());
+        assertEquals("A", word.getTag("A"));
+        Database.getInstance().closeDictionary(dict);
+    }
+
+    @Test
+    public void test_130_Settings() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        dict.getSetting().setString("SET_A", "SET_A");
+        List<String> settingList = new LinkedList<>();
+        settingList.add("LIST1");
+        settingList.add("LIST2");
+        settingList.add("LIST3");
+        dict.getSetting().setList("LIST", settingList);
+        Database.getInstance().closeDictionary(dict);
+    }
+
+    @Test
+    public void test_131_CheckSettings() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        ISetting setting = dict.getSetting();
+        assertEquals("SET_A", setting.getString("SET_A"));
+        List<String> settingList = setting.getList("LIST");
+        assertEquals(3, settingList.size());
+        assertEquals("LIST1", settingList.get(0));
+        assertEquals("LIST2", settingList.get(1));
+        assertEquals("LIST3", settingList.get(2));
+        Database.getInstance().closeDictionary(dict);
     }
 
     private void MasterStartStop() throws Exception {
         int num = Thread.activeCount();
-        ILogging logging = Sync.getInstance().getLogging();
+        ILogging logging = Sync.getInstance().getDefaultLogging();
         IController master = Sync.getInstance().runAsMaster();
         Thread.sleep(200);
         assertEquals(num + 1, Thread.activeCount());
@@ -401,42 +455,45 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_130_MasterStartStop() throws Exception {
+    public void test_140_MasterStartStop() throws Exception {
         MasterStartStop();
         MasterStartStop();
         MasterStartStop();
-        //Sync.getInstance().startAsSlave("", Method.OVERLAP);
     }
 
     @Test
-    public void test_140_Rebase() throws Exception {
+    public void test_150_Overlap() throws Exception {
         // Master start
         int num = Thread.activeCount();
-        ILogging logging = Sync.getInstance().getLogging();
-        IController master = Sync.getInstance().runAsMaster();
+        ILogging loggingMaster = Sync.getInstance().createLogging();
+        IController master = Sync.getInstance().runAsMaster(loggingMaster);
         Thread.sleep(200);
         assertEquals(num + 1, Thread.activeCount());
         {
-            Log log = logging.pop();
+            Log log = loggingMaster.pop();
             assertEquals("Server started...", log.what());
             assertEquals(Log.Type.SUCCESS, log.type());
         }
 
         // Slave start
-        Sync.getInstance().startAsSlave("TEST_SLAVE", Method.REBASE_FROM_MASTER);
+        ILogging loggingSlave = Sync.getInstance().createLogging();
+        SlaveParam param = new SlaveParam();
+        param.masterSideDictname_ = "TEST";
+        param.slaveSideDictname_ = "TEST_SLAVE";
+        Sync.getInstance().startAsSlave(param, Method.OVERLAP, loggingSlave);
         Thread.sleep(200);
         {
-            Log log = logging.pop();
+            Log log = loggingSlave.pop();
             assertEquals("Start as slave ...", log.what());
             assertEquals(Log.Type.SUCCESS, log.type());
-            log = logging.pop();
+            log = loggingSlave.pop();
             assertEquals("Finding master services ...", log.what());
             assertEquals(Log.Type.HARMLESS, log.type());
         }
 
         // Connected
         {
-            Log log = logging.pop();
+            Log log = loggingMaster.pop();
             assertEquals("Received broadcast", log.what());
             assertEquals(Log.Type.SUCCESS, log.type());
 //            log = logging.pop();
@@ -444,11 +501,14 @@ public class JPLibUT {
 //            assertEquals(Log.Type.SUCCESS, log.type());
         }
         //Sync.getInstance().startAsSlave("", Method.OVERLAP);
+        Thread.sleep(10000);
     }
 
     public void SlaveWithoutMaster() throws Exception {
-        ILogging logging = Sync.getInstance().getLogging();
-        Sync.getInstance().startAsSlave("", Method.OVERLAP);
+        ILogging logging = Sync.getInstance().getDefaultLogging();
+        SlaveParam param = new SlaveParam();
+        param.slaveSideDictname_ = "TEST";
+        Sync.getInstance().startAsSlave(param, Method.OVERLAP);
         Thread.sleep(7000);
         {
             Log log = logging.pop();
@@ -474,7 +534,13 @@ public class JPLibUT {
 
     @Test
     public void test_999_DeleteTemp() throws Exception {
-        File file = new File("TEST.db");
-        file.delete();
+        {
+            File file = new File("TEST.db");
+            file.delete();
+        }
+        {
+            File file = new File("TEST_SLAVE.db");
+            file.delete();
+        }
     }
 }

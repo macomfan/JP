@@ -28,7 +28,7 @@ public class Filter {
 
         for (String filterShortname : filterList) {
             String param = dict.getSetting().getString(filterShortname + FILTER_PARAM);
-            addFilter(filterShortname, param);
+            addFilterByShortname(filterShortname, param);
     }
 
         String disp = dict.getSetting().getString(FILTER_DISP_KANJI);
@@ -60,20 +60,23 @@ public class Filter {
     public Filter() {
     }
 
-    public void addFilter(String name, String param) {
-        addFilter(currentFilters_.size(), name, param);
-    }
-
-    public void addFilter(int index, String shortname, String param) {
-        for (FilterEntity entity : currentFilters_) {
-            if (shortname.equals(entity.filterTemplate_.shortname_)) {
-                return;
-            }
-        }
-        boolean isFound = false;
+    public void addFilterByShortname(String shortname, String param) {
         FilterTemplate template = Filters.getInstance().getTemplateByShortname(shortname);
         if (template == null) {
             return;
+        }
+        addFilterByFilterTemplate(template, param);
+    }
+
+    public void addFilterByFilterTemplate(FilterTemplate template, String param) {
+        addFilterByFilterTemplate(currentFilters_.size(), template, param);
+    }
+
+    public void addFilterByFilterTemplate(int index, FilterTemplate template, String param) {
+        for (FilterEntity entity : currentFilters_) {
+            if (template.shortname_.equals(entity.filterTemplate_.shortname_)) {
+                return;
+            }
         }
         try
         {
@@ -85,7 +88,7 @@ public class Filter {
         }
     }
 
-    public void removeFilter(String shortname) {
+    public void removeFilterByShortname(String shortname) {
         int index = 0;
         for (; index < currentFilters_.size(); index++) {
             if (currentFilters_.get(index).filterTemplate_.shortname_.equals(shortname)) {
@@ -100,7 +103,7 @@ public class Filter {
     public void removeFilter(int index) {
         for (int i = 0; i < currentFilters_.size(); i++) {
             if (index == i) {
-                removeFilter(currentFilters_.get(i).filterTemplate_.shortname_);
+                removeFilterByShortname(currentFilters_.get(i).filterTemplate_.shortname_);
                 break;
             }
         }

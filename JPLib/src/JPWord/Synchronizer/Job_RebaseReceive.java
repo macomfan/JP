@@ -7,6 +7,7 @@ package JPWord.Synchronizer;
 
 import JPWord.Data.Database;
 import JPWord.Data.IWord;
+import JPWord.Data.IWordCodec;
 import JPWord.Data.IWordDictionary;
 
 /**
@@ -42,9 +43,14 @@ class Job_RebaseReceive extends Job_Base {
             sendMessage(ack);
             return JobResult.SUCCESS;
         } else if (msg.getType() == Message.MSG_DAT) {
-            IWord word = dict_.createWord();
-            //word.decodeFromString(msg.getValue());
-            dict_.addWord(word);
+            try {
+                IWord word = dict_.createWord();
+                IWordCodec codec = (IWordCodec) word;
+                codec.decodeFromBytes(msg.getValue());
+                dict_.addWord(word);
+            } catch (Exception e) {
+                logging_.push(Log.Type.WARNING, "Decode error");
+            }
             index_++;
             if (index_ == number_) {
                 logging_.push(Log.Type.HARMLESS, "Received done");

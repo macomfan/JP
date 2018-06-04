@@ -32,7 +32,7 @@ public class Message {
     public final static byte MSG_UNKNOWN = 0x00;
 
     private final static String header_ = "#JP#";
-    private String value_ = "";
+    private byte [] value_ = null;
     private byte type_ = MSG_UNKNOWN;
     private Map<String, String> tagMap_ = new HashMap<>();
 
@@ -47,7 +47,7 @@ public class Message {
         return null;
     }
 
-    public void setValue(String value) {
+    public void setValue(byte[] value) {
         value_ = value;
     }
 
@@ -55,7 +55,7 @@ public class Message {
         return (type_ & 0xF0) != 0;
     }
     
-    public String getValue() {
+    public byte [] getValue() {
         return value_;
     }
 
@@ -83,7 +83,6 @@ public class Message {
         if (buffer.remaining() < basicLength()) {
             return 0;
         }
-        int offset = 0;
         byte[] headerArr = new byte[header_.length()];
         buffer.get(headerArr);
         String header = new String(headerArr);
@@ -98,7 +97,7 @@ public class Message {
         byte[] valueArr = new byte[valueSize];
         buffer.get(valueArr);
         try {
-            value_ = new String(valueArr, "UTF-8");
+            value_ = valueArr;
         } catch (Exception e) {
         }
 
@@ -135,7 +134,7 @@ public class Message {
         size += Integer.SIZE / 8;
         size += Integer.SIZE / 8;
         try {
-            byte[] valueBytes = value_.getBytes("UTF-8");
+            byte[] valueBytes = value_;
             int valueSize = valueBytes.length;
 
             String tagString = "";

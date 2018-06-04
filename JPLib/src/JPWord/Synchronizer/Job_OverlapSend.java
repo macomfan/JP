@@ -66,7 +66,6 @@ public class Job_OverlapSend extends Job_Base {
                     orgWord.addMeaning(meaning);
                 }
                 orgWord.setNote(word.getNote());
-//                orgWord.setTag(ITag.TAG_Cls, word.getTagValue(ITag.TAG_Cls));
                 orgWord.setContent(word.getContent());
                 orgWord.setKana(word.getKana());
                 orgWord.setTone(word.getTone());

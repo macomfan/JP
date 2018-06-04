@@ -59,7 +59,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
                 if (template != null) {
                     defParam = template.candidateParams_.defaultParam_;
                 }
-                filter.addFilter(index, ret, defParam);
+                filter.addFilterByFilterTemplate(index, template, defParam);
                 refreshCurrentFilter();
             }
         });

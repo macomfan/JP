@@ -6,6 +6,7 @@
 package JPWord.Synchronizer;
 
 import JPWord.Data.IWord;
+import JPWord.Data.IWordCodec;
 import JPWord.Data.IWordDictionary;
 
 /**
@@ -57,8 +58,9 @@ abstract class Job_Base {
     protected void sendWholeData(IWordDictionary dict) {
         for (IWord word : dict.getWords()) {
             Message data = new Message(Message.MSG_DAT);
-            //String wordString = word.encodeToString();
-            //data.setValue(wordString);
+            IWordCodec codec = (IWordCodec)word;
+            byte[] value = codec.encodeToBytes();
+            data.setValue(value);
             sendMessage(data);
         }
         logging_.push(Log.Type.HARMLESS, "Sending finished");

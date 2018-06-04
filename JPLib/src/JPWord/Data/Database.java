@@ -7,8 +7,10 @@ package JPWord.Data;
 
 import SqliteEngine_Interface.*;
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -20,6 +22,7 @@ public class Database {
     private String rootFolder_ = "";
     private List<String> dictList_ = new LinkedList<>();
     private ISQLEngine sqlEngine_ = null;
+    private final Map<String, WordDictionary> openedDictMap_ = new HashMap<>();
 
     public static Database getInstance() {
         if (instance_ == null) {
@@ -61,11 +64,15 @@ public class Database {
         if (!dictList_.contains(dictname)) {
             return null;
         }
+        if (openedDictMap_.containsKey(dictname)) {
+            return openedDictMap_.get(dictname);
+        }
         try {
             ISQLEngine engine = sqlEngine_.clone();
-            IWordDictionary dict = new WordDictionary(dictname, engine);
+            WordDictionary dict = new WordDictionary(dictname, engine);
             engine.connect(rootFolder_ + dictname + ".db");
             dict.loadFromDB();
+            openedDictMap_.put(dictname, dict);
             return dict;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -73,7 +80,10 @@ public class Database {
         return null;
     }
 
-    public void deleteDictionary(String dictname) {
+    public void deleteDictionary(String dictname) throws Exception {
+        if (openedDictMap_.containsKey(dictname)) {
+            throw new Exception("[JPLib] The opened Database must be closed");
+        }
         File file = new File(rootFolder_ + dictname + ".db");
         if (file.exists()) {
             file.delete();
@@ -81,18 +91,21 @@ public class Database {
         }
     }
 
-    public void deleteDictionary(IWordDictionary dict) {
-        File file = new File(rootFolder_ + dict.getName() + ".db");
-        if (file.exists()) {
-            file.delete();
-            dictList_.remove(dict.getName());
-        }
+    public void deleteDictionary(IWordDictionary dict) throws Exception {
+        String dictName = dict.getName();
+        closeDictionary(dict);
+        deleteDictionary(dictName);
     }
 
     public void closeDictionary(IWordDictionary dict) throws Exception {
+        if (dict == null) {
+            throw new Exception("[JPLib] Check the null param in closeDictionary");
+        }
         WordDictionary d = (WordDictionary) dict;
         d.close();
-        dict = null;
+        if (openedDictMap_.containsKey(dict.getName())) {
+            openedDictMap_.remove(dict.getName());
+        }
     }
 
     public IWordDictionary createDictionary(String dictname) {
