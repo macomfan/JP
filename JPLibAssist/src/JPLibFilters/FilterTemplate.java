@@ -6,7 +6,6 @@
 package JPLibFilters;
 
 import JPWord.Data.Filter.IItemFilter;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;

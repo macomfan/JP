@@ -13,13 +13,13 @@ import java.util.List;
  *
  * @author u0151316
  */
-public class Filters {
+public class FilterGenerator {
 
-    private static Filters instance_ = null;
+    private static FilterGenerator instance_ = null;
 
     private List<FilterTemplate> templates_ = new LinkedList<>();
 
-    private Filters() {
+    private FilterGenerator() {
 
     }
 
@@ -53,9 +53,9 @@ public class Filters {
         return null;
     }
 
-    public static Filters getInstance() {
+    public static FilterGenerator getInstance() {
         if (instance_ == null) {
-            instance_ = new Filters();
+            instance_ = new FilterGenerator();
         }
         return instance_;
     }
