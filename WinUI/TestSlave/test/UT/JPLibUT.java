@@ -5,8 +5,9 @@
  */
 package UT;
 
-import JPLibFilters.FilterTemplate;
-import JPLibFilters.Filters;
+import JPLibAssist.FilterTemplate;
+import JPLibAssist.FilterGenerator;
+import JPLibAssist.WordSequence;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -339,8 +340,8 @@ public class JPLibUT {
         assertNotNull(dict);
         assertEquals(dict.getWords().size(), 12);
         ItemGroup group = new ItemGroup(dict.getWords());
-        Filters.getInstance().initialize(dict);
-        FilterTemplate filterTemplate = Filters.getInstance().getTemplateByShortname("TYPE");
+        FilterGenerator.getInstance().initialize(dict);
+        FilterTemplate filterTemplate = FilterGenerator.getInstance().getTemplateByShortname("TYPE");
         IItemFilter filter = filterTemplate.createFilter("T_B");
         group.sort(filter);
         assertEquals(1, group.getCount());
@@ -433,6 +434,50 @@ public class JPLibUT {
         Database.getInstance().closeDictionary(dict);
     }
 
+    static List<String> tempWordIDs = new LinkedList<>();
+
+    @Test
+    public void test_140_WordSequence() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        WordSequence sequence = new WordSequence(dict);
+        sequence.reSort(null);
+        sequence.saveToSetting();
+        dict.saveToDB();
+        assertEquals(12, sequence.count());
+        int index = 0;
+        while (sequence.next() != null) {
+            IWord word = sequence.current();
+            tempWordIDs.add(word.getID());
+            index++;
+        }
+        assertEquals(12, index);
+        Database.getInstance().closeDictionary(dict);
+    }
+
+    @Test
+    public void test_141_CheckWordSequence() throws Exception {
+        String Test_DB_Name = "TEST";
+        Database.getInstance().initialize(
+                new File("").getAbsolutePath(), new JDBC_SQLEngine());
+        IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
+        assertNotNull(dict);
+        assertEquals(12, dict.getWords().size());
+        WordSequence sequence = new WordSequence(dict);
+        sequence.readFromSetting();
+        assertEquals(12, sequence.count());
+        assertEquals(12, tempWordIDs.size());
+        for (String tempWordID : tempWordIDs) {
+            IWord word = sequence.next();
+            assertEquals(tempWordID, word.getID());
+        }
+        Database.getInstance().closeDictionary(dict);
+    }
+
     private void MasterStartStop() throws Exception {
         int num = Thread.activeCount();
         ILogging logging = Sync.getInstance().getDefaultLogging();
@@ -455,14 +500,14 @@ public class JPLibUT {
     }
 
     @Test
-    public void test_140_MasterStartStop() throws Exception {
+    public void test_500_MasterStartStop() throws Exception {
         MasterStartStop();
         MasterStartStop();
         MasterStartStop();
     }
 
-    @Test
-    public void test_150_Overlap() throws Exception {
+    @Ignore
+    public void test_510_Overlap() throws Exception {
         // Master start
         int num = Thread.activeCount();
         ILogging loggingMaster = Sync.getInstance().createLogging();
