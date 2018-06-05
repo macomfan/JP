@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package WordSetting;
+package JPLibAssist;
 
 import JPWord.Data.IWordDictionary;
 /**
@@ -20,7 +20,7 @@ public class DisplaySetting {
         dict_ = dict;
     }
 
-    public boolean readConfig() {
+    public boolean readFromSetting() {
         String setting = dict_.getSetting().getString(DISP_SETTING);
         if (setting.equals("1")) {
             displayKanJi_ = true;
@@ -30,7 +30,7 @@ public class DisplaySetting {
         return true;
     }
 
-    public void saveConfig() throws Exception {
+    public void saveToSetting() throws Exception {
         if (displayKanJi_) {
             dict_.getSetting().setString(DISP_SETTING, "1");
         } else {

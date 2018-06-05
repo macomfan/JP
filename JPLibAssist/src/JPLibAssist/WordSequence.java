@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package WordSetting;
+package JPLibAssist;
 
 import JPWord.Data.Filter.IItemFilter;
 import JPWord.Data.Filter.ItemGroup;
@@ -25,6 +25,8 @@ public class WordSequence {
     private List<IWord> words_ = new LinkedList<>();
     private int currentIndex_ = -1; // From 0 to count_ - 1;
 
+    private ICurrentWordChangeListener currentWordChangeListener_ = null;
+
     public WordSequence(IWordDictionary dict) {
         dict_ = dict;
     }
@@ -37,7 +39,7 @@ public class WordSequence {
         return currentIndex_;
     }
 
-    public boolean readConfig() {
+    public boolean readFromSetting() {
         List<String> sequence = dict_.getSetting().getList(SEQUENCE);
         if (sequence == null || sequence.isEmpty()) {
             return false;
@@ -56,7 +58,7 @@ public class WordSequence {
         return true;
     }
 
-    public void saveConfig() {
+    public void saveToSetting() {
         List<String> sequence = new LinkedList<>();
         for (IWord word : words_) {
             sequence.add(word.getID());
@@ -73,7 +75,7 @@ public class WordSequence {
         words_.clear();
         List<IItemFilter> tempFilterList = new LinkedList<>();
         if (filters != null) {
-            for (FilterEntity entity : filters.getCurrentFilter()) {
+            for (FilterEntity entity : filters.getCurrentFilters()) {
                 try {
                     IItemFilter filter = entity.filterTemplate_.createFilter(entity.param_);
                     if (filter != null) {
@@ -92,15 +94,22 @@ public class WordSequence {
         for (int i = 0; i < count; i++) {
             words_.add((IWord) group.next());
         }
+        if (currentWordChangeListener_ != null) {
+            currentWordChangeListener_.onCurrentWordChange();
+        }
     }
 
     public IWord next() {
+        IWord word = null;
         if (currentIndex_ < count() - 1) {
-            return words_.get(++currentIndex_);
+            word = words_.get(++currentIndex_);
         } else {
             currentIndex_ = count();
-            return null;
         }
+        if (currentWordChangeListener_ != null) {
+            currentWordChangeListener_.onCurrentWordChange();
+        }
+        return word;
     }
 
     public IWord current() {
@@ -111,11 +120,19 @@ public class WordSequence {
     }
 
     public IWord prev() {
+        IWord word = null;
         if (currentIndex_ > 0) {
-            return words_.get(--currentIndex_);
+            word = words_.get(--currentIndex_);
         } else {
             currentIndex_ = -1;
-            return null;
         }
+        if (currentWordChangeListener_ != null) {
+            currentWordChangeListener_.onCurrentWordChange();
+        }
+        return word;
+    }
+
+    public void setCurrentWordChangeListener(ICurrentWordChangeListener listener) {
+        currentWordChangeListener_ = listener;
     }
 }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package JPLibFilters;
+package JPLibAssist;
 
 import JPWord.Data.IWordDictionary;
 import java.util.LinkedList;

@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package WordSetting;
+package JPLibAssist;
 
-import JPLibFilters.FilterGenerator;
-import JPLibFilters.FilterTemplate;
-import JPWord.Data.IWord;
+import JPLibAssist.FilterEntity;
+import JPLibAssist.FilterGenerator;
+import JPLibAssist.FilterTemplate;
 import JPWord.Data.IWordDictionary;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class Filters {
     private List<FilterEntity> currentFilters_ = new LinkedList<>();
     private IWordDictionary dict_ = null;
 
-    public boolean readConfig() {
+    public boolean readFromSetting() {
         List<String> filterList = dict_.getSetting().getList(FILTER_LIST);
         if (filterList == null || filterList.isEmpty()) {
             return false;
@@ -38,9 +38,8 @@ public class Filters {
         return true;
     }
 
-    public void saveConfig() throws Exception {
+    public void saveToSetting() throws Exception {
         List<String> filterList = new LinkedList<>();
-        List<String> filterParamList = new LinkedList<>();
         for (FilterEntity entity : currentFilters_) {
             String shortname = entity.filterTemplate_.shortname_;
             filterList.add(shortname);
@@ -107,7 +106,7 @@ public class Filters {
         return currentFilters_.get(index);
     }
 
-    public List<FilterEntity> getCurrentFilter() {
+    public List<FilterEntity> getCurrentFilters() {
         return currentFilters_;
     }
 }
