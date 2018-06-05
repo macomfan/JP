@@ -77,7 +77,7 @@ public class Job_OverlapSend extends Job_Base {
         } else if (msg.getType() == Message.MSG_FIN) {
             logging_.push(Log.Type.HARMLESS, "Received FIN");
             try {
-                dict_.saveToDB();
+                //dict_.saveToDB();
             } catch (Exception e) {
             }
             return JobResult.DONE;

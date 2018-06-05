@@ -47,6 +47,7 @@ public class Setting implements ISetting {
                 DBS.update(DBS.KEY.where(key_), DBS.TYPE.update(type_), DBS.VALUE.update(value));
             } else if (db_Type == Type.OTF) {
                 DBS.insert(DBS.KEY.update(key_), DBS.TYPE.update(type_), DBS.VALUE.update(value));
+                db_Type = Type.DB;
             }
         }
     }

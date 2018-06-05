@@ -59,7 +59,7 @@ class Job_RebaseReceive extends Job_Base {
         } else if (msg.getType() == Message.MSG_ACK) {
             logging_.push(Log.Type.HARMLESS, String.format("Send finished, received %d", index_));
             try {
-                dict_.saveToDB();
+                //dict_.saveToDB();
             } catch (Exception e) {
             }
 
