@@ -5,14 +5,17 @@
  */
 package MainUI;
 
-import JPLibFilters.FilterTemplate;
-import JPLibFilters.Filters;
+import JPLibAssist.FilterTemplate;
+import JPLibAssist.FilterGenerator;
 import JPWord.Data.Filter.IItemFilter;
 import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
 import JPWord.Data.Filter.ItemGroup;
 import JPWord.Data.ISetting;
+import JPLibAssist.FilterEntity;
+import JPLibAssist.Filters;
+import JPLibAssist.WordSequence;
 import static java.awt.image.ImageObserver.HEIGHT;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +29,7 @@ import javax.swing.JOptionPane;
 public class RememberPanel extends javax.swing.JPanel {
 
     private IWordDictionary dictionary_ = null;
-    private ItemGroup group_ = null;
+    //private ItemGroup group_ = null;
     private IWord currentWord_ = null;
 
     private boolean showKanji_ = false;
@@ -38,7 +41,9 @@ public class RememberPanel extends javax.swing.JPanel {
 
     private static final String FILTER_LIST = "FILTER_LIST";
     private static final String FILTER_PARAM = "_PARAM";
-    private List<FilterEntity> filterList_ = new LinkedList<>();
+    private Filters filters_ = null;
+    private WordSequence wordSequence_ = null;
+    //private List<FilterEntity> filterList_ = new LinkedList<>();
 
     /**
      * Creates new form RememberPanel
@@ -50,65 +55,37 @@ public class RememberPanel extends javax.swing.JPanel {
 
     public void initialize() {
         dictionary_ = Database.getInstance().getDatabase();
-        group_ = new ItemGroup(dictionary_.getWords());
-        //filterList_.add(new FilterEntity("Sort by skill", new SoftByNumberTag(ITag.TAG_Skill, null)));
-        //filterList_.add(new FilterEntity("Sort by review date", new SoftByNumberTag("RD", null)));
+        //group_ = new ItemGroup(dictionary_.getWords());
         try {
-            Filters.getInstance().initialize(dictionary_);
-            ISetting setting = dictionary_.getSetting();
-            List<String> filters = setting.getList(FILTER_LIST);
-            for (String shorname : filters) {
-                if (!setting.containsKey(shorname + FILTER_PARAM)) {
-                    throw new Exception("[JPAPP] Filter DB error");
-                }
-                String param = setting.getString(shorname + FILTER_PARAM);
-                FilterEntity entity = new FilterEntity(Filters.getInstance().getTemplateByShortname(shorname), param);
-                filterList_.add(entity);
-            }
+            FilterGenerator.getInstance().initialize(dictionary_);
+            filters_ = Database.getInstance().getFilters();
+            wordSequence_ = Database.getInstance().getWordSequence();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", HEIGHT);
         }
+        
         displayFilter();
         reSort();
     }
 
     private void findNext() {
-        currentWord_ = (IWord) group_.next();
+        currentWord_ = wordSequence_.next();
         if (currentWord_ != null) {
             currentNumber_++;
         }
     }
 
     private void reSort() {
-        List<IItemFilter> temp = new LinkedList<>();
-        for (int i = 0; i < filterList_.size(); i++) {
-            temp.add(filterList_.get(i).filter_);
-        }
-        group_ = new ItemGroup(dictionary_.getWords());
-        group_.shuffle();
-        group_.sort(temp);
+        wordSequence_.reSort(filters_);
         currentNumber_ = 0;
     }
 
     private void displayFilter() {
         DefaultListModel dlm = new DefaultListModel();
-        for (int i = 0; i < filterList_.size(); i++) {
-            dlm.addElement(filterList_.get(i).displayName_);
+        for (int i = 0; i < filters_.getCurrentFilters().size(); i++) {
+            dlm.addElement(filters_.getAt(i).displayName_);
         }
         jListFilter.setModel(dlm);
-    }
-
-    public void saveFilters() {
-        try {
-            ISetting setting = dictionary_.getSetting();
-            List<String> filterShortNameList = new LinkedList<>();
-            for (FilterEntity filterEntity : filterList_) {
-                filterShortNameList.add(filterEntity.filterTemplate_.shortname_);
-                setting.setString(filterEntity.filterTemplate_.shortname_ + FILTER_PARAM, filterEntity.param_);
-            }
-            setting.setList(FILTER_LIST, filterShortNameList);
-        } catch (Exception e) {
-        }
     }
 
     private void displayWord() {
@@ -160,8 +137,8 @@ public class RememberPanel extends javax.swing.JPanel {
         jtxtSkill.setText(Integer.toString(currentWord_.getSkill()));
         jtxtRD.setText(currentWord_.getReviewDate());
         jtxtCls.setText(Integer.toString(currentWord_.getCls()));
-        if (group_ != null) {
-            jtxtCount.setText(String.format("%d/%d", currentNumber_, group_.getCount()));
+        if (wordSequence_ != null) {
+            jtxtCount.setText(String.format("%d/%d", currentNumber_, wordSequence_.count()));
         }
     }
 
@@ -514,9 +491,9 @@ public class RememberPanel extends javax.swing.JPanel {
         if (jListFilter.getSelectedIndex() != -1) {
             System.out.println(Integer.toString(jListFilter.getSelectedIndex()));
             String str = (String) jListFilter.getModel().getElementAt(jListFilter.getSelectedIndex());
-            for (int i = 0; i < filterList_.size(); i++) {
-                if (filterList_.get(i).displayName_.equals(str)) {
-                    filterList_.remove(i);
+            for (int i = 0; i < filters_.getCurrentFilters().size(); i++) {
+                if (filters_.getCurrentFilters().get(i).displayName_.equals(str)) {
+                    filters_.removeFilter(i);
                     break;
                 }
             }
@@ -531,7 +508,7 @@ public class RememberPanel extends javax.swing.JPanel {
         fd.setLocation(this.getLocationOnScreen());
         fd.setVisible(true);
         if (fd.isOK_ && fd.filter_ != null) {
-            filterList_.add(fd.filter_);
+            filters_.addFilterByShortname(fd.filter_.filterTemplate_.shortname_, fd.filter_.param_);
             displayFilter();
             reSort();
         }

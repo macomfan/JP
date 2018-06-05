@@ -7,6 +7,8 @@ package MainUI;
 
 import JPWord.Data.IWordDictionary;
 import SqliteEngine_JDBC.JDBC_SQLEngine;
+import JPLibAssist.Filters;
+import JPLibAssist.WordSequence;
 
 /**
  *
@@ -18,6 +20,8 @@ public class Database {
     private IWordDictionary dictionary_ = null;
     private String rootFolder_ = "";
     private String currentDictname_ = "JP_TEST";
+    private WordSequence wordSequence_ = null;
+    private Filters filters_ = null;
 
     private Database() {
 
@@ -39,7 +43,18 @@ public class Database {
             //dictionary_.load();
         } catch (Exception e) {
         }
+        wordSequence_ = new WordSequence(dictionary_);
+        filters_ = new Filters(dictionary_);
+        filters_.readFromSetting();
+        wordSequence_.readFromSetting();
+    }
 
+    public WordSequence getWordSequence() {
+        return wordSequence_;
+    }
+
+    public Filters getFilters() {
+        return filters_;
     }
 
     public String getCurrentDictName() {
@@ -58,6 +73,5 @@ public class Database {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
 }

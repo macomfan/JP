@@ -86,7 +86,8 @@ public class MainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.out.println("jp.MainFrame.formWindowClosing()");
         try {
-            rememberPanel1.saveFilters();
+            Database.getInstance().getFilters().saveToSetting();
+            //Database.getInstance().getWordSequence().saveConfig();
             Database.getInstance().getDatabase().saveToDB();
         } catch (Exception e) {
         }

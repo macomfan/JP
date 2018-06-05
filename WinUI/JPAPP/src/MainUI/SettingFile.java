@@ -82,7 +82,6 @@ public class SettingFile {
 
     private String rootFolder_ = "";
     private String filename_ = "";
-    public List<FilterEntity> filters_ = new LinkedList<>();
     private PersistFile setting_ = new PersistFile();
     private static SettingFile instance_;
 

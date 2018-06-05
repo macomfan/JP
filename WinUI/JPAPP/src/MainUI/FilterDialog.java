@@ -5,6 +5,8 @@
  */
 package MainUI;
 
+import JPLibAssist.FilterTemplate;
+import JPLibAssist.FilterGenerator;
 import JPWord.Data.Filter.FilterByInteger;
 import JPWord.Data.Filter.FilterByString;
 import JPWord.Data.IMeaning;
@@ -13,7 +15,7 @@ import JPWord.Data.IWordDictionary;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
-import JPLibFilters.*;
+import JPLibAssist.FilterEntity;
 import javax.swing.JOptionPane;
 
 /**
@@ -37,7 +39,7 @@ public class FilterDialog extends javax.swing.JDialog {
         mainButtonGroup.add(jrbSkill);
         mainButtonGroup.add(jrbType);
         DefaultComboBoxModel dcbm = new DefaultComboBoxModel();
-        FilterTemplate typeFilter = Filters.getInstance().getTemplateByShortname("TYPE");
+        FilterTemplate typeFilter = FilterGenerator.getInstance().getTemplateByShortname("TYPE");
         for (String s : typeFilter.candidateParams_) {
             dcbm.addElement(s);
         }
@@ -137,16 +139,16 @@ public class FilterDialog extends javax.swing.JDialog {
         isOK_ = true;
         try {
             if (jrbCls.isSelected()) {
-                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("CLS"), jtxtCls.getText());
+                filter_ = new FilterEntity(FilterGenerator.getInstance().getTemplateByShortname("CLS"), jtxtCls.getText());
             } else if (jrbHD.isSelected()) {
                 JOptionPane.showMessageDialog(this, "Not supported", "Error", HEIGHT);
                 return;
             } else if (jrbRD.isSelected()) {
-                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("RD"), "");
+                filter_ = new FilterEntity(FilterGenerator.getInstance().getTemplateByShortname("RD"), "");
             } else if (jrbSkill.isSelected()) {
-                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("SKILL"), "");
+                filter_ = new FilterEntity(FilterGenerator.getInstance().getTemplateByShortname("SKILL"), "");
             } else if (jrbType.isSelected()) {
-                filter_ = new FilterEntity(Filters.getInstance().getTemplateByShortname("TYPE"), (String) jcbType.getSelectedItem());
+                filter_ = new FilterEntity(FilterGenerator.getInstance().getTemplateByShortname("TYPE"), (String) jcbType.getSelectedItem());
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", HEIGHT);
