@@ -31,5 +31,5 @@ dependencies {
     compile files('libs/JPLib.jar')
     compile project(':BaseUI')
     compile 'com.android.support:design:26.0.0-alpha1'
-    compile files('libs/JPLibCommonFilters.jar')
+    compile files('libs/JPLibAssist.jar')
 }

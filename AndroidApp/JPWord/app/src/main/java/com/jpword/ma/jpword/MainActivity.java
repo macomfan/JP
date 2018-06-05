@@ -1,30 +1,37 @@
 package com.jpword.ma.jpword;
 
+import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.support.v4.app.FragmentManager;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.jpword.ma.baseui.IMyDialog;
 import com.jpword.ma.baseui.DialogSingleItemSelect;
 
-import java.lang.reflect.Method;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import DataEngine.AppLogging;
 import DataEngine.DB;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             if (DB.getInstance().getDatabase() == null) {
                 final List<String> dblist = JPWord.Data.Database.getInstance().getDictList();
-                if (dblist.size() == 0) {
+                if (dblist.isEmpty()) {
                     dblist.add("Create New");
                 }
                 final DialogSingleItemSelect dlg = new DialogSingleItemSelect("Choose database", dblist, "");
@@ -64,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         setupMainPage();
                     }
                 });
-            }
-            else {
+            } else {
                 setupMainPage();
             }
         }
@@ -115,8 +121,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    interface OnSelfActionListener {
-        boolean onAction();
+    private static final int MY_PERMISSIONS_REQUEST_CODE = 1;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    initialize();
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG);
+                    this.finish();
+                }
+                return;
+            }
+        }
+    }
+
+    protected void initialize() {
+        Intent startIntent = new Intent(this, DatabaseService.class);
+        startService(startIntent);
+        bindService(startIntent, mConnection, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -124,9 +156,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent startIntent = new Intent(this, DatabaseService.class);
-        startService(startIntent);
-        bindService(startIntent, mConnection, BIND_AUTO_CREATE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_CODE);
+        }
+        else {
+            initialize();
+        }
+
+
 
 
         //System.out.println("Loading");
@@ -210,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         try {
             unbindService(mConnection);
-            DB.getInstance().getDatabase().saveToDB();
             DB.getInstance().persist(this);
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

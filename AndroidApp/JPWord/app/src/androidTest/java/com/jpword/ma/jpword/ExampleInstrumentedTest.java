@@ -5,6 +5,7 @@ import JPWord.Data.Filter.*;
 import JPWord.Synchronizer.IController;
 import JPWord.Synchronizer.ILogging;
 import JPWord.Synchronizer.Method;
+import JPWord.Synchronizer.SlaveParam;
 import JPWord.Synchronizer.Sync;
 import JPWord.Synchronizer.Log;
 import com.jpword.ma.sqliteengine_android.*;
@@ -355,7 +356,7 @@ public class ExampleInstrumentedTest {
 
     private void MasterStartStop() throws Exception {
         int num = Thread.activeCount();
-        ILogging logging = Sync.getInstance().getLogging();
+        ILogging logging = Sync.getInstance().getDefaultLogging();
         IController master = Sync.getInstance().runAsMaster();
         Thread.sleep(200);
         assertEquals(num + 1, Thread.activeCount());
@@ -386,7 +387,7 @@ public class ExampleInstrumentedTest {
     public void test_140_Rebase() throws Exception {
         // Master start
         int num = Thread.activeCount();
-        ILogging logging = Sync.getInstance().getLogging();
+        ILogging logging = Sync.getInstance().getDefaultLogging();
         IController master = Sync.getInstance().runAsMaster();
         Thread.sleep(200);
         assertEquals(num + 1, Thread.activeCount());
@@ -397,7 +398,9 @@ public class ExampleInstrumentedTest {
         }
 
         // Slave start
-        Sync.getInstance().startAsSlave("TEST_SLAVE", Method.REBASE_FROM_MASTER);
+        SlaveParam param = new SlaveParam();
+        param.masterSideDictname_ = "TEST_SLAVE";
+        Sync.getInstance().startAsSlave(param, Method.REBASE_FROM_MASTER);
         Thread.sleep(200);
         {
             Log log = logging.pop();
@@ -421,8 +424,10 @@ public class ExampleInstrumentedTest {
     }
 
     public void SlaveWithoutMaster() throws Exception {
-        ILogging logging = Sync.getInstance().getLogging();
-        Sync.getInstance().startAsSlave("", Method.OVERLAP);
+        ILogging logging = Sync.getInstance().getDefaultLogging();
+        SlaveParam param = new SlaveParam();
+        param.masterSideDictname_ = "TEST_SLAVE";
+        Sync.getInstance().startAsSlave(param, Method.OVERLAP);
         Thread.sleep(7000);
         {
             Log log = logging.pop();

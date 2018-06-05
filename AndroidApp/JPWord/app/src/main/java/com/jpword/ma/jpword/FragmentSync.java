@@ -41,7 +41,7 @@ public class FragmentSync extends com.jpword.ma.baseui.FragmentSync {
 
         @Override
         public void run() {
-            ILogging logging = Sync.getInstance().getLogging();
+            ILogging logging = Sync.getInstance().getDefaultLogging();
             while (true) {
                 try {
                     Log log = logging.pop();
@@ -82,7 +82,7 @@ public class FragmentSync extends com.jpword.ma.baseui.FragmentSync {
 
     @Override
     protected void onbtnStartClick(View v) {
-        Sync.getInstance().startAsSlave(DB.getInstance().getDatabase().getName(), Method.OVERLAP);
+        //Sync.getInstance().startAsSlave(DB.getInstance().getDatabase().getName(), Method.OVERLAP);
         LogListener l = new LogListener(mHandler);
         l.start();
     }

@@ -21,10 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import DataEngine.DB;
-import DataEngine.Filter;
-import DataEngine.FilterEntity;
-import JPLibFilters.FilterTemplate;
-import JPLibFilters.Filters;
+import JPLibAssist.FilterGenerator;
+import JPLibAssist.FilterTemplate;
+import JPLibAssist.DisplaySetting;
+import JPLibAssist.FilterEntity;
+import JPLibAssist.Filters;
 
 
 /**
@@ -34,12 +35,12 @@ import JPLibFilters.Filters;
 public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSetting {
 
     public void onAdd(final int index) {
-        final Filter filter = DB.getInstance().getWordSequence().getFilter();
+        final Filters filter = DB.getInstance().getFilters();
         final String defParam = "";
         List<String> filterNames = new LinkedList<>();
-        for (FilterTemplate template : Filters.getInstance().getTemplates()) {
+        for (FilterTemplate template : FilterGenerator.getInstance().getTemplates()) {
             boolean found = false;
-            for (FilterEntity currentEntity : filter.getCurrentFilter()) {
+            for (FilterEntity currentEntity : filter.getCurrentFilters()) {
                 if (template.shortname_.equals(currentEntity.filterTemplate_.shortname_)) {
                     found = true;
                 }
@@ -54,7 +55,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
             @Override
             public void confirmed() {
                 String ret = dlg.getResult();
-                FilterTemplate template = Filters.getInstance().getTemplateByName(ret);
+                FilterTemplate template = FilterGenerator.getInstance().getTemplateByName(ret);
                 String defParam = "";
                 if (template != null) {
                     defParam = template.candidateParams_.defaultParam_;
@@ -66,15 +67,15 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     }
 
     public void onDelete(int index) {
-        final Filter filter = DB.getInstance().getWordSequence().getFilter();
+        final Filters filter = DB.getInstance().getFilters();
         filter.removeFilter(index);
         refreshCurrentFilter();
     }
 
     public void onEditParam(int index) {
-        Filter filter = DB.getInstance().getWordSequence().getFilter();
+        Filters filter = DB.getInstance().getFilters();
         final FilterEntity entity = filter.getAt(index);
-        FilterTemplate template = Filters.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
+        FilterTemplate template = FilterGenerator.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
 
         if (template == null || template.candidateParams_.size() == 0) {
             return;
@@ -113,7 +114,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         if (entity == null) {
             onAdd(0);
         } else {
-            FilterTemplate template = Filters.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
+            FilterTemplate template = FilterGenerator.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
             if (template == null || template.candidateParams_.size() == 0) {
                 return;
             }
@@ -123,11 +124,11 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
 
     @Override
     protected void onRBGroupCheckedChange(RadioGroup group, @IdRes int checkedId) {
-        Filter filter = DB.getInstance().getWordSequence().getFilter();
+        DisplaySetting displaySetting = DB.getInstance().getDisplaySetting();
         if (checkedId == R.id.rbDispKanji) {
-            filter.setDisplayKanJi(true);
+            displaySetting.setDisplayKanJi(true);
         } else if (checkedId == R.id.rbDispKana) {
-            filter.setDisplayKanJi(false);
+            displaySetting.setDisplayKanJi(false);
         }
     }
 
@@ -139,8 +140,9 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     }
 
     private void refreshCurrentFilter() {
-        Filter filter = DB.getInstance().getWordSequence().getFilter();
-        boolean displayKanji = filter.isDisplayKanJi();
+        DisplaySetting displaySetting = DB.getInstance().getDisplaySetting();
+        Filters filters = DB.getInstance().getFilters();
+        boolean displayKanji = displaySetting.isDisplayKanJi();
         if (displayKanji) {
             mRBDisplayKanJi.setChecked(true);
         } else {
@@ -150,13 +152,13 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         List<String> listTitle = new LinkedList<>();
         List<String> listParam = new LinkedList<>();
         List<FilterEntity> listFilter = new LinkedList<>();
-        if (filter.getCurrentFilter().size() == 0) {
+        if (filters.getCurrentFilters().isEmpty()) {
             // no filter
             listTitle.add("No filter");
             listParam.add("");
             listFilter.add(null);
         } else {
-            for (FilterEntity entity : filter.getCurrentFilter()) {
+            for (FilterEntity entity : filters.getCurrentFilters()) {
                 listTitle.add(entity.filterTemplate_.name_);
                 listParam.add("    " + entity.param_);
                 listFilter.add(entity);
@@ -188,9 +190,9 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         if (entity == null) {
             menu.add(0, 0, Menu.NONE, "Add");
         } else {
-            FilterTemplate template = Filters.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
-            if (DB.getInstance().getWordSequence().getFilter().getCurrentFilter().size()
-                    == Filters.getInstance().getTemplates().size()) {
+            FilterTemplate template = FilterGenerator.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
+            if (DB.getInstance().getFilters().getCurrentFilters().size()
+                    == FilterGenerator.getInstance().getTemplates().size()) {
                 menu.add(0, 3, Menu.NONE, "Delete");
                 if (template.candidateParams_.size() != 0) {
                     menu.add(0, 4, Menu.NONE, "Edit Param");
@@ -210,10 +212,10 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo menuInfo =
                 (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Filter filter = DB.getInstance().getWordSequence().getFilter();
+        Filters filter = DB.getInstance().getFilters();
         switch (item.getItemId()) {
             case 0:
-                onAdd(filter.getCurrentFilter().size());
+                onAdd(filter.getCurrentFilters().size());
                 break;
             case 1:
                 onAdd(menuInfo.position);

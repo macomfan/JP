@@ -38,19 +38,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="vertical">
 
             <Spinner
                 android:id="@+id/spinner"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:gravity="center"/>
-
+                android:gravity="center"
+                android:textAlignment="center"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
+                android:layout_marginRight="35dp"
                 android:background="#AAA" />
         </LinearLayout>
 

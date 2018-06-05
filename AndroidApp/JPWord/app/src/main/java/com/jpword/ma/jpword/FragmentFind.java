@@ -3,6 +3,7 @@ package com.jpword.ma.jpword;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,8 +23,13 @@ import JPWord.Data.IWordDictionary;
  */
 
 public class FragmentFind extends com.jpword.ma.baseui.FragmentFind {
+    enum SearchMode {
+        SEARCH_BY_KANA,
+        SEARCH_BY_IMI,
+    }
 
     private String txt = "";
+    private SearchMode mSearchMode = SearchMode.SEARCH_BY_KANA;
 
     @Override
     protected boolean onsvSearchInputQueryTextSubmit(String query) {
@@ -106,5 +112,24 @@ public class FragmentFind extends com.jpword.ma.baseui.FragmentFind {
         SimpleAdapter adapter = new SimpleAdapter(this.getActivity(), data, R.layout.listview_entity_word,
                 new String[]{"title", "text", "type"}, new int[]{R.id.txtTitle, R.id.txtContent, R.id.txtType});
         mainListView_.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.itemKana: {
+                mSearchMode = SearchMode.SEARCH_BY_KANA;
+                svSearchInput_.setQueryHint("Pls input kana or roma");
+                item.setChecked(true);
+                return true;
+            }
+            case R.id.itemImi: {
+                mSearchMode = SearchMode.SEARCH_BY_IMI;
+                svSearchInput_.setQueryHint("Pls input imi");
+                item.setChecked(true);
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#555">
+
+    <LinearLayout
+        android:id="@+id/widgetCheckService"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Connecting Service..."
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="#DDDDDD"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_link_black_24dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widgetHint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="left|top"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_arrow_back_24dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtContent"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Content"
+                android:textColor="#DDDDDD"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtKana"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Kana"
+                android:textColor="#DDDDDD"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtImi"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Imi"
+                android:textColor="#DDDDDD"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widgetMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnPrev"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="left|center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_chevron_left_24dp" />
+
+            <TextView
+                android:id="@+id/txtRememberMainText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text=""
+                android:textColor="#DDDDDD"
+                android:textSize="22sp" />
+
+            <ImageButton
+                android:id="@+id/btnNext"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_chevron_right_24dp" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageButton
+                    android:id="@+id/btnPass"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_check_24dp" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1">
+
+                <ImageButton
+                    android:id="@+id/btnHint"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_help_24dp" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageButton
+                    android:id="@+id/btnFail"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_close_24dp" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -25,15 +25,19 @@ public class DialogMultiTextSelect implements IMyDialog {
     private String mTitle = "";
     private ImageButton mBtnAdd = null;
     private ImageButton mBtnRemove = null;
+    private Spinner mSpinner = null;
     private TextView mTxtResultView = null;
     private String mSelectedItem = "";
+    private Context mContext = null;
 
     public DialogMultiTextSelect(String mTitle, List<String> mItems, String current) {
         this.mItems = mItems;
         this.mTitle = mTitle;
         String[] split = current.split("\\,");
         for (String c : split) {
-            mResult.add(c);
+            if (!c.isEmpty()) {
+                mResult.add(c);
+            }
         }
     }
 
@@ -55,14 +59,23 @@ public class DialogMultiTextSelect implements IMyDialog {
         }
     }
 
+    private void refreshSpinner() {
+        String[] items = mItems.toArray(new String[mItems.size()]);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item, items);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(adapter);
+
+    }
+
     @Override
     public void show(Context context, final CallBack callback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater factory = LayoutInflater.from(context);
         View dialogView = factory.inflate(R.layout.dialog_multitext_select, null);
 
-        Spinner spinner = (Spinner) dialogView.findViewById(R.id.spinner);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mContext = context;
+        mSpinner = (Spinner) dialogView.findViewById(R.id.spinner);
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mSelectedItem = mItems.get(position);
@@ -79,10 +92,7 @@ public class DialogMultiTextSelect implements IMyDialog {
             }
         });
 
-        String[] items = mItems.toArray(new String[mItems.size()]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, items);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        refreshSpinner();
 
         mBtnAdd = (ImageButton) dialogView.findViewById(R.id.btnAdd);
         mBtnRemove = (ImageButton) dialogView.findViewById(R.id.btnRemove);

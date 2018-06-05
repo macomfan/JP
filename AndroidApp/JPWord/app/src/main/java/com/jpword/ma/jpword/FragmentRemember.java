@@ -15,10 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import DataEngine.DB;
-import DataEngine.Filter;
-import DataEngine.FilterEntity;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
+import JPLibAssist.Filters;
+import JPLibAssist.FilterEntity;
 
 /**
  * Created by Ma on 2017/12/20.
@@ -104,7 +104,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
 
     @Override
     protected void onbtRefreshClicked(View v) {
-        DB.getInstance().getWordSequence().reSort();
+        DB.getInstance().getWordSequence().reSort(DB.getInstance().getFilters());
         currentWord_ = DB.getInstance().getWordSequence().current();
         displayWord();
         Toast.makeText(getActivity(), "Refresh done", Toast.LENGTH_SHORT).show();
@@ -117,6 +117,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
         if (imm.isActive()) {
             imm.hideSoftInputFromWindow(this.getView().getApplicationWindowToken(), 0);
         }
+        currentWord_ = DB.getInstance().getWordSequence().current();
         displayWord();
         refreshFilterDisplay();
     }
@@ -153,9 +154,9 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     }
 
     private void refreshFilterDisplay() {
-        Filter filter = DB.getInstance().getWordSequence().getFilter();
+        Filters filter = DB.getInstance().getFilters();
         int i = 0;
-        for (FilterEntity entity : filter.getCurrentFilter()) {
+        for (FilterEntity entity : filter.getCurrentFilters()) {
             mTxtFilterList.get(i).setVisibility(View.VISIBLE);
             if (entity != null) {
                 mTxtFilterList.get(i).setText(entity.filterTemplate_.shortname_);
@@ -171,7 +172,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     }
 
     private void displayWord() {
-        boolean displayKanJi = DB.getInstance().getWordSequence().getFilter().isDisplayKanJi();
+        boolean displayKanJi = DB.getInstance().getDisplaySetting().isDisplayKanJi();
         progbar_.setMax(DB.getInstance().getWordSequence().count());
         if (DB.getInstance().getWordSequence().getCurrentIndex() == -1) {
             btnPrev_.setEnabled(false);
