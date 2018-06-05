@@ -10,6 +10,7 @@ public class WidgetMessage {
     public static final String USER_ACTION = "USER_ACTION";
     public static final String DATA_WORD_CONTENT = "Content";
     public static final String DATA_WORD_KANA = "Kana";
+    public static final String DATA_WORD_DISP_SETTING = "Disp";
     public static final String DATA_WORD_ROMA = "Roma";
     public static final String DATA_WORD_IMI = "IMI";
     public static final String DATA_WORD_COUNT = "Count";

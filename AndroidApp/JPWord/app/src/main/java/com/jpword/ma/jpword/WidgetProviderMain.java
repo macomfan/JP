@@ -243,7 +243,12 @@ public class WidgetProviderMain extends AppWidgetProvider {
         if (count != 0 && intent.hasExtra(WidgetMessage.DATA_WORD_CONTENT)) {
             String context = intent.getStringExtra(WidgetMessage.DATA_WORD_CONTENT);
             String kana = intent.getStringExtra(WidgetMessage.DATA_WORD_KANA);
-            remoteViews.setTextViewText(R.id.txtRememberMainText, context);
+            String dispSetting = intent.getStringExtra(WidgetMessage.DATA_WORD_DISP_SETTING);
+            if (dispSetting.equals("KanJi")) {
+                remoteViews.setTextViewText(R.id.txtRememberMainText, context);
+            } else {
+                remoteViews.setTextViewText(R.id.txtRememberMainText, kana);
+            }
             remoteViews.setTextViewText(R.id.txtContent, context);
             remoteViews.setTextViewText(R.id.txtKana, kana);
             remoteViews.setTextViewText(R.id.txtImi, intent.getStringExtra(WidgetMessage.DATA_WORD_IMI));

@@ -92,6 +92,13 @@ public class DatabaseService extends Service implements Runnable, ICurrentWordCh
                 kana += word.getTone();
                 kana += ")";
             }
+            if (DB.getInstance().getDisplaySetting().isDisplayKanJi() == true) {
+                actionIntent.putExtra(WidgetMessage.DATA_WORD_DISP_SETTING, "KanJi");
+            }
+            else {
+                actionIntent.putExtra(WidgetMessage.DATA_WORD_DISP_SETTING, "Kana");
+            }
+            actionIntent.putExtra(WidgetMessage.DATA_WORD_DISP_SETTING, "");
             actionIntent.putExtra(WidgetMessage.DATA_WORD_KANA, kana);
             actionIntent.putExtra(WidgetMessage.DATA_WORD_ROMA, word.getRoma().getString());
             String meaning = DataEngine.MeaningUtil.meaningToString(word.getMeanings());
