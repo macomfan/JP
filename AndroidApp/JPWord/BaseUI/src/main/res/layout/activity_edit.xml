@@ -19,8 +19,6 @@
             android:textSize="20sp" />
     </android.support.v7.widget.Toolbar>
 
-
-
     <LinearLayout
         android:id="@+id/barMenu"
         android:layout_width="match_parent"

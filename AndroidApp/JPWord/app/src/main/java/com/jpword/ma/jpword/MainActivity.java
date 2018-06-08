@@ -1,21 +1,10 @@
 package com.jpword.ma.jpword;
 
-import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,18 +12,16 @@ import android.view.MenuItem;
 import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 
-import com.jpword.ma.baseui.IMyDialog;
-import com.jpword.ma.baseui.DialogSingleItemSelect;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 
 import DataEngine.AppLogging;
-import DataEngine.DB;
+import DataEngine.DBEntity;
+import DataEngine.DatabaseServiceConnection;
+import DataEngine.IDatabaseChangeListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IDatabaseChangeListener {
 
     private ViewPager viewPager_;
     private MenuItem menuItem_;
@@ -45,40 +32,32 @@ public class MainActivity extends AppCompatActivity {
     private FragmentRemember rememberFragment_ = null;
     private FragmentMy myFragment_ = null;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private DBEntity dbEntity_ = null;
 
+    private DatabaseServiceConnection connection_ = new DatabaseServiceConnection() {
         @Override
-        public void onServiceDisconnected(ComponentName name) {
+        public void onServiceConnected() {
+            AppLogging.showDebug(MainActivity.class, "onServiceConnected");
+            dbEntity_ = getDatabaseOperator().getDBEntity();
+            setupMainPage(dbEntity_);
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            if (DB.getInstance().getDatabase() == null) {
-                final List<String> dblist = JPWord.Data.Database.getInstance().getDictList();
-                if (dblist.isEmpty()) {
-                    dblist.add("Create New");
-                }
-                final DialogSingleItemSelect dlg = new DialogSingleItemSelect("Choose database", dblist, "");
-                dlg.show(MainActivity.this, new IMyDialog.CallBack() {
-                    @Override
-                    public void confirmed() {
-                        String ret = dlg.getResult();
-                        if (ret.equals("Create New")) {
-                            DB.getInstance().changeDatabase("Dictionary", true);
-                        } else {
-                            DB.getInstance().changeDatabase(ret, false);
-                        }
-                        setupMainPage();
-                    }
-                });
-            } else {
-                setupMainPage();
-            }
+        public void onServiceDisconnected() {
+
         }
     };
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void onDatabaseChange(DBEntity dbEntity) {
+        dbEntity_ = dbEntity;
+        findFragment_.setDatabaseEntity(dbEntity_);
+        myFragment_.setDatabaseEntity(dbEntity_);
+        rememberFragment_.setDatabaseEntity(dbEntity_);
+        syncFragment_.setDatabaseEntity(dbEntity_);
+    }
 
+    class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<Integer> mIDList = new ArrayList<>();
@@ -121,88 +100,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static final int MY_PERMISSIONS_REQUEST_CODE = 1;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    initialize();
-
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG);
-                    this.finish();
-                }
-                return;
-            }
-        }
-    }
-
     protected void initialize() {
-        Intent startIntent = new Intent(this, DatabaseService.class);
-        startService(startIntent);
-        bindService(startIntent, mConnection, BIND_AUTO_CREATE);
+        DatabaseService.bind(this, connection_);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_CODE);
-        }
-        else {
-            initialize();
-        }
-
-
-
-
-        //System.out.println("Loading");
-//        try {
-//            DB.getInstance().initialize();
-//        } catch (Exception e) {
-//            System.err.println("+++++++++++++ Error: " + e.getMessage());
-//        }
-//        try {
-//            File path = Environment.getExternalStorageDirectory();
-//            File jpPath = new File(path.getCanonicalFile() + "/JP/");
-//            File file = new File(jpPath.getCanonicalPath() + "/Dictionary.dat");
-//            if (file.exists()) {
-//                System.err.println("+++++++++++++ Exist");
-//            }
-//            else {
-//                System.err.println("+++++++++++++ None exist");
-//            }
-//        }
-//        catch (Exception e) {
-//            System.err.println("+++++++++++++ Test Error: " + e.getMessage());
-//        }
-
-
-        //System.out.println("Done");
-
-
+        initialize();
     }
 
-    private void setupMainPage() {
+    private void setupMainPage(DBEntity dbEntity) {
         findFragment_ = new FragmentFind();
         syncFragment_ = new FragmentSync();
         rememberFragment_ = new FragmentRemember();
         myFragment_ = new FragmentMy();
+
+        onDatabaseChange(dbEntity);
+
         viewPager_ = (ViewPager) findViewById(R.id.mainViewPager);
         viewPager_.setOffscreenPageLimit(4);
         bottomNavigationView_ = (BottomNavigationView) findViewById(R.id.navigation);
@@ -251,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            unbindService(mConnection);
-            DB.getInstance().persist(this);
+            unbindService(connection_);
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }

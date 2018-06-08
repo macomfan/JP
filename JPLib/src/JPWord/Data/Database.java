@@ -60,9 +60,9 @@ public class Database {
         return dictList_;
     }
 
-    public IWordDictionary loadDictionary(String dictname) {
+    public IWordDictionary loadDictionary(String dictname) throws Exception {
         if (!dictList_.contains(dictname)) {
-            return null;
+            throw new Exception("[JPLib] Failed to load the dictionary, ");
         }
         if (openedDictMap_.containsKey(dictname)) {
             return openedDictMap_.get(dictname);

@@ -18,17 +18,42 @@ public class WidgetMessage {
 
 
     public static class Action {
-        public static int NEXT = 0x01;
-        public static int PREV = 0x02;
-        public static int PASS = 0x03;
-        public static int HINT = 0x04;
-        public static int FAIL = 0x05;
+        public static final int NEXT = 0x01;
+        public static final int PREV = 0x02;
+        public static final int PASS = 0x03;
+        public static final int HINT = 0x04;
+        public static final int FAIL = 0x05;
 
-        public static int DATA = 0x07;
+        public static final int DATA = 0x07;
 
-        public static int TEST = 0xFD;
-        public static int CLOSE = 0xFE;
-        public static int HEARTBEAT = 0xFF;
+        public static final int READY = 0xFD;
+        public static final int CLOSE = 0xFE;
+        public static final int INVALID = 0xFB;
+        //public static int HEARTBEAT = 0xFF;
+
+        public static String messageToString(int message) {
+            switch (message) {
+                case NEXT:
+                    return "NEXT";
+                case PREV:
+                    return "PREV";
+                case PASS:
+                    return "PASS";
+                case HINT:
+                    return "HINT";
+                case FAIL:
+                    return "FAIL";
+                case DATA:
+                    return "DATA";
+                case READY:
+                    return "READY";
+                case CLOSE:
+                    return "CLOSE";
+                case INVALID:
+                    return "INVALID";
+            }
+            return "";
+        }
 
     }
 

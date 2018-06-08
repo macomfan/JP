@@ -22,7 +22,7 @@ public class FilterByType extends FilterTemplate {
     public FilterByType(IWordDictionary dict) {
         super.name_ = "Filter by type";
         super.shortname_ = "TYPE";
-        CandidateParams typeParam = new CandidateParams(ParamType.Mandatory, null);
+        CandidateParams typeParam = new CandidateParams(ParamType.Mandatory, "NA");
 
         for (IWord word : dict.getWords()) {
             for (IMeaning meaning : word.getMeanings()) {

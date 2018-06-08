@@ -8,41 +8,33 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.net.Uri;
-import android.opengl.Visibility;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.jpword.ma.baseui.WidgetMessage;
-import com.jpword.ma.jpword.DatabaseService;
-import com.jpword.ma.jpword.MainActivity;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import DataEngine.AppLogging;
+import DataEngine.DatabaseServiceConnection;
 
 /**
  * Created by u0151316 on 2/2/2018.
  */
 
 public class WidgetProviderMain extends AppWidgetProvider {
-    private ServiceConnection mConnection = new ServiceConnection() {
-
+    private DatabaseServiceConnection connection_ = new DatabaseServiceConnection() {
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            AppLogging.showDebug("Widget onServiceDisconnected !!!!!!");
+        public void onServiceConnected() {
+            AppLogging.showDebug(WidgetProviderMain.class, "Widget onServiceConnected");
+            mActionEngine.pushActionToService(getContext(), WidgetMessage.Action.READY);
         }
 
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            AppLogging.showDebug("Widget onServiceConnected");
+        public void onServiceDisconnected() {
+            AppLogging.showDebug(WidgetProviderMain.class, "Widget onServiceDisconnected !!!!!!");
         }
     };
 
@@ -50,7 +42,7 @@ public class WidgetProviderMain extends AppWidgetProvider {
         void onItemClick(Context context, RemoteViews remoteViews, Intent intent);
     }
 
-    class SelfActionEngine {
+    class ActionEngine {
 
         public static final String ACTION = "JPWord.WidgetProviderMain.Click";
         private static final String ToService = "ToService";
@@ -59,8 +51,7 @@ public class WidgetProviderMain extends AppWidgetProvider {
         private Map<Integer, OnItemClickListener> mMapSelfEventAction = new HashMap<>();
         private Map<Integer, Integer> mMapSimpleServiceAction = new HashMap<>();
 
-        public SelfActionEngine() {
-            AppLogging.showDebug("SelfActionEngine NEW");
+        public ActionEngine() {
         }
 
         private RemoteViews mRemoteView = null;
@@ -79,14 +70,14 @@ public class WidgetProviderMain extends AppWidgetProvider {
 
         private void beforeUpdateRemoteView(Context context) {
             mRemoteViewReferenceCount++;
-            AppLogging.showDebug(String.format("Widget beforeUpdateRemoteView %d", mRemoteViewReferenceCount));
+            AppLogging.showDebug(WidgetProviderMain.class, String.format("Widget beforeUpdateRemoteView %d", mRemoteViewReferenceCount));
             if (mRemoteView == null) {
                 mRemoteView = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
             }
         }
 
         private void finishRemoteView(Context context) {
-            AppLogging.showDebug(String.format("Widget finishRemoteView %d", mRemoteViewReferenceCount));
+            AppLogging.showDebug(WidgetProviderMain.class, String.format("Widget finishRemoteView %d", mRemoteViewReferenceCount));
             mRemoteViewReferenceCount--;
             if (mRemoteViewReferenceCount == 0) {
                 ComponentName componentName = new ComponentName(context, WidgetProviderMain.class);
@@ -103,7 +94,7 @@ public class WidgetProviderMain extends AppWidgetProvider {
                 String type = data.getAuthority();
                 if (ToService.equals(type)) {
                     String value = data.getQueryParameter("value");
-                    AppLogging.showDebug("selfaction " + value);
+                    AppLogging.showDebug(WidgetProviderMain.class, "selfaction " + value);
                     pushActionToService(context, Integer.parseInt(value));
 
                 } else if (SelfMethod.equals(type)) {
@@ -163,15 +154,12 @@ public class WidgetProviderMain extends AppWidgetProvider {
             }
             if (!serviceRunning) {
                 beforeUpdateRemoteView(context);
-                AppLogging.showDebug("Widget DatabaseService is not running !!!!!");
-                mRemoteView.setViewVisibility(R.id.widgetCheckService, View.VISIBLE);
-                mRemoteView.setViewVisibility(R.id.widgetHint, View.GONE);
-                mRemoteView.setViewVisibility(R.id.widgetMain, View.GONE);
+                AppLogging.showDebug(WidgetProviderMain.class, "Widget DatabaseService is not running !!!!!");
+                showCheckService(mRemoteView, "Service INVALID");
                 finishRemoteView(context);
-                Intent startIntent = new Intent(context, DatabaseService.class);
-                context.getApplicationContext().bindService(startIntent, mConnection, Context.BIND_AUTO_CREATE);
-            }
-            else {
+                DatabaseService.bind(context.getApplicationContext(), connection_);
+            } else {
+                AppLogging.showDebug(WidgetProviderMain.class, "Send message to service: " + WidgetMessage.Action.messageToString(action));
                 Intent actionIntent = new Intent(WidgetMessage.TO_DB_SERVICE);
                 actionIntent.putExtra(WidgetMessage.USER_ACTION, action);
                 context.sendBroadcast(actionIntent);
@@ -179,16 +167,14 @@ public class WidgetProviderMain extends AppWidgetProvider {
         }
     }
 
-    private SelfActionEngine mActionEngine = new SelfActionEngine();
+    private ActionEngine mActionEngine = new ActionEngine();
 
     public void onHintClicked(Context context, RemoteViews remoteViews, Intent intent) {
-        remoteViews.setViewVisibility(R.id.widgetMain, View.GONE);
-        remoteViews.setViewVisibility(R.id.widgetHint, View.VISIBLE);
+        showHint(remoteViews);
     }
 
     public void onBackClicked(Context context, RemoteViews remoteViews, Intent intent) {
-        remoteViews.setViewVisibility(R.id.widgetHint, View.GONE);
-        remoteViews.setViewVisibility(R.id.widgetMain, View.VISIBLE);
+        showNormal(remoteViews);
     }
 
     public void onMaintextClicked(Context context, RemoteViews remoteViews, Intent intent) {
@@ -225,18 +211,33 @@ public class WidgetProviderMain extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        AppLogging.showDebug(WidgetProviderMain.class, "onUpdate");
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-        Intent startIntent = new Intent(context, DatabaseService.class);
-        context.getApplicationContext().bindService(startIntent, mConnection, Context.BIND_AUTO_CREATE);
+        mActionEngine.pushActionToService(context, WidgetMessage.Action.READY);
         mActionEngine.refreshPendingIntent(context, appWidgetManager);
-        mActionEngine.pushActionToService(context, WidgetMessage.Action.HEARTBEAT);
     }
 
+    private void showHint(RemoteViews remoteViews) {
+        remoteViews.setViewVisibility(R.id.widgetCheckService, View.GONE);
+        remoteViews.setViewVisibility(R.id.widgetHint, View.VISIBLE);
+        remoteViews.setViewVisibility(R.id.widgetMain, View.GONE);
+    }
 
-    protected void onReceiveSendData(RemoteViews remoteViews, Intent intent) {
+    private void showCheckService(RemoteViews remoteViews, String message) {
+        remoteViews.setTextViewText(R.id.widgetCheckServiceMessage, message);
+        remoteViews.setViewVisibility(R.id.widgetCheckService, View.VISIBLE);
+        remoteViews.setViewVisibility(R.id.widgetHint, View.GONE);
+        remoteViews.setViewVisibility(R.id.widgetMain, View.GONE);
+    }
+
+    private void showNormal(RemoteViews remoteViews) {
         remoteViews.setViewVisibility(R.id.widgetCheckService, View.GONE);
         remoteViews.setViewVisibility(R.id.widgetHint, View.GONE);
         remoteViews.setViewVisibility(R.id.widgetMain, View.VISIBLE);
+    }
+
+    protected void onReceiveSendData(RemoteViews remoteViews, Intent intent) {
+        showNormal(remoteViews);
 
         int count = intent.getIntExtra(WidgetMessage.DATA_WORD_COUNT, 0);
         int index = intent.getIntExtra(WidgetMessage.DATA_CURRENT_INDEX, 0);
@@ -249,6 +250,7 @@ public class WidgetProviderMain extends AppWidgetProvider {
             } else {
                 remoteViews.setTextViewText(R.id.txtRememberMainText, kana);
             }
+
             remoteViews.setTextViewText(R.id.txtContent, context);
             remoteViews.setTextViewText(R.id.txtKana, kana);
             remoteViews.setTextViewText(R.id.txtImi, intent.getStringExtra(WidgetMessage.DATA_WORD_IMI));
@@ -287,15 +289,20 @@ public class WidgetProviderMain extends AppWidgetProvider {
                 return;
             }
             int userAction = intent.getIntExtra(WidgetMessage.USER_ACTION, -1);
+            AppLogging.showDebug(WidgetProviderMain.class, "Widget receive: " + WidgetMessage.Action.messageToString(userAction));
             if (userAction == WidgetMessage.Action.DATA) {
-                AppLogging.showDebug("Widget onRecevie DATA");
                 RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
                 onReceiveSendData(remoteViews, intent);
                 ComponentName componentName = new ComponentName(context, WidgetProviderMain.class);
                 AppWidgetManager.getInstance(context).updateAppWidget(componentName, remoteViews);
-            } else if (userAction == WidgetMessage.Action.TEST) {
-                AppLogging.showDebug("Widget onRecevie TEST");
-                mActionEngine.pushActionToService(context, WidgetMessage.Action.HEARTBEAT);
+            } else if (userAction == WidgetMessage.Action.READY) {
+
+                mActionEngine.pushActionToService(context, WidgetMessage.Action.READY);
+            } else if (userAction == WidgetMessage.Action.INVALID) {
+                RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+                showCheckService(remoteViews, "Service INVALID");
+                ComponentName componentName = new ComponentName(context, WidgetProviderMain.class);
+                AppWidgetManager.getInstance(context).updateAppWidget(componentName, remoteViews);
             }
         }
         super.onReceive(context, intent);
@@ -304,26 +311,7 @@ public class WidgetProviderMain extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
+        AppLogging.showDebug(WidgetProviderMain.class, "onDeleted");
         mActionEngine.pushActionToService(context, WidgetMessage.Action.CLOSE);
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        super.onDisabled(context);
-    }
-
-    @Override
-    public void onEnabled(Context context) {
-        super.onEnabled(context);
-    }
-
-    @Override
-    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-    }
-
-    @Override
-    public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
-        super.onRestored(context, oldWidgetIds, newWidgetIds);
     }
 }

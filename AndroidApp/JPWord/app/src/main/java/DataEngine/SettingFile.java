@@ -37,26 +37,26 @@ class SettingFile {
         }
     }
 
-    class ListTag extends Tag {
-        public List<String> value_ = new LinkedList<>();
-
-        public void read(BufferedReader reader) throws Exception {
-            int number = Integer.parseInt(reader.readLine(), 10);
-
-            for (int i = 0; i < number; i++) {
-                value_.add(reader.readLine());
-            }
-        }
-
-        public void write(BufferedWriter writer) throws Exception {
-            writer.write(Integer.toString(value_.size(), 10));
-            writer.write("\r\n");
-            for (String item : value_) {
-                writer.write(item);
-                writer.write("\r\n");
-            }
-        }
-    }
+//    class ListTag extends Tag {
+//        public List<String> value_ = new LinkedList<>();
+//
+//        public void read(BufferedReader reader) throws Exception {
+//            int number = Integer.parseInt(reader.readLine(), 10);
+//
+//            for (int i = 0; i < number; i++) {
+//                value_.add(reader.readLine());
+//            }
+//        }
+//
+//        public void write(BufferedWriter writer) throws Exception {
+//            writer.write(Integer.toString(value_.size(), 10));
+//            writer.write("\r\n");
+//            for (String item : value_) {
+//                writer.write(item);
+//                writer.write("\r\n");
+//            }
+//        }
+//    }
 
 
     private final static String TYPE_STRING = "STRING";
@@ -67,7 +67,8 @@ class SettingFile {
     private Map<String, Tag> tags_ = new HashMap<>();
 
     private Map<String, Tag> strings_ = new HashMap<>();
-    private Map<String, ListTag> lists_ = new HashMap<>();
+//    private Map<String, ListTag> lists_ = new HashMap<>();
+    private boolean needChange_ = true;
 
     public SettingFile() {
     }
@@ -87,9 +88,10 @@ class SettingFile {
                 Tag value = null;
                 if (type.equals(TYPE_STRING)) {
                     value = new StringTag();
-                } else if (type.equals(TYPE_LIST)) {
-                    value = new ListTag();
                 }
+//                else if (type.equals(TYPE_LIST)) {
+//                    value = new ListTag();
+//                }
                 if (value != null) {
                     value.type = type;
                     value.read(reader);
@@ -104,6 +106,10 @@ class SettingFile {
 
     public void save(Context context) {
         try {
+            if (!needChange_) {
+                return;
+            }
+            AppLogging.showDebug(SettingFile.class, "Saving setting.ini");
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE), CODEC));
             for (Map.Entry<String, Tag> entry : tags_.entrySet()) {
@@ -113,20 +119,21 @@ class SettingFile {
             }
             writer.flush();
             writer.close();
+            needChange_ = false;
         } catch (Exception e) {
-
+            AppLogging.showDebug(SettingFile.class, "Saving setting.ini failed");
         }
     }
 
-    public List<String> getList(String key) {
-        if (tags_.containsKey(key)) {
-            Tag value = tags_.get(key);
-            if (value.type.equals(TYPE_LIST)) {
-                return ((ListTag) value).value_;
-            }
-        }
-        return null;
-    }
+//    public List<String> getList(String key) {
+//        if (tags_.containsKey(key)) {
+//            Tag value = tags_.get(key);
+//            if (value.type.equals(TYPE_LIST)) {
+//                return ((ListTag) value).value_;
+//            }
+//        }
+//        return null;
+//    }
 
     public String getString(String key) {
         if (tags_.containsKey(key)) {
@@ -137,18 +144,31 @@ class SettingFile {
         }
         return "";
     }
+    public boolean containsKey(String key) {
+        return tags_.containsKey(key);
+    }
 
     public void setString(String key, String value) {
-        StringTag tag = new StringTag();
+        StringTag tag = null;
+        if (containsKey(key)) {
+            tag = (StringTag) tags_.get(key);
+            if (tag.value_.equals(value)) {
+                return;
+            }
+        } else {
+            tag = new StringTag();
+        }
         tag.type = TYPE_STRING;
         tag.value_ = value;
         tags_.put(key, tag);
+        AppLogging.showDebug(SettingFile.class, "Need save setting.ini");
+        needChange_ = true;
     }
 
-    public void setList(String key, List<String> value) {
-        ListTag tag = new ListTag();
-        tag.type = TYPE_LIST;
-        tag.value_ = value;
-        tags_.put(key, tag);
-    }
+//    public void setList(String key, List<String> value) {
+//        ListTag tag = new ListTag();
+//        tag.type = TYPE_LIST;
+//        tag.value_ = value;
+//        tags_.put(key, tag);
+//    }
 }

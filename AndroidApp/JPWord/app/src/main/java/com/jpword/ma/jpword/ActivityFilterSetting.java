@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.jpword.ma.baseui.DialogMultiTextSelect;
 import com.jpword.ma.baseui.DialogSingleItemSelect;
@@ -20,7 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import DataEngine.DB;
+import DataEngine.AppLogging;
+import DataEngine.DatabaseServiceConnection;
 import JPLibAssist.FilterGenerator;
 import JPLibAssist.FilterTemplate;
 import JPLibAssist.DisplaySetting;
@@ -34,13 +36,28 @@ import JPLibAssist.Filters;
 
 public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSetting {
 
+    private Filters filters_ = null;
+    private DisplaySetting displaySetting_ = null;
+
+    private DatabaseServiceConnection connection_ = new DatabaseServiceConnection() {
+        @Override
+        public void onServiceConnected() {
+            filters_ = getDatabaseOperator().getDBEntity().filters_;
+            displaySetting_ = getDatabaseOperator().getDBEntity().displaySetting_;
+        }
+
+        @Override
+        public void onServiceDisconnected() {
+
+        }
+    };
+
     public void onAdd(final int index) {
-        final Filters filter = DB.getInstance().getFilters();
         final String defParam = "";
         List<String> filterNames = new LinkedList<>();
         for (FilterTemplate template : FilterGenerator.getInstance().getTemplates()) {
             boolean found = false;
-            for (FilterEntity currentEntity : filter.getCurrentFilters()) {
+            for (FilterEntity currentEntity : filters_.getCurrentFilters()) {
                 if (template.shortname_.equals(currentEntity.filterTemplate_.shortname_)) {
                     found = true;
                 }
@@ -60,21 +77,19 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
                 if (template != null) {
                     defParam = template.candidateParams_.defaultParam_;
                 }
-                filter.addFilterByFilterTemplate(index, template, defParam);
+                filters_.addFilterByFilterTemplate(index, template, defParam);
                 refreshCurrentFilter();
             }
         });
     }
 
     public void onDelete(int index) {
-        final Filters filter = DB.getInstance().getFilters();
-        filter.removeFilter(index);
+        filters_.removeFilter(index);
         refreshCurrentFilter();
     }
 
     public void onEditParam(int index) {
-        Filters filter = DB.getInstance().getFilters();
-        final FilterEntity entity = filter.getAt(index);
+        final FilterEntity entity = filters_.getAt(index);
         FilterTemplate template = FilterGenerator.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
 
         if (template == null || template.candidateParams_.size() == 0) {
@@ -124,11 +139,10 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
 
     @Override
     protected void onRBGroupCheckedChange(RadioGroup group, @IdRes int checkedId) {
-        DisplaySetting displaySetting = DB.getInstance().getDisplaySetting();
         if (checkedId == R.id.rbDispKanji) {
-            displaySetting.setDisplayKanJi(true);
+            displaySetting_.setDisplayKanJi(true);
         } else if (checkedId == R.id.rbDispKana) {
-            displaySetting.setDisplayKanJi(false);
+            displaySetting_.setDisplayKanJi(false);
         }
     }
 
@@ -140,9 +154,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     }
 
     private void refreshCurrentFilter() {
-        DisplaySetting displaySetting = DB.getInstance().getDisplaySetting();
-        Filters filters = DB.getInstance().getFilters();
-        boolean displayKanji = displaySetting.isDisplayKanJi();
+        boolean displayKanji = displaySetting_.isDisplayKanJi();
         if (displayKanji) {
             mRBDisplayKanJi.setChecked(true);
         } else {
@@ -152,13 +164,13 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         List<String> listTitle = new LinkedList<>();
         List<String> listParam = new LinkedList<>();
         List<FilterEntity> listFilter = new LinkedList<>();
-        if (filters.getCurrentFilters().isEmpty()) {
+        if (filters_.getCurrentFilters().isEmpty()) {
             // no filter
             listTitle.add("No filter");
             listParam.add("");
             listFilter.add(null);
         } else {
-            for (FilterEntity entity : filters.getCurrentFilters()) {
+            for (FilterEntity entity : filters_.getCurrentFilters()) {
                 listTitle.add(entity.filterTemplate_.name_);
                 listParam.add("    " + entity.param_);
                 listFilter.add(entity);
@@ -186,12 +198,12 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         Map<String, Object> current = (Map<String, Object>) lvFilterListView_.getItemAtPosition(
                 ((AdapterView.AdapterContextMenuInfo) menuInfo).position
         );
-        FilterEntity entity = (FilterEntity)current.get("filter");
+        FilterEntity entity = (FilterEntity) current.get("filter");
         if (entity == null) {
             menu.add(0, 0, Menu.NONE, "Add");
         } else {
             FilterTemplate template = FilterGenerator.getInstance().getTemplateByShortname(entity.filterTemplate_.shortname_);
-            if (DB.getInstance().getFilters().getCurrentFilters().size()
+            if (filters_.getCurrentFilters().size()
                     == FilterGenerator.getInstance().getTemplates().size()) {
                 menu.add(0, 3, Menu.NONE, "Delete");
                 if (template.candidateParams_.size() != 0) {
@@ -212,10 +224,9 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo menuInfo =
                 (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Filters filter = DB.getInstance().getFilters();
         switch (item.getItemId()) {
             case 0:
-                onAdd(filter.getCurrentFilters().size());
+                onAdd(filters_.getCurrentFilters().size());
                 break;
             case 1:
                 onAdd(menuInfo.position);
@@ -234,5 +245,16 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         }
         //adapter.notifyDataSetChanged();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            AppLogging.showDebug(ActivityFilterSetting.class, "onDestroy");
+            DatabaseService.unbind(this, connection_);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }

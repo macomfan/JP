@@ -100,7 +100,7 @@ public class ActivityEdit extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.edit, menu);
+        getMenuInflater().inflate(R.menu.menu_edit, menu);
         return true;
     }
 

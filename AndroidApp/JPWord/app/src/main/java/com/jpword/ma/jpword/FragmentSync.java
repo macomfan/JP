@@ -6,12 +6,11 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.jpword.ma.baseui.ViewLogViewer;
 
-import DataEngine.DB;
+import DataEngine.DBEntity;
 import JPWord.Synchronizer.ILogging;
 import JPWord.Synchronizer.Log;
 import JPWord.Synchronizer.Method;
@@ -24,6 +23,12 @@ import JPWord.Synchronizer.Sync;
 public class FragmentSync extends com.jpword.ma.baseui.FragmentSync {
     private ILogging logging_ = null;
     private Handler mHandler = null;
+
+    private DBEntity dbEntity_ = null;
+
+    public void setDatabaseEntity(DBEntity dbEntity) {
+        dbEntity_ = dbEntity;
+    }
 
     class LogListener extends Thread {
         private Handler mHandler = null;
@@ -90,7 +95,7 @@ public class FragmentSync extends com.jpword.ma.baseui.FragmentSync {
     @Override
     protected void onbtnSaveClick(View v) {
         try {
-            DB.getInstance().getDatabase().saveToDB();
+            dbEntity_.dict_.saveToDB();
             Toast.makeText(this.getActivity(), "Save completed", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this.getActivity(), "Error:" + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -101,9 +106,9 @@ public class FragmentSync extends com.jpword.ma.baseui.FragmentSync {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        int count = DB.getInstance().getDatabase().getWords().size();
+        int count = dbEntity_.dict_.getWords().size();
         txtTotalCount_.setText(Integer.toString(count, 10));
-        mTvDatabase.setText(DB.getInstance().getDatabase().getName());
+        mTvDatabase.setText(dbEntity_.dict_.getName());
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {

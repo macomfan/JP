@@ -37,10 +37,10 @@ import static org.junit.Assert.*;
 public class ExampleInstrumentedTest {
     @Test
     public void test_000_InitDB() throws Exception {
-        File file = new File(InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath() + "//TEST.db");
+        File file = new File(InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath() + "//READY.db");
         file.delete();
 
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -79,10 +79,10 @@ public class ExampleInstrumentedTest {
     public void test_030_DBAddData() throws Exception {
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
-        Database.getInstance().deleteDictionary("TEST");
+        Database.getInstance().deleteDictionary("READY");
         assertEquals(Database.getInstance().getDictList().size(), 0);
 
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -106,7 +106,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_040_CheckeAddedData() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -127,7 +127,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_050_UpdateExistData() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -158,7 +158,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_060_CheckUpdatedData() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -187,7 +187,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_070_AddMoreDataForFurtherTest() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -208,7 +208,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_080_FilterSoftByNumber() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -241,7 +241,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_090_Shuffle() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -304,7 +304,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_100_FilterSoftByText() throws Exception {
-        String Test_DB_Name = "TEST";
+        String Test_DB_Name = "READY";
         Database.getInstance().initialize(
                 InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath(), new Android_SQLEngine());
         IWordDictionary dict = Database.getInstance().loadDictionary(Test_DB_Name);
@@ -453,7 +453,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_999_DeleteTemp() throws Exception {
-        File file = new File(InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath() + "//TEST.db");
+        File file = new File(InstrumentationRegistry.getTargetContext().getFilesDir().getCanonicalPath() + "//READY.db");
         file.delete();
     }
 }

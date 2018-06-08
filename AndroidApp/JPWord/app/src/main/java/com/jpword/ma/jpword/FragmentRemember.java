@@ -14,9 +14,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import DataEngine.DB;
+import DataEngine.DBEntity;
 import JPWord.Data.IWord;
-import JPWord.Data.IWordDictionary;
 import JPLibAssist.Filters;
 import JPLibAssist.FilterEntity;
 
@@ -27,15 +26,21 @@ import JPLibAssist.FilterEntity;
 public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     private IWord currentWord_ = null;
 
+    private DBEntity dbEntity_ = null;
+
+    public void setDatabaseEntity(DBEntity dbEntity) {
+        dbEntity_ = dbEntity;
+    }
+
     @Override
     protected void onbtnNextClicked(View v) {
-        currentWord_ = DB.getInstance().getWordSequence().next();
+        currentWord_ = dbEntity_.wordSequence_.next();
         displayWord();
     }
 
     @Override
     protected void onbtnPrevClicked(View v) {
-        currentWord_ = DB.getInstance().getWordSequence().prev();
+        currentWord_ = dbEntity_.wordSequence_.prev();
         displayWord();
     }
 
@@ -88,7 +93,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     protected void onbtnPassClicked(View v) {
         if (currentWord_ != null) {
             currentWord_.increaseSkill();
-            currentWord_ = DB.getInstance().getWordSequence().next();
+            currentWord_ = dbEntity_.wordSequence_.next();
             displayWord();
         }
     }
@@ -97,15 +102,15 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     protected void onbtnFailClicked(View v) {
         if (currentWord_ != null) {
             currentWord_.updateSkill(-5);
-            currentWord_ = DB.getInstance().getWordSequence().next();
+            currentWord_ = dbEntity_.wordSequence_.next();
             displayWord();
         }
     }
 
     @Override
     protected void onbtRefreshClicked(View v) {
-        DB.getInstance().getWordSequence().reSort(DB.getInstance().getFilters());
-        currentWord_ = DB.getInstance().getWordSequence().current();
+        dbEntity_.wordSequence_.reSort(dbEntity_.filters_);
+        currentWord_ = dbEntity_.wordSequence_.current();
         displayWord();
         Toast.makeText(getActivity(), "Refresh done", Toast.LENGTH_SHORT).show();
     }
@@ -117,7 +122,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
         if (imm.isActive()) {
             imm.hideSoftInputFromWindow(this.getView().getApplicationWindowToken(), 0);
         }
-        currentWord_ = DB.getInstance().getWordSequence().current();
+        currentWord_ = dbEntity_.wordSequence_.current();
         displayWord();
         refreshFilterDisplay();
     }
@@ -126,7 +131,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        currentWord_ = DB.getInstance().getWordSequence().current();
+        currentWord_ = dbEntity_.wordSequence_.current();
         displayWord();
         refreshFilterDisplay();
         return v;
@@ -154,7 +159,7 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     }
 
     private void refreshFilterDisplay() {
-        Filters filter = DB.getInstance().getFilters();
+        Filters filter = dbEntity_.filters_;
         int i = 0;
         for (FilterEntity entity : filter.getCurrentFilters()) {
             mTxtFilterList.get(i).setVisibility(View.VISIBLE);
@@ -172,14 +177,14 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
     }
 
     private void displayWord() {
-        boolean displayKanJi = DB.getInstance().getDisplaySetting().isDisplayKanJi();
-        progbar_.setMax(DB.getInstance().getWordSequence().count());
-        if (DB.getInstance().getWordSequence().getCurrentIndex() == -1) {
+        boolean displayKanJi = dbEntity_.displaySetting_.isDisplayKanJi();
+        progbar_.setMax(dbEntity_.wordSequence_.count());
+        if (dbEntity_.wordSequence_.getCurrentIndex() == -1) {
             btnPrev_.setEnabled(false);
         } else {
             btnPrev_.setEnabled(true);
         }
-        if (DB.getInstance().getWordSequence().getCurrentIndex() == DB.getInstance().getWordSequence().count()) {
+        if (dbEntity_.wordSequence_.getCurrentIndex() == dbEntity_.wordSequence_.count()) {
             btnNext_.setEnabled(false);
         } else {
             btnNext_.setEnabled(true);
@@ -207,10 +212,10 @@ public class FragmentRemember extends com.jpword.ma.baseui.FragmentRemember {
             txtRememberMainText_.setText(currentWord_.getKana());
         }
 
-        if (DB.getInstance().getWordSequence().getCurrentIndex() < progbar_.getMax())
-            progbar_.setProgress(DB.getInstance().getWordSequence().getCurrentIndex() + 1);
+        if (dbEntity_.wordSequence_.getCurrentIndex() < progbar_.getMax())
+            progbar_.setProgress(dbEntity_.wordSequence_.getCurrentIndex() + 1);
 
-        txtCount_.setText(String.format("%d / %d", DB.getInstance().getWordSequence().getCurrentIndex() + 1, DB.getInstance().getWordSequence().count()));
+        txtCount_.setText(String.format("%d / %d", dbEntity_.wordSequence_.getCurrentIndex() + 1, dbEntity_.wordSequence_.count()));
         txtSkill_.setText(Integer.toString(currentWord_.getSkill(), 10));
 
         txtRD_.setText(currentWord_.getReviewDate());

@@ -5,12 +5,16 @@ import android.text.Editable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import DataEngine.DB;
+import DataEngine.AppLogging;
+import DataEngine.DBEntity;
+import DataEngine.DatabaseServiceConnection;
+import DataEngine.IDatabaseChangeListener;
 import JPWord.Data.IExample;
 import JPWord.Data.IMeaning;
 import JPWord.Data.IRoma;
@@ -21,8 +25,27 @@ import JPWord.Data.Yin50;
  * Created by u0151316 on 12/21/2017.
  */
 
-public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit {
+public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit implements IDatabaseChangeListener {
     private IWord currentWord_ = null;
+    private DBEntity dbEntity_ = null;
+
+    private DatabaseServiceConnection connection_ = new DatabaseServiceConnection() {
+        @Override
+        public void onServiceConnected() {
+            AppLogging.showDebug(ActivityEdit.class, "onServiceConnected");
+            dbEntity_ = getDatabaseOperator().getDBEntity();
+        }
+
+        @Override
+        public void onServiceDisconnected() {
+
+        }
+    };
+
+    @Override
+    public void onDatabaseChange(DBEntity dbEntity) {
+        dbEntity_ = dbEntity;
+    }
 
     @Override
     protected boolean onMenuItemClick(MenuItem item) {
@@ -60,7 +83,7 @@ public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit {
 ////            for (IMeaning mean : means) {
 ////                System.err.println("MMM: " + mean.encodeToString());
 ////            }
-            DB.getInstance().getDatabase().addWord(currentWord_);
+            dbEntity_.dict_.addWord(currentWord_);
 //            refreshMainTable(currentWord_);
         }
     }
@@ -73,11 +96,11 @@ public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit {
         if (idString.equals("")) {
             return;
         } else if (idString.equals("NEW")) {
-            currentWord_ = DB.getInstance().getDatabase().createWord();
+            currentWord_ = dbEntity_.dict_.createWord();
             bindCurrentWord();
             setEditMode(true);
         } else {
-            currentWord_ = DB.getInstance().getDatabase().getWord(idString);
+            currentWord_ = dbEntity_.dict_.getWord(idString);
             bindCurrentWord();
             setEditMode(false);
         }
@@ -158,5 +181,16 @@ public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit {
 //            changed = true;
         }
         return changed;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            AppLogging.showDebug(ActivityEdit.class, "onDestroy");
+            DatabaseService.unbind(this, connection_);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }

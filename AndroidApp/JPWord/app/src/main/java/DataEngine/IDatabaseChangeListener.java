@@ -5,4 +5,5 @@ package DataEngine;
  */
 
 public interface IDatabaseChangeListener {
+    void onDatabaseChange(DBEntity dbEntity);
 }

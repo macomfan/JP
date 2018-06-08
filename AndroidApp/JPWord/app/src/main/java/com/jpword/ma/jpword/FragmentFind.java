@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import DataEngine.DB;
+import DataEngine.DBEntity;
+import DataEngine.IDatabaseChangeListener;
 import JPWord.Data.IMeaning;
 import JPWord.Data.IWord;
 import JPWord.Data.IWordDictionary;
@@ -30,6 +31,11 @@ public class FragmentFind extends com.jpword.ma.baseui.FragmentFind {
 
     private String txt = "";
     private SearchMode mSearchMode = SearchMode.SEARCH_BY_KANA;
+    private DBEntity dbEntity_ = null;
+
+    public void setDatabaseEntity(DBEntity dbEntity) {
+        dbEntity_ = dbEntity;
+    }
 
     @Override
     protected boolean onsvSearchInputQueryTextSubmit(String query) {
@@ -95,8 +101,11 @@ public class FragmentFind extends com.jpword.ma.baseui.FragmentFind {
     }
 
     private void refreshMainListView(String searchString) {
+        if (dbEntity_ == null) {
+            return;
+        }
         ArrayList<Map<String, Object>> data = new ArrayList<>();
-        IWordDictionary db = DB.getInstance().getDatabase();
+        IWordDictionary db = dbEntity_.dict_;
         for (IWord word : db.getWords()) {
             if (searchString != null && searchString.equals("*")) {
                 addWordToRow(word, data);

@@ -14,8 +14,8 @@ public class AppLogging {
         //System.out.print("[JPWord] " + log);
     }
 
-    public static void showDebug(String log) {
-        Log.d(LOGTAG, log);
-        //System.out.print("[JPWord] " + log);
+    public static void showDebug(Class<?> cls , String log) {
+        Log.d(LOGTAG, cls.getSimpleName() + ": " + log);
+        //System.out.print("[JPWord] " + classname + log);
     }
 }
