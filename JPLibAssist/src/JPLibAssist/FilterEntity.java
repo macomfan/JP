@@ -5,7 +5,6 @@
  */
 package JPLibAssist;
 
-import JPLibAssist.FilterTemplate;
 import JPWord.Data.Filter.IItemFilter;
 
 /**

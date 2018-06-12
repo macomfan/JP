@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements IDatabaseChangeLi
     protected void onDestroy() {
         super.onDestroy();
         try {
+            dbEntity_.dict_.saveToDB();
             unbindService(connection_);
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

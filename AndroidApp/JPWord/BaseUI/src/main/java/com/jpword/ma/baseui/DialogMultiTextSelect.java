@@ -33,10 +33,12 @@ public class DialogMultiTextSelect implements IMyDialog {
     public DialogMultiTextSelect(String mTitle, List<String> mItems, String current) {
         this.mItems = mItems;
         this.mTitle = mTitle;
-        String[] split = current.split("\\,");
-        for (String c : split) {
-            if (!c.isEmpty()) {
-                mResult.add(c);
+        if (!current.equals("N/A")) {
+            String[] split = current.split("\\,");
+            for (String c : split) {
+                if (!c.isEmpty()) {
+                    mResult.add(c);
+                }
             }
         }
     }

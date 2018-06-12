@@ -24,13 +24,17 @@ class Job_RebaseSend extends Job_Base {
 
     @Override
     public JobResult start() {
-        dict_ = Database.getInstance().loadDictionary(dictName_);
-        if (dict_ == null) {
-            Message reason = new Message(Message.MSG_FIN);
-            reason.addTag(Constant.REASON, "Cannot find dict name");
-            sendMessage(reason);
-            return JobResult.FAIL;
+        try {
+            dict_ = Database.getInstance().loadDictionary(dictName_);
+            if (dict_ == null) {
+                Message reason = new Message(Message.MSG_FIN);
+                reason.addTag(Constant.REASON, "Cannot find dict name");
+                sendMessage(reason);
+                return JobResult.FAIL;
+            }
+        } catch (Exception e) {
         }
+
         Message numberMsg = new Message(Message.MSG_SYN);
         String number = Integer.toString(dict_.getWords().size(), 10);
         numberMsg.addTag(Constant.NUMBER, number);
@@ -46,7 +50,7 @@ class Job_RebaseSend extends Job_Base {
             int logindex = 0;
             for (IWord word : dict_.getWords()) {
                 Message data = new Message(Message.MSG_DAT);
-                IWordCodec codec = (IWordCodec)word;
+                IWordCodec codec = (IWordCodec) word;
                 byte[] bytes = codec.encodeToBytes();
                 data.setValue(bytes);
                 sendMessage(data);

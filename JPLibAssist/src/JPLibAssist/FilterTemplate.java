@@ -76,6 +76,9 @@ abstract public class FilterTemplate {
             }
             return new LinkedList<>();
         }
+        else if (params.equals("N/A")) {
+            return new LinkedList<>();
+        }
         String paramItems[] = params.split("\\,");
         if (candidateParams_ != null) {
             if (candidateParams_.type_ == ParamType.SignleSelect

@@ -26,13 +26,17 @@ public class Job_OverlapReceive extends Job_Base {
 
     @Override
     public JobResult start() {
-        dict_ = Database.getInstance().loadDictionary(dictName_);
-        if (dict_ == null) {
-            Message reason = new Message(Message.MSG_FIN);
-            reason.addTag(Constant.REASON, "Cannot find dict name");
-            sendMessage(reason);
-            return JobResult.FAIL;
+        try {
+            dict_ = Database.getInstance().loadDictionary(dictName_);
+            if (dict_ == null) {
+                Message reason = new Message(Message.MSG_FIN);
+                reason.addTag(Constant.REASON, "Cannot find dict name");
+                sendMessage(reason);
+                return JobResult.FAIL;
+            }
+        } catch (Exception e) {
         }
+
         return JobResult.SUCCESS;
     }
 

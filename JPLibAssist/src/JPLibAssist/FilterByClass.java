@@ -23,7 +23,7 @@ public class FilterByClass extends FilterTemplate {
     public FilterByClass(IWordDictionary dict) {
         super.name_ = "Filter by class";
         super.shortname_ = "CLS";
-        CandidateParams clsParam = new CandidateParams(ParamType.Mandatory, "0");
+        CandidateParams clsParam = new CandidateParams(ParamType.Mandatory, "N/A");
 
         for (IWord word : dict.getWords()) {
             String clsString = Integer.toString(word.getCls());

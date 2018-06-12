@@ -44,6 +44,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
         public void onServiceConnected() {
             filters_ = getDatabaseOperator().getDBEntity().filters_;
             displaySetting_ = getDatabaseOperator().getDBEntity().displaySetting_;
+            refreshCurrentFilter();
         }
 
         @Override
@@ -53,7 +54,6 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     };
 
     public void onAdd(final int index) {
-        final String defParam = "";
         List<String> filterNames = new LinkedList<>();
         for (FilterTemplate template : FilterGenerator.getInstance().getTemplates()) {
             boolean found = false;
@@ -82,6 +82,8 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
             }
         });
     }
+
+
 
     public void onDelete(int index) {
         filters_.removeFilter(index);
@@ -150,7 +152,7 @@ public class ActivityFilterSetting extends com.jpword.ma.baseui.ActivityFilterSe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         registerForContextMenu(lvFilterListView_);
-        refreshCurrentFilter();
+        DatabaseService.bind(this, connection_);
     }
 
     private void refreshCurrentFilter() {

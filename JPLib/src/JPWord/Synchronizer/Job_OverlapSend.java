@@ -25,13 +25,17 @@ public class Job_OverlapSend extends Job_Base {
 
     @Override
     public JobResult start() {
-        dict_ = Database.getInstance().loadDictionary(dictName_);
-        if (dict_ == null) {
-            Message reason = new Message(Message.MSG_FIN);
-            reason.addTag(Constant.REASON, "Cannot find dict name");
-            sendMessage(reason);
-            return JobResult.FAIL;
+        try {
+            dict_ = Database.getInstance().loadDictionary(dictName_);
+            if (dict_ == null) {
+                Message reason = new Message(Message.MSG_FIN);
+                reason.addTag(Constant.REASON, "Cannot find dict name");
+                sendMessage(reason);
+                return JobResult.FAIL;
+            }
+        } catch (Exception e) {
         }
+
         sendDataSummary(dict_);
         return JobResult.SUCCESS;
     }
@@ -59,8 +63,7 @@ public class Job_OverlapSend extends Job_Base {
             if (orgWord == null) {
                 logging_.push(Log.Type.WARNING, "Cannot find word: " + word.getContent());
                 dict_.addWord(word);
-            }
-            else {
+            } else {
                 orgWord.getMeanings().clear();
                 for (IMeaning meaning : word.getMeanings()) {
                     orgWord.addMeaning(meaning);

@@ -34,6 +34,18 @@ public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit implements I
         public void onServiceConnected() {
             AppLogging.showDebug(ActivityEdit.class, "onServiceConnected");
             dbEntity_ = getDatabaseOperator().getDBEntity();
+            String idString = ActivityEdit.this.getIntent().getStringExtra("ID");
+            if (idString.equals("")) {
+                return;
+            } else if (idString.equals("NEW")) {
+                currentWord_ = dbEntity_.dict_.createWord();
+                bindCurrentWord();
+                setEditMode(true);
+            } else {
+                currentWord_ = dbEntity_.dict_.getWord(idString);
+                bindCurrentWord();
+                setEditMode(false);
+            }
         }
 
         @Override
@@ -91,19 +103,7 @@ public class ActivityEdit extends com.jpword.ma.baseui.ActivityEdit implements I
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        String idString = this.getIntent().getStringExtra("ID");
-        if (idString.equals("")) {
-            return;
-        } else if (idString.equals("NEW")) {
-            currentWord_ = dbEntity_.dict_.createWord();
-            bindCurrentWord();
-            setEditMode(true);
-        } else {
-            currentWord_ = dbEntity_.dict_.getWord(idString);
-            bindCurrentWord();
-            setEditMode(false);
-        }
+        DatabaseService.bind(this, connection_);
     }
 
     private void setEditMode(boolean editMode) {

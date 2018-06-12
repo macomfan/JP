@@ -38,7 +38,11 @@ public class Database {
     private void initialize() {
         rootFolder_ = SettingFile.getInstance().getRootFolder();
         JPWord.Data.Database.getInstance().initialize(rootFolder_, new JDBC_SQLEngine());
-        dictionary_ = JPWord.Data.Database.getInstance().loadDictionary(currentDictname_);
+        try {
+            dictionary_ = JPWord.Data.Database.getInstance().loadDictionary(currentDictname_);
+        } catch (Exception e) {
+        }
+        
         try {
             //dictionary_.load();
         } catch (Exception e) {
