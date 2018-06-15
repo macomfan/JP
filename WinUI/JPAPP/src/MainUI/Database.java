@@ -9,6 +9,7 @@ import JPWord.Data.IWordDictionary;
 import SqliteEngine_JDBC.JDBC_SQLEngine;
 import JPLibAssist.Filters;
 import JPLibAssist.WordSequence;
+import JPLibAssist.WordStatistics;
 
 /**
  *
@@ -21,6 +22,7 @@ public class Database {
     private String rootFolder_ = "";
     private String currentDictname_ = "JP_TEST";
     private WordSequence wordSequence_ = null;
+    private WordStatistics wordStatistics_ = null;
     private Filters filters_ = null;
 
     private Database() {
@@ -48,9 +50,11 @@ public class Database {
         } catch (Exception e) {
         }
         wordSequence_ = new WordSequence(dictionary_);
+        wordStatistics_ = new WordStatistics(dictionary_);
         filters_ = new Filters(dictionary_);
         filters_.readFromSetting();
         wordSequence_.readFromSetting();
+        
     }
 
     public WordSequence getWordSequence() {
